@@ -1,0 +1,17 @@
+Version 1.0
+[+] Create projects
+[+] Create tasks
+
+Version 1.1
+[+] Added short tag [project]
+
+Version 1.2
+[+] Quick-tasks dashboard widget
+[+] Tasks at-a-glance dashboard widget
+[+] Uninstall option
+[+] [pm-project] short code
+[+] [pm-bug-report] short code
+[U] jQuery library
+[U] jQuery widget UI
+[U] [pm-project] interface
+[D] Depreciated [project] short code
