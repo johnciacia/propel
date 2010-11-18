@@ -13,7 +13,7 @@ This plugin enables you to manage your projects from the
 WordPress interface you are already comfortable with. Easily
 create and track the progress of projects and tasks.
 
-If you are having issues with this plugin you may submit a comment <a href="http://www.johnciacia.com/propel/">here</a> below or ask on the <a href="http://wordpress.org/tags/propel">WordPress forum</a>.
+If you are having issues with this plugin you may submit a comment <a href="http://www.johnciacia.com/propel/">here</a> or ask on the <a href="http://wordpress.org/tags/propel">WordPress forum</a>.
 
 == Installation ==
 
