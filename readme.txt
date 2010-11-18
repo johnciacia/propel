@@ -23,4 +23,4 @@ If you are having issues with this plugin you may submit a comment <a href="http
 
 == Frequently Asked Questions ==
 =How do I display a projects status in a page?=
-You can use the [pl-projects] short code in any page or post to show the status of all your current projects. You can show the status of an individual project by using [ pl-projects=x] where x is the id of the project.
+You can use the [pl-projects] short code in any page or post to show the status of all your current projects. You can show the status of an individual project by using [pl-projects id=x] where x is the id of the project.
