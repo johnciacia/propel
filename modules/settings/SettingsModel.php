@@ -18,6 +18,9 @@ class SettingsModel
 		} 
 
 		$path = TEMPLATEPATH . '\propel';
+		if(!file_exists($path))
+			return $r;
+		
 		if ($handle = opendir($path)) {
 		    while (false !== ($file = readdir($handle))) {
 		    	if($file == "." || $file == "..")
@@ -38,9 +41,11 @@ class SettingsModel
 		if ($handle = opendir($path)) {
 		    while (false !== ($file = readdir($handle))) {
 	        	$p = pathinfo($file);
-	        	if($p['extension'] == "css") {
-	        		closedir($handle);
-	        		return $file;
+	        	if(isset($p['extension'])) {
+		        	if($p['extension'] == "css") {
+		        		closedir($handle);
+		        		return $file;
+		        	}
 	        	}
 		    }
 		
