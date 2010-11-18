@@ -19,7 +19,15 @@ If you are having issues with this plugin you may submit a comment <a href="http
 
 1. Download propel.zip and unzip it.
 2. Upload the plugin folder to wp-content/plugins/ and activate from the Plugin administrative menu.
-3. If you are upgrading from version 1.1, after you have loaded the new files. You must deactivate the plugin and then activate the plugin for the new database changes to take effect.
+
+== Screenshots ==
+1. Front-end interface displaying one project. This is done  using [pl-projects id=x]. To display all your projects use [pl-projects]
+2. Quickly see important events from your WordPress dashboard
+3. Create a project
+4. Create a task
+5. Quickly add tasks from your WordPress dashboard
+6. Back-end tasks list
+7. Back-end projects list
 
 == Frequently Asked Questions ==
 = How do I display a projects status in a page? =
