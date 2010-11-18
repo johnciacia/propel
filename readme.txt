@@ -22,5 +22,5 @@ If you are having issues with this plugin you may submit a comment <a href="http
 3. If you are upgrading from version 1.1, after you have loaded the new files. You must deactivate the plugin and then activate the plugin for the new database changes to take effect.
 
 == Frequently Asked Questions ==
-=How do I display a projects status in a page?=
+= How do I display a projects status in a page? =
 You can use the [pl-projects] short code in any page or post to show the status of all your current projects. You can show the status of an individual project by using [pl-projects id=x] where x is the id of the project.
