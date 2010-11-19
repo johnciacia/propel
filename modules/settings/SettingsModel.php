@@ -6,7 +6,6 @@ class SettingsModel
     public function getTemplates()
     {
 		$path = WP_PLUGIN_DIR . '/propel/themes';
-		$path = realpath($path);
 		
 		if ($handle = opendir($path)) {
 		    while (false !== ($file = readdir($handle))) {
