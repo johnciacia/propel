@@ -6,6 +6,8 @@ class SettingsModel
     public function getTemplates()
     {
 		$path = WP_PLUGIN_DIR . '\propel\themes';
+		$path = realpath($path);
+		
 		if ($handle = opendir($path)) {
 		    while (false !== ($file = readdir($handle))) {
 		    	if($file == "." || $file == "..")
@@ -18,6 +20,8 @@ class SettingsModel
 		} 
 
 		$path = TEMPLATEPATH . '\propel';
+		$path = realpath($path);
+		
 		if(!file_exists($path))
 			return $r;
 		
