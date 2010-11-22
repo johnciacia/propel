@@ -2,7 +2,7 @@
 
 class SettingsController extends PropelController
 {
-    public function SettingsController ()
+    public function load ()
     {
 		require_once("SettingsModel.php");
 		$this->model = new SettingsModel();

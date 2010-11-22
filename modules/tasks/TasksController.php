@@ -3,7 +3,7 @@
 class TasksController
 {
 
-	public function __construct ()
+	public function load ()
 	{
 		require_once("TasksModel.php");
 		$this->model = new TasksModel();

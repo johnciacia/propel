@@ -3,7 +3,7 @@
 class ProjectsController extends PropelController
 {
 
-	public function __construct()
+	public function load ()
 	{
 		require_once("ProjectsModel.php");
 		$this->model = new ProjectsModel();

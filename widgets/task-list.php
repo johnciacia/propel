@@ -23,19 +23,19 @@
 			</div>
 			<?php 
 				$script .= '
-            		$("#pm-task-' . $task->id . '").mouseover(function() {
-            			$("#progress-'.$task->id.'").show();
-            			$("#description-'.$task->id.'").show();
+            		jQuery("#pm-task-' . $task->id . '").mouseover(function() {
+            			jQuery("#progress-'.$task->id.'").show();
+            			jQuery("#description-'.$task->id.'").show();
             		});
             		
-             		$("#pm-task-' . $task->id . '").mouseout(function() {
-            			$("#progress-'.$task->id.'").hide();
-            			$("#description-'.$task->id.'").hide();
+             		jQuery("#pm-task-' . $task->id . '").mouseout(function() {
+            			jQuery("#progress-'.$task->id.'").hide();
+            			jQuery("#description-'.$task->id.'").hide();
             		});
             		
-            		$("#description-'.$task->id.'").hide();
-            		$("#progress-'.$task->id.'").hide();
-					$("#progress-'.$task->id.'").progressbar({value: '.$task->complete.'});';	
+            		jQuery("#description-'.$task->id.'").hide();
+            		jQuery("#progress-'.$task->id.'").hide();
+					jQuery("#progress-'.$task->id.'").progressbar({value: '.$task->complete.'});';	
 			?>
 		</td>
 		<td>

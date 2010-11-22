@@ -17,13 +17,13 @@
             foreach($tasks[$project->title] as $task) {
             	$script .= '
             		jQuery("#pm-row-' . $task->id . '").mouseover(function() {
-            			$("#progress-'.$id.'-'.$task->id.'").hide();
-            			$("#description-'.$id.'-'.$task->id.'").show();
+            			jQuery("#progress-'.$id.'-'.$task->id.'").hide();
+            			jQuery("#description-'.$id.'-'.$task->id.'").show();
             		});
             		
              		jQuery("#pm-row-' . $task->id . '").mouseout(function() {
-            			$("#progress-'.$id.'-'.$task->id.'").show();
-            			$("#description-'.$id.'-'.$task->id.'").hide();
+            			jQuery("#progress-'.$id.'-'.$task->id.'").show();
+            			jQuery("#description-'.$id.'-'.$task->id.'").hide();
             		});           		
             		
             		jQuery("#description-'.$id.'-'.$task->id.'").hide();

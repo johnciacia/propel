@@ -4,7 +4,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 1.5.3
+Version: 1.5.4
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -44,13 +44,13 @@ $propel = new Propel();
  */
 add_action('init', array($propel, 'init'));
 /**
- * @see Propel::dashboard_widgets()
- */
-add_action('wp_dashboard_setup', array($propel , 'dashboard_widgets'));
-/**
  * @see Propel::admin_menu()
  */
 add_action('admin_menu', array($propel , 'admin_menu'));
+/**
+ * @see Propel::dashboard_widgets()
+ */
+add_action('wp_dashboard_setup', array($propel , 'dashboard_widgets'));
 /**
  * @see Propel::ajax()
  */
@@ -59,6 +59,10 @@ add_action('wp_ajax_quick-task', array($propel , 'ajax'));
  * @see Propel::ajax()
  */
 add_action('wp_ajax_task-glance', array($propel , 'ajax'));
+/**
+ * @see Propel::on_screen_layout_columns() 
+ */
+add_filter('screen_layout_columns', array(&$propel, 'set_columns'), 10, 2);
 /**
  * @since 1.1
  * @depreciated 1.2
@@ -84,58 +88,72 @@ register_activation_hook(__FILE__, array($propel , 'install'));
  * @see http://codex.wordpress.org/Writing_a_Plugin
  */
 class Propel
-{
+{	
     /**
      * @see http://codex.wordpress.org/Function_Reference/add_action
      * @since 1.0
      */
     public function admin_menu ()
     {
+    	
         $propel = new PropelController();
         add_menu_page('Propel', 'Propel', 'manage_options', 'propel', array(&$propel , 'propel'));
-        add_submenu_page('propel', 'Overview', 'Overview', 'manage_options', 'propel-overview', array(&$propel , 'overview'));
+//        add_submenu_page('propel', 'Dashboard', "Dashboard", 'manage_options', 'propel-dashboard', array(&$propel, 'dashboard'));
         add_submenu_page('propel', 'Projects', 'Projects', 'manage_options', 'propel-projects', array(&$propel , 'projects'));
         add_submenu_page('propel', 'Tasks', 'Tasks', 'manage_options', 'propel-tasks', array(&$propel , 'tasks'));
         //add_submenu_page('propel', 'Files', 'Files', 'manage_options', 'propel-files', array(&$propel , 'files'));
         add_submenu_page('propel', 'Settings', 'Settings', 'manage_options', 'propel-settings', array(&$propel , 'settings'));
+        
+		add_action('load-toplevel_page_propel', array(&$propel, 'on_load_info'));
+//		add_action('load-propel_page_propel-dashboard', array(&$propel, 'on_load_dashboard'));
     }
 
     /**
      * Initialize CSS and JavaScript
+     * @TODO: Only load the JavaScript when necessary
      * @see http://codex.wordpress.org/Function_Reference/wp_enqueue_style
      * @see http://codex.wordpress.org/Function_Reference/wp_enqueue_script
      * @since 1.1
      */
     public function init ()
-    {    	
-		wp_register_style("propel_theme", get_option('propel_theme'));
-		wp_enqueue_style("propel_theme");
-
-    	$styles = array("/propel/style.css");
-
-    	$scripts = array("/propel/js/jquery-1.4.2.min.js",
-    					 "/propel/js/jquery-ui-1.7.3.custom.min.js",  
-    					 "/propel/js/functions.js");
+    { 
+		wp_register_script('propel_script_1', WP_PLUGIN_URL . '/propel/js/jquery-ui.js');
+		wp_register_script('propel_script_2', WP_PLUGIN_URL . '/propel/js/functions.js');
     	
- 		for($i = 0; $i < count($styles); $i++) {
-			$url = WP_PLUGIN_URL . $styles[$i];
-			$file = WP_PLUGIN_DIR . $styles[$i];
-			if (file_exists($file)) {
-				wp_register_style('propel_style_' . $i, $url);
-				wp_enqueue_style('propel_style_' . $i);
-			}   	
- 		}
-    	
-     	for($i = 0; $i < count($scripts); $i++) {
-			$url = WP_PLUGIN_URL . $scripts[$i];
-			$file = WP_PLUGIN_DIR . $scripts[$i];
-			if (file_exists($file)) {
-				wp_register_script('propel_script_' . $i, $url);
-				wp_enqueue_script('propel_script_' . $i);
-			}   	
- 		}   	
+		wp_enqueue_script('common');
+		wp_enqueue_script('wp-lists');
+		wp_enqueue_script('postbox');
+		wp_enqueue_script('jquery');
+		wp_enqueue_script('jquery-ui-core');
+		wp_enqueue_script('jquery-ui-tabs');
+		wp_enqueue_script('propel_script_1');
+		wp_enqueue_script('propel_script_2');
+						
+
+		wp_register_style("propel_style_1", get_option('propel_theme'));
+		wp_register_style('propel_style_2', WP_PLUGIN_URL . '/propel/style.css');				
+
+		wp_enqueue_style('propel_style_1');
+		wp_enqueue_style('propel_style_2');
     }
-    
+
+    /**
+     * @since 1.5.4
+     * @TODO: If you change the 'Number of Columns' on the Screen Options tab that value does not persist when the page reloads
+     * @TODO: If you disable a widget, those settings do not persist either.
+     */
+//	private $pagehook = "toplevel_page_propel";
+//	private $pagehook = "propel_page_propel-dashboard";
+	function set_columns($columns, $screen) {
+		if ($screen == $this->pagehook) {
+			$columns[$this->pagehook] = 2;
+		}
+		
+		$columns['toplevel_page_propel'] = 2;
+		$columns['propel_page_propel-dashboard'] = 2;
+		return $columns;
+	}
+	
     /**
      * Initialize dashboard widgets
      * @see http://codex.wordpress.org/Dashboard_Widgets_API

@@ -2,23 +2,40 @@
 
 class PropelController
 {
-
+	/**
+	 * @since 1.5.4
+	 * @version 1.0
+	 */
+	public function on_load_info() 
+	{
+        $this->loadMetabox('info');
+	}
+	
+	/**
+	 * @since 1.5.4
+	 * @version 1.0
+	 */	
+	public function on_load_dashboard() 
+	{
+		$this->loadMetabox('dashboard');
+	}
+	
 	/**
 	 * @since 1.3
 	 * @version 1.0
 	 */
     public function propel ()
     {
-    	$this->loadModule('info');
+       $this->loadModule('info');  
     }
 
 	/**
-	 * @since 1.0
-	 * @version 1.3
+	 * @since 1.5
+	 * @version 1.0
 	 */
-    public function overview ()
+    public function dashboard ()
     {   
-       $this->loadModule('overview');
+       $this->loadModule('dashboard');
     }
 
     /**
@@ -46,7 +63,6 @@ class PropelController
 	 */
     public function files()
     {
-
        	$this->loadModule('files');
     }
 
@@ -72,12 +88,28 @@ class PropelController
         echo '<h2>' . $title . '</h2>';
         
     	require_once ("modules/" . strtolower($module) . "/" . $controller . ".php");
-        new $controller();
+        $c = new $controller();
+        $c->load();
         
         echo '</div>';    
     }
     
-
+	/**
+	 * @since 1.5.4
+	 * @version 1.0
+	 */
+	private function loadMetabox($module)
+	{
+    	$title = ucfirst(strtolower($module));
+    	$controller = $title . "Controller";
+    	require_once ("modules/" . strtolower($module) . "/" . $controller . ".php");
+        $c = new $controller();
+        $c->metabox();		
+	}
+	
+	/**
+	 * @TODO: decouple and abstract the following method
+	 */
     public function shortcode ($shortcode, $atts)
     {
     	switch ($shortcode) {
