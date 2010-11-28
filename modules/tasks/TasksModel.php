@@ -45,6 +45,11 @@ class TasksModel
 		
 		$table = $wpdb->prefix . "tasks";
 		
+		if($args['user'] != 0) {
+				$user_info = get_userdata($args['user']);
+//				mail($user_info->user_email, "You have been assigned a new task", "");
+		}
+		
         $data = array('pid' => $args['project'],
         			  'uid' => $args['user'],
                       'title' => $args['title'],

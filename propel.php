@@ -4,7 +4,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 1.5.4
+Version: 1.5.5
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -97,11 +97,11 @@ class Propel
     {
     	
         $propel = new PropelController();
-        add_menu_page('Propel', 'Propel', 'manage_options', 'propel', array(&$propel , 'propel'));
-//        add_submenu_page('propel', 'Dashboard', "Dashboard", 'manage_options', 'propel-dashboard', array(&$propel, 'dashboard'));
-        add_submenu_page('propel', 'Projects', 'Projects', 'manage_options', 'propel-projects', array(&$propel , 'projects'));
-        add_submenu_page('propel', 'Tasks', 'Tasks', 'manage_options', 'propel-tasks', array(&$propel , 'tasks'));
-        //add_submenu_page('propel', 'Files', 'Files', 'manage_options', 'propel-files', array(&$propel , 'files'));
+        add_menu_page('Propel', 'Propel', 'publish_pages', 'propel', array(&$propel , 'propel'));
+//        add_submenu_page('propel', 'Dashboard', "Dashboard", 'publish_pages', 'propel-dashboard', array(&$propel, 'dashboard'));
+        add_submenu_page('propel', 'Projects', 'Projects', 'publish_pages', 'propel-projects', array(&$propel , 'projects'));
+        add_submenu_page('propel', 'Tasks', 'Tasks', 'publish_pages', 'propel-tasks', array(&$propel , 'tasks'));
+        //add_submenu_page('propel', 'Files', 'Files', 'publish_pages', 'propel-files', array(&$propel , 'files'));
         add_submenu_page('propel', 'Settings', 'Settings', 'manage_options', 'propel-settings', array(&$propel , 'settings'));
         
 		add_action('load-toplevel_page_propel', array(&$propel, 'on_load_info'));

@@ -1,6 +1,6 @@
 <form method="POST" action="admin.php?page=propel-tasks&action=_create">
 
-<table>
+<table class="propel">
 	<tr>
 		<td>Name</td>
 		<td><input type="text" name="title" /></td>
@@ -35,8 +35,8 @@
 				?>
 				
 			</select>
-			<input type="text" name="start_day" class="day" value="<?php echo $day; ?>"/>
-			<input type="text" name="start_year" class="year" value="<?php echo $year; ?>" />
+			<input type="text" name="start_day" class="propel-day" value="<?php echo $day; ?>"/>
+			<input type="text" name="start_year" class="propel-year" value="<?php echo $year; ?>" />
 		</td>
 	</tr>
 
@@ -56,8 +56,8 @@
 				?>
 				
 			</select>
-			<input type="text" name="end_day" class="day" value="<?php echo $day; ?>"/>
-			<input type="text" name="end_year" class="year" value="<?php echo $year; ?>" />
+			<input type="text" name="end_day" class="propel-day" value="<?php echo $day; ?>"/>
+			<input type="text" name="end_year" class="propel-year" value="<?php echo $year; ?>" />
 		</td>
 	</tr>
 
@@ -108,9 +108,16 @@
 	
 	<tr>
 		<td>Description</td>
-		<td><textarea class="ion_description" name="description"></textarea></td>
+		<td><textarea class="propel-description" name="description"></textarea></td>
 	</tr>
-	
+
+	<!-- -	
+	<tr>
+		<td>Send E-Mail</td>
+		<td><input type="checkbox" name="email" />
+	</tr>
+	 -->
+	 
 	<tr>
 		<td>&nbsp;</td>
 		<td>

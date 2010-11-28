@@ -59,7 +59,7 @@ class InfoController
 				foreach ($rss_items as $item) { 
 					echo "<li>
 							<p><a href='".$item->get_permalink()."' title='Posted ". $item->get_date('j F Y | g:i a') . "'>" . $item->get_title() . "</a><br />";
-					$description = $item->get_description(); 
+					$description = strip_tags($item->get_description()); 
 		        	$description = substr($description, 0, -37);
 		        	echo $description;
 				    echo '</p></li>';
@@ -88,7 +88,7 @@ class InfoController
 							<p><a href='".$item->get_permalink()."' title='Posted ". $item->get_date('j F Y | g:i a') . "'>" . $item->get_title() . "</a><br />";
 					$description = $item->get_description(); 
 		        	$description = substr($description, 0, -37);
-		        	echo $description;
+		        	echo strip_tags($description);
 				    echo '</p></li>';
 				}
 			}
@@ -111,12 +111,7 @@ class InfoController
 			if ($maxitems == 0) echo '<li>No items.</li>';
 			else {
 				foreach ($rss_items as $item) { 
-					echo "<li>
-							<p><a href='".$item->get_permalink()."' title='Posted ". $item->get_date('j F Y | g:i a') . "'>" . $item->get_title() . "</a><br />";
-					$description = $item->get_description(); 
-		        	$description = substr($description, 0, -37);
-		        	echo $description;
-				    echo '</p></li>';
+					echo "<li><p><a href='".$item->get_permalink()."' title='Posted ". $item->get_date('j F Y | g:i a') . "'>" . $item->get_title() . "</a><br /></p></li>";
 				}
 			}
 					     

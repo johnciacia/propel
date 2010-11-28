@@ -1,3 +1,28 @@
+table.propel td {
+	padding: 5px 10px 5px 10px;
+}
+
+.propel-day {
+	width: 40px;
+}
+
+.propel-year {
+	width: 80px;
+}
+
+.propel-description {
+	width: 500px;
+	height: 200px
+}
+
+
+
+
+
+/****************************************/
+/********** DEPRECIATED STYLES **********/ 
+/****************************************/
+
 .ion_description {
 	width: 500px;
 	height: 200px
