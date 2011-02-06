@@ -68,7 +68,7 @@ list($end_year, $end_month, $end_day) = explode("-", $project->end);
 		
 	<tr>
 		<td>Description</td>
-		<td><textarea class="ion_description" name="description"><?php echo $project->description ?></textarea><br /></td>
+		<td><textarea class="ion_description" name="description"><?php echo esc_attr($project->description) ?></textarea><br /></td>
 	</tr>
 		
 	<tr>

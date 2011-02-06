@@ -30,6 +30,7 @@ class TasksModel
     {
         global $wpdb, $current_user;
         get_currentuserinfo();
+				$args = array_map( 'stripslashes_deep', $args );
         
         if(isset($args['start_year'], $args['start_month'], $args['start_day'])) {
         	$start_date = $args['start_year'] . "-" . $args['start_month'] . "-" . $args['start_day'];
@@ -86,6 +87,7 @@ class TasksModel
     public function updateTask (array $args)
     {
         global $wpdb;
+				$args = array_map( 'stripslashes_deep', $args );
         $table = $wpdb->prefix . "tasks";
         
         $start_date = $args['start_year'] . "-" . $args['start_month'] . "-" . $args['start_day'];
@@ -171,46 +173,90 @@ class TasksModel
     
     public function getTasks ($id, $pid)
     {
-        global $wpdb;
+        global $wpdb, $current_user;
+				$user_info = get_currentuserinfo();
+				
         $table_name = $wpdb->prefix . "tasks";
         $id = $wpdb->escape($id);
         $pid = $wpdb->escape($pid);
-        switch($id) {
-            case 1:
-            	$query = "SELECT * FROM `$table_name` WHERE `complete` = 100";
-            break;
+				
+				if(current_user_can('activate_plugins')) {
+					switch($id) {
+							case 1:
+								$query = "SELECT * FROM `$table_name` WHERE `complete` = 100";
+							break;
 
-            case 2:
-            	$query = "SELECT * FROM `$table_name` WHERE `complete` < 100";
-            break;
-            
-            case 3:
-            	$query = "SELECT * FROM `$table_name` ORDER BY `priority` DESC";
-            break;
+							case 2:
+								$query = "SELECT * FROM `$table_name` WHERE `complete` < 100";
+							break;
+							
+							case 3:
+								$query = "SELECT * FROM `$table_name` ORDER BY `priority` DESC";
+							break;
 
-            case 4:
-            	$query = "SELECT * FROM `$table_name` ORDER BY `start` DESC";
-            break;
-            
-            case 5:
-            	$query = "SELECT * FROM `$table_name` ORDER BY `end` DESC";
-            break;
+							case 4:
+								$query = "SELECT * FROM `$table_name` ORDER BY `start` DESC";
+							break;
+							
+							case 5:
+								$query = "SELECT * FROM `$table_name` ORDER BY `end` DESC";
+							break;
 
-            case 6:
-            	$query = "SELECT * FROM `$table_name` WHERE `pid` = $pid";
-            	break;
-            	
-            case 7:
-            	$query = "SELECT * FROM `$table_name` WHERE `pid` = $pid AND `complete` = 100";
-            	break;
-            	
-            case 8:
-            	$query = "SELECT * FROM `$table_name` WHERE `approved` = 0";
-            	break;
-            	            	
-            default:
-            	$query = "SELECT * FROM `$table_name`";
-        }
+							case 6:
+								$query = "SELECT * FROM `$table_name` WHERE `pid` = $pid";
+								break;
+								
+							case 7:
+								$query = "SELECT * FROM `$table_name` WHERE `pid` = $pid AND `complete` = 100";
+								break;
+								
+							case 8:
+								$query = "SELECT * FROM `$table_name` WHERE `approved` = 0";
+								break;
+															
+							default:
+								$query = "SELECT * FROM `$table_name`";
+					}	
+				} else {
+					switch($id) {
+							case 1:
+								$query = "SELECT * FROM `$table_name` WHERE `complete` = 100 AND `uid` IN (0, {$current_user->ID})";
+							break;
+
+							case 2:
+								$query = "SELECT * FROM `$table_name` WHERE `complete` < 100 AND `uid` IN (0, {$current_user->ID})";
+							break;
+							
+							case 3:
+								$query = "SELECT * FROM `$table_name` WHERE `uid` IN (0, {$current_user->ID}) ORDER BY `priority` DESC";
+							break;
+
+							case 4:
+								$query = "SELECT * FROM `$table_name` WHERE `uid` IN (0, {$current_user->ID}) ORDER BY `start` DESC";
+							break;
+							
+							case 5:
+								$query = "SELECT * FROM `$table_name` WHERE `uid` IN (0, {$current_user->ID}) ORDER BY `end` DESC";
+							break;
+
+							case 6:
+								$query = "SELECT * FROM `$table_name` WHERE `pid` = $pid AND `uid` IN (0, {$current_user->ID})";
+								break;
+								
+							case 7:
+								$query = "SELECT * FROM `$table_name` WHERE `pid` = $pid AND `complete` = 100 AND `uid` IN (0, {$current_user->ID})";
+								break;
+								
+							case 8:
+								$query = "SELECT * FROM `$table_name` WHERE `approved` = 0 AND `uid` IN (0, {$current_user->ID})";
+								break;
+															
+							default:
+								$query = "SELECT * FROM `$table_name` WHERE `uid` IN (0, {$current_user->ID})";			
+					}
+				}
+
+
 
         return $wpdb->get_results($query, OBJECT);
     }

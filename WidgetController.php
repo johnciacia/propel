@@ -48,8 +48,9 @@ class Widgets {
 	 */
 	public function task_list ()
 	{
-		global $wpdb, $userdata;
-		get_currentuserinfo();
+		global $wpdb, $current_user;
+		$user_info = get_currentuserinfo();
+
 		$widgets = get_option('dashboard_widget_options');
 		@extract(@$widgets['wptrac'], EXTR_SKIP);
 		if(empty($pm_complete)) $pm_complete = 1;
@@ -58,10 +59,18 @@ class Widgets {
 		/**
 		 * @TODO: Create a WidgetModule or move this into TracModel
 		 */
-		if(!$pm_complete) {
-			$tasks = $wpdb->get_results("SELECT * FROM `".$wpdb->prefix ."tasks` WHERE `complete` < 100 ORDER BY `end`", OBJECT);
+		if(current_user_can('activate_plugins')) {
+			if(!$pm_complete) {
+				$tasks = $wpdb->get_results("SELECT * FROM `".$wpdb->prefix ."tasks` WHERE `complete` < 100 ORDER BY `end`", OBJECT);
+			} else {
+				$tasks = $wpdb->get_results("SELECT * FROM `".$wpdb->prefix ."tasks` ORDER BY `end`", OBJECT);
+			}
 		} else {
-			$tasks = $wpdb->get_results("SELECT * FROM `".$wpdb->prefix ."tasks` ORDER BY `end`", OBJECT);
+			if(!$pm_complete) {
+				$tasks = $wpdb->get_results("SELECT * FROM `".$wpdb->prefix ."tasks` WHERE `complete` < 100 ORDER BY `end` AND `uid` IN (0, {$current_user->ID})", OBJECT);
+			} else {
+				$tasks = $wpdb->get_results("SELECT * FROM `".$wpdb->prefix ."tasks` WHERE  `uid` IN (0, {$current_user->ID}) ORDER BY `end`", OBJECT);
+			}		
 		}
  		require_once('widgets/task-list.php');
 	}

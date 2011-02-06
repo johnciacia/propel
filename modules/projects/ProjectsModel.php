@@ -9,6 +9,7 @@ class ProjectsModel
     public function createProject (array $args)
     {
         global $wpdb;
+				$args = array_map( 'stripslashes_deep', $args );
         $start_date = $args['start_year'] . "-" . $args['start_month'] . "-" . $args['start_day'];
         $end_date = $args['end_year'] . "-" . $args['end_month'] . "-" . $args['end_day'];
         
@@ -29,6 +30,7 @@ class ProjectsModel
     public function updateProject (array $args)
     {
         global $wpdb;
+				$args = array_map( 'stripslashes_deep', $args );
         $table = $wpdb->prefix . "projects";
         
         $start_date = $args['start_year'] . "-" . $args['start_month'] . "-" . $args['start_day'];

@@ -3,7 +3,7 @@ Contributors: sidewindernet
 Tags: project, management, tasks, project management, task management, basecamp
 Requires at least: 2.8
 Tested up to: 3.0.1
-Stable tag: 1.5.5
+Stable tag: 1.5.6
 
 This plugin allows users to manage projects and tasks.
 
@@ -32,3 +32,6 @@ If you are having issues with this plugin you may submit a comment <a href="http
 == Frequently Asked Questions ==
 = How do I display a projects status in a page? =
 You can use the [pl-projects] short code in any page or post to show the status of all your current projects. You can show the status of an individual project by using [pl-projects id=x] where x is the id of the project.
+
+= I don't understand the user permissions. =
+Users with the super administrator or administrator role will be able to view tasks asigned to all users. Users with the role of editor, will only be able to view tasks assigned to them or to anyone.
