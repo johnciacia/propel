@@ -4,7 +4,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 1.5.6
+Version: 1.5.7
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -25,14 +25,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
-
-/*
- * Some code, ideas, and methodologies used by this plugin have been 
- * borrowed from three of my favorite plugins:
- * NextGEN Gallery
- * WordPress Download Monitor
- * All in One SEO Pack
- */
 
 require_once ("PropelController.php");
 require_once ("PropelModel.php");
@@ -82,31 +74,33 @@ add_shortcode('pl-feedback', array($propel , 'shortcode_feedback'));
  * @see Propel::install()
  */
 register_activation_hook(__FILE__, array($propel , 'install'));
-
+add_action('wp_footer', array(&$propel, 'footerAction'));
 
 /**
  * @see http://codex.wordpress.org/Writing_a_Plugin
  */
 class Propel
 {	
-    /**
-     * @see http://codex.wordpress.org/Function_Reference/add_action
-     * @since 1.0
-     */
-    public function admin_menu ()
-    {
+	var $incldueJS;
+	/**
+	* @see http://codex.wordpress.org/Function_Reference/add_action
+	* @since 1.0
+	*/
+	public function admin_menu ()
+	{
     	
-        $propel = new PropelController();
-        add_menu_page('Propel', 'Propel', 'publish_pages', 'propel', array(&$propel , 'propel'));
-//        add_submenu_page('propel', 'Dashboard', "Dashboard", 'publish_pages', 'propel-dashboard', array(&$propel, 'dashboard'));
-        add_submenu_page('propel', 'Projects', 'Projects', 'publish_pages', 'propel-projects', array(&$propel , 'projects'));
-        add_submenu_page('propel', 'Tasks', 'Tasks', 'publish_pages', 'propel-tasks', array(&$propel , 'tasks'));
-        //add_submenu_page('propel', 'Files', 'Files', 'publish_pages', 'propel-files', array(&$propel , 'files'));
-        add_submenu_page('propel', 'Settings', 'Settings', 'manage_options', 'propel-settings', array(&$propel , 'settings'));
+		$propel = new PropelController();
+		add_menu_page('Propel', 'Propel', 'publish_pages', 'propel', array(&$propel , 'propel'));
+		//add_submenu_page('propel', 'Dashboard', "Dashboard", 'publish_pages', 'propel-dashboard', array(&$propel, 'dashboard'));
+		add_submenu_page('propel', 'Projects', 'Projects', 'publish_pages', 'propel-projects', array(&$propel , 'projects'));
+		add_submenu_page('propel', 'Tasks', 'Tasks', 'publish_pages', 'propel-tasks', array(&$propel , 'tasks'));
+		//add_submenu_page('propel', 'Files', 'Files', 'publish_pages', 'propel-files', array(&$propel , 'files'));
+		add_submenu_page('propel', 'Settings', 'Settings', 'manage_options', 'propel-settings', array(&$propel , 'settings'));
         
 		add_action('load-toplevel_page_propel', array(&$propel, 'on_load_info'));
-//		add_action('load-propel_page_propel-dashboard', array(&$propel, 'on_load_dashboard'));
-    }
+		//add_action('load-propel_page_propel-dashboard', array(&$propel, 'on_load_dashboard'));
+		
+	}
 
     /**
      * Initialize CSS and JavaScript
@@ -115,35 +109,32 @@ class Propel
      * @see http://codex.wordpress.org/Function_Reference/wp_enqueue_script
      * @since 1.1
      */
-    public function init ()
-    { 
-		wp_register_script('propel_script_1', WP_PLUGIN_URL . '/propel/js/jquery-ui.js');
-		wp_register_script('propel_script_2', WP_PLUGIN_URL . '/propel/js/functions.js');
-    	
-		wp_enqueue_script('common');
-		wp_enqueue_script('wp-lists');
-		wp_enqueue_script('postbox');
+	public function init ()
+	{ 
+		wp_register_script('propel_script_1', 
+			WP_PLUGIN_URL . '/propel/js/jquery-ui.js');
+		wp_register_script('propel_script_2', 
+			WP_PLUGIN_URL . '/propel/js/functions.js');
+   		
+
 		wp_enqueue_script('jquery');
 		wp_enqueue_script('jquery-ui-core');
-		wp_enqueue_script('jquery-ui-tabs');
-		wp_enqueue_script('propel_script_1');
-		wp_enqueue_script('propel_script_2');
-						
-
-		wp_register_style("propel_style_1", get_option('propel_theme'));
-		wp_register_style('propel_style_2', WP_PLUGIN_URL . '/propel/style.css');				
+		
+		
+		wp_register_style("propel_style_1",
+			get_option('propel_theme'));
+		wp_register_style('propel_style_2',
+			WP_PLUGIN_URL . '/propel/style.css');
 
 		wp_enqueue_style('propel_style_1');
 		wp_enqueue_style('propel_style_2');
-    }
+	}
 
     /**
      * @since 1.5.4
      * @TODO: If you change the 'Number of Columns' on the Screen Options tab that value does not persist when the page reloads
      * @TODO: If you disable a widget, those settings do not persist either.
      */
-//	private $pagehook = "toplevel_page_propel";
-//	private $pagehook = "propel_page_propel-dashboard";
 	function set_columns($columns, $screen) {
 		if ($screen == $this->pagehook) {
 			$columns[$this->pagehook] = 2;
@@ -162,9 +153,13 @@ class Propel
      */
     public function dashboard_widgets ()
     {
+			wp_enqueue_script('propel_script_1');
+			wp_enqueue_script('propel_script_2');
+			
+
     	require_once('WidgetController.php');
     	$widgets = new Widgets();
-		wp_add_dashboard_widget('propel-task-list', 'Tasks', 
+			wp_add_dashboard_widget('propel-task-list', 'Tasks', 
 								 array($widgets , 'task_list'), 
 								 array($widgets , 'config_task_list'));
 										
@@ -181,7 +176,8 @@ class Propel
      * @return
      */
     public function shortcode_projects ($atts)
-    {
+    {	
+			$this->includeJS = true;
         $propel = new PropelController();
         return $propel->shortcode('project', $atts);
     }
@@ -212,55 +208,64 @@ class Propel
 	    die();
 	}
 	
-    /**
-     * @see http://codex.wordpress.org/Creating_Tables_with_Plugins
-     * @since 1.0
-     */
-    public function install ()
-    {
-        global $wpdb;
-        $table_name = $wpdb->prefix . "projects";
+	/**
+	* @see http://codex.wordpress.org/Creating_Tables_with_Plugins
+	* @since 1.0
+	*/
+	public function install ()
+	{
+		global $wpdb;
+		$table_name = $wpdb->prefix . "projects";
 
 		$sql = "CREATE TABLE IF NOT EXISTS `" . $table_name . "` (
-        		`id` int(11) NOT NULL auto_increment,
-                `title` varchar(255) NOT NULL,
-                `description` text NOT NULL,
-                `start` date NOT NULL,
-                `end` date NOT NULL,
-                PRIMARY KEY  (`id`)
-               );";
+			`id` int(11) NOT NULL auto_increment,
+			`title` varchar(255) NOT NULL,
+			`description` text NOT NULL,
+			`start` date NOT NULL,
+			`end` date NOT NULL,
+			PRIMARY KEY  (`id`)
+			);";
 		$result = $wpdb->query($sql);
         
-        $table_name = $wpdb->prefix . "tasks";
-        $sql = "CREATE TABLE `" . $table_name . "` (
-        		`id` int(11) NOT NULL auto_increment,
-                `pid` int(11) NOT NULL,
-                `uid` int(11) NOT NULL default '0',
-                `title` varchar(255) NOT NULL,
-                `description` text NOT NULL,
-                `start` date NOT NULL,
-                `end` date NOT NULL,
-                `priority` int(11) NOT NULL,
-                `complete` int(11) NOT NULL default '0',
-                `approved` int(11) NOT NULL default '1',
-                PRIMARY KEY  (`id`)
-                );";
+		$table_name = $wpdb->prefix . "tasks";
+		$sql = "CREATE TABLE `" . $table_name . "` (
+			`id` int(11) NOT NULL auto_increment,
+			`pid` int(11) NOT NULL,
+			`uid` int(11) NOT NULL default '0',
+			`title` varchar(255) NOT NULL,
+			`description` text NOT NULL,
+			`start` date NOT NULL,
+			`end` date NOT NULL,
+			`priority` int(11) NOT NULL,
+			`complete` int(11) NOT NULL default '0',
+			`approved` int(11) NOT NULL default '1',
+			PRIMARY KEY  (`id`)
+			);";
 		$result = $wpdb->query($sql);
-        
-        /*
-         * There was an error creating the database.
-         */
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-        	return;
-        }
-        
-		add_option('propel_theme', '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css');
-        
-         /*
-          * @since 1.2
-          */
-        add_option("PROPEL_DBVERSION", 1.4);
-    }
+
+		/*
+		* There was an error creating the database.
+		*/
+		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+			return;
+		}
+
+		add_option('propel_theme', WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css');
+
+		/*
+		* @since 1.2
+		*/
+		add_option("PROPEL_DBVERSION", 1.4);
+	}
+		
+	function footerAction()
+	{
+		if($this->includeJS == true) {
+			wp_print_scripts('propel_script_1');
+			wp_print_scripts('propel_script_2');
+		}	
+	}
+	
 }
 
 ?>

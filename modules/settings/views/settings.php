@@ -1,5 +1,5 @@
 <h3>Theme Settings</h3>
-
+<?php echo WP_PLUGIN_URL . get_option('propel_theme'); ?>
 <form method="POST">
 	<filedset>
 		<?php 

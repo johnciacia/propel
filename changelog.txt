@@ -18,3 +18,11 @@ Version 1.2
 
 Version 1.5
 [+] Themes
+
+Version 1.5.6
+[+] User authorization
+[F] Character escaping issue
+
+Version 1.5.7
+[F] Dashboard widget
+[F] JavaScript include issues

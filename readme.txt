@@ -1,9 +1,9 @@
 === Plugin Name ===
 Contributors: sidewindernet
-Tags: project, management, tasks, project management, task management, basecamp
+Tags: project, management, collaboration, tasks, project management, task management, basecamp
 Requires at least: 2.8
-Tested up to: 3.0.1
-Stable tag: 1.5.6
+Tested up to: 3.0.5
+Stable tag: 1.5.7
 
 This plugin allows users to manage projects and tasks.
 

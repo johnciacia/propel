@@ -1,6 +1,10 @@
 function pm_complete(id, fade){
 	
 	jQuery('#progress-' + id).progressbar("option", "value", 100);
+	jQuery('#pl-status-' + id + ' div.av').html("Complete");
+	jQuery('#pl-status-' + id + ' div.at').css('background-color', '#0000cc').css('border-color', '#0000cc');
+	jQuery('#pl-status-' + id + ' div.au').css('border-color', '#0000cc');
+
 	
 	if(fade == 1)
 		jQuery("#pm-task-" + id).fadeOut('fast');

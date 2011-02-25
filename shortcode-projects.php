@@ -53,7 +53,7 @@
 <script>
 	jQuery(document).ready(function() {
 		jQuery("#tabs").tabs();
+		<?php echo $script; ?>
 	});
-	<?php echo $script; ?>
 </script>
             

@@ -16,7 +16,40 @@ table.propel td {
 }
 
 
+.as {
+	float: left;
+}
 
+div {
+	display: block;
+}
+
+.au {
+	padding: 1px 0;
+	border-width: 0 1px;
+	margin: 0 -1px;
+}
+
+.at {
+	padding: 0;
+	border-width: 1px 0;
+}
+
+.at, .au {
+	border-style: solid;
+}
+
+.ar {
+	height: 1.7em;
+	padding: 0 5px 1px 0;
+	margin: 0;
+	font: 9px verdana,arial,sans-serif;
+	color: #fff;
+}
+
+.av {
+	padding: 0 5px;
+}
 
 
 /****************************************/

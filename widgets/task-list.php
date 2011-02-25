@@ -1,19 +1,48 @@
+<?php
+	if($tasks == NULL) {
+		echo "<p>There are no tasks at this time.</p>";
+	}
+	else {
+?>
 <table width="100%" id="pm-milestones">
 <?php 
 	$script = "";
+
 	foreach($tasks as $task) {
-		if(date("Y-m-d") == $task->end) {
-			$img = "today.png";
-		} else if(date("Y-m-d") > $task->end) {
-			$img = "overdue.png";
-		} else {
-			$img = "later.png";
+		if($task->complete == 100) {
+			$z = "Complete";
+			$color = "#0000cc";
+			
+		} 
+		
+		else {
+		
+			if(date("Y-m-d") == $task->end) {
+				$z = "Today";
+				$color = "#ffa500";
+			} else if(date("Y-m-d") > $task->end) {
+				$z = "Overdue";
+				$color = "#ff0000";
+			} else {
+				$z = "Later";
+				$color = "#008000";
+			}
 		}
 ?>
 
 	<tr id="pm-task-<?php echo $task->id ?>">
 		<td>
-			<img src="<?php echo WP_PLUGIN_URL ?>/propel/images/<?php echo $img ?>" />
+		
+			<div class="ar as" id="pl-status-<?php echo $task->id;?>">
+				<div class="at" style="background-color: <?php echo $color; ?>; border-color: <?php echo $color; ?>;">
+					<div class="au" style="border-color:<?php echo $color; ?>">
+						<div class="av"><?php echo $z; ?></div>
+					</div>
+				</div>
+			</div>
+			
+			
+			
 		</td>
 		<td width="100%">
 			<p><?php echo $task->title ?></p>
@@ -58,3 +87,4 @@
 <script>
 	<?php echo $script; ?>
 </script>
+<?php } ?>
