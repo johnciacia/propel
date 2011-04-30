@@ -4,7 +4,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 1.5.7
+Version: 1.5.8
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -119,7 +119,10 @@ class Propel
 
 		wp_enqueue_script('jquery');
 		wp_enqueue_script('jquery-ui-core');
-		
+		wp_enqueue_script('jquery-ui-widget');
+		wp_enqueue_script('jquery-ui-tabs');
+		wp_enqueue_script('propel_script_1');
+		wp_enqueue_script('propel_script_2');
 		
 		wp_register_style("propel_style_1",
 			get_option('propel_theme'));
@@ -153,8 +156,6 @@ class Propel
      */
     public function dashboard_widgets ()
     {
-			wp_enqueue_script('propel_script_1');
-			wp_enqueue_script('propel_script_2');
 			
 
     	require_once('WidgetController.php');
@@ -177,7 +178,7 @@ class Propel
      */
     public function shortcode_projects ($atts)
     {	
-			$this->includeJS = true;
+		$this->includeJS = true;
         $propel = new PropelController();
         return $propel->shortcode('project', $atts);
     }
@@ -260,10 +261,10 @@ class Propel
 		
 	function footerAction()
 	{
-		if($this->includeJS == true) {
-			wp_print_scripts('propel_script_1');
-			wp_print_scripts('propel_script_2');
-		}	
+		//if($this->includeJS == true) {
+		//	wp_print_scripts('propel_script_1');
+		//	wp_print_scripts('propel_script_2');
+		//}	
 	}
 	
 }
