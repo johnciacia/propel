@@ -9,12 +9,12 @@ Version 1.2
 [+] Quick-tasks dashboard widget
 [+] Tasks at-a-glance dashboard widget
 [+] Uninstall option
-[+] [pm-project] short code
-[+] [pm-bug-report] short code
+[+] [pl-project] short code
+[+] [pl-bug-report] short code
 [U] jQuery library
 [U] jQuery widget UI
-[U] [pm-project] interface
-[D] Depreciated [project] short code
+[U] [pl-project] interface
+[D] Deprecated [project] short code
 
 Version 1.5
 [+] Themes

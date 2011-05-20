@@ -1,3 +1,4 @@
+<?php $referer = $_SERVER['HTTP_REFERER']; ?>
 <div id="picasso-general" class="wrap">
 <?php screen_icon('options-general'); ?>
 <h2>Propel</h2>
@@ -93,7 +94,9 @@
 		</tr>
 		
 		<tr>
-			<td colspan="2"><input type="submit" value="Submit" class="button-primary" /></td>
+			<td colspan="2">
+				<input type="hidden" name="redirect" value="<?php echo $_SERVER['HTTP_REFERER']; ?>" />
+				<input type="submit" value="Submit" class="button-primary" /></td>
 		</tr>
 	</table>
 </form>

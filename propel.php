@@ -85,7 +85,9 @@ add_action('admin_post_propel-update-task',
 
 add_action('wp_ajax_propel-quick-tasks', 
 	array(&$propel, 'quickTaskAjax'));	
-	
+
+add_action('wp_ajax_propel-rss', 
+	array(&$propel, 'rss'));	
 /**
  * Shortcodes
  */
@@ -191,9 +193,6 @@ class Propel
 	{
 		add_meta_box('propel-quick-tasks', 'Quick Tasks', array(&$this, 'quickTasksWidget'), 
 			'propel_page_propel-dashboard', 'side', 'core');
-			
-		add_meta_box('propel-edit-project', 'My Projects', array(&$this, 'editProjectWidget'), 
-			'propel_page_propel-dashboard', 'side', 'core');
 
 		add_meta_box('propel-list-my-tasks', 'My Tasks', array(&$this, 'listMyTasksWidget'), 
 			'propel_page_propel-dashboard', 'normal', 'core'); 
@@ -225,6 +224,15 @@ class Propel
 			
 		add_meta_box('propel-contribute', 'Contribute', array(&$this, 'contributeWidget'), 
 			'toplevel_page_propel', 'normal', 'core');
+
+		add_meta_box('propel-latest-news', 'Latest News', array(&$this, 'latestNewsWidget'), 
+			'toplevel_page_propel', 'side', 'core');
+			
+		add_meta_box('propel-support-forums', 'Support Forums', array(&$this, 'supportForumsWidget'), 
+			'toplevel_page_propel', 'side', 'core');
+
+		add_meta_box('propel-revision-log', 'Revision Log', array(&$this, 'revisionLogWidget'), 
+			'toplevel_page_propel', 'side', 'core');
 	}
 	
 	/***************************************************\
@@ -233,7 +241,13 @@ class Propel
 	public function propelPage ()
 	{
 		global $screen_layout_columns;
-		$data = array();
+		$data = array(
+					'feeds' => array(
+						"http://www.johnciacia.com/category/propel/feed",
+						"http://wordpress.org/support/rss/tags/propel",
+						"http://plugins.trac.wordpress.org/log/propel?limit=10&mode=stop_on_copy&format=rss"
+						)
+					);
 		$pagehook = "toplevel_page_propel";
 		require_once('template.php');
 	}
@@ -297,6 +311,27 @@ class Propel
 		require_once('widgets/contribute.php');
 	}
 	
+	public function latestNewsWidget ($data)
+	{
+		$id = 0;
+		$feed = $data['feeds'][$id];
+		require('widgets/rss.php');
+	}
+
+	public function supportForumsWidget ($data)
+	{
+		$id = 1;
+		$feed = $data['feeds'][$id];
+		require('widgets/rss.php');
+	}
+	
+	public function revisionLogWidget ($data)
+	{
+		$id = 2;
+		$feed = $data['feeds'][$id];
+		require('widgets/rss.php');
+	}
+		
 	public function editProjectWidget ()
 	{
 		$project = $this->projectsModel->getProjectById($_GET['id']);
@@ -315,7 +350,8 @@ class Propel
 	}
 	
 	public function quickTasksWidget ()
-	{
+	{	
+		$projects = $this->projectsModel->getProjects();
 		require_once('widgets/quickTasks.php');
 	}
 	
@@ -377,7 +413,7 @@ class Propel
 	public function updateTaskAction ()
 	{
 		$this->tasksModel->updateTask($_POST);
-		wp_redirect($_SERVER['HTTP_REFERER']);
+		wp_redirect($_POST['redirect']);
 	}
 	
 	public function quickTaskAjax ()
@@ -405,6 +441,31 @@ class Propel
 		
 		echo json_encode($task);
 		die();		
+	}
+	
+	public function rss ()
+	{
+		$rss = fetch_feed($_POST['feed']);
+		if (!is_wp_error( $rss ) ) { 
+		    $maxitems = $rss->get_item_quantity(5); 
+		    $rss_items = $rss->get_items(0, $maxitems); 
+		}
+		
+		echo '<ul>';
+		if ($maxitems == 0) echo '<li>No items.</li>';
+		else {
+			foreach ($rss_items as $item) { 
+				echo "<li>
+						<p><a href='".$item->get_permalink()."' title='Posted ". $item->get_date('j F Y | g:i a') . "'>" . $item->get_title() . "</a><br />";
+				$description = strip_tags($item->get_description()); 
+		       	$description = substr($description, 0, -37);
+		       	echo $description;
+			    echo '</p></li>';
+			}
+		}
+				     
+		echo '</ul>';	
+		die();	
 	}
 	
 	/***************************************************\

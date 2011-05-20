@@ -16,6 +16,7 @@
 
 
 	foreach($tasks as $task) {
+		$project = $this->projectsModel->getProjectById($task->pid);
 		if($task->complete == 100) {
 			$z = "Complete";
 			$color = "#0000cc";
@@ -41,11 +42,11 @@
 				<?php
 		echo "</td>";
 		echo "<td data-value='{$task->title}'><p>{$task->title}</p></td>";
-		echo "<td><p>{$task->pid}</p></td>";
+		echo "<td><p>{$project->title}</p></td>";
 		echo "<td data-value='{$task->priority}'><p>{$task->priority}</p></td>";
 		echo "<td data-value='{$task->complete}'><p>{$task->complete}</p></td>";
 		echo "<td class='gen-icon gen-delete-icon'><a href='?action=propel-delete-task&task={$task->id}' title='Delete'>Delete</a></td>";
-		echo "<td class='gen-icon gen-edit-icon'><a href='#' title='Edit'>Edit</a></td>";
+		echo "<td class='gen-icon gen-edit-icon'><a href='?page=propel-edit-task&id={$task->id}' title='Edit'>Edit</a></td>";
 		echo "<td class='gen-icon gen-{$x}checked-icon'><a href='?action=propel-complete-task&task={$task->id}' title='Mark as complete'>Complete</a></td>";
 		echo "</tr><tr class='gen-hidden' id='gen-row-{$task->id}'><td>&nbsp</td><td colspan='8'><p>{$task->description}</p></td></tr></tbody>";	
 	}

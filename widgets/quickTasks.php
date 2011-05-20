@@ -9,7 +9,9 @@
 		<td><p>Project: </p></td>
 		<td>
 			<select id="pid" name="pid">
-				<option value="1">Foo</option>
+			<?php foreach($projects as $project) : ?>
+				<option value="<?php echo $project->id; ?>"><?php echo $project->title; ?></option>
+			<?php endforeach; ?>		
 			</select>
 		</td>
 	</tr>
