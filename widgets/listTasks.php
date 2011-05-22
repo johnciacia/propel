@@ -43,8 +43,3 @@
 	}
 	
 </script>
-
-TODO:<br />
-- Sort columns by ascending and descending order<br />
-- Ability to edit tasks<br />
-- Setting to hide completed tasks<br />

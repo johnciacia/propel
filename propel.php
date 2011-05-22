@@ -160,6 +160,7 @@ class Propel
 		wp_enqueue_script('jquery');
 		wp_enqueue_script('jquery-ui-core');
 		wp_enqueue_script('jquery-ui-widget');
+		
 		wp_enqueue_script('jquery-ui-tabs');
 		wp_enqueue_script('jquery-ui-datepicker', 
 			WP_PLUGIN_URL . '/propel/js/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core') );
@@ -473,9 +474,21 @@ class Propel
 	\***************************************************/
 	public function projectsShortcode ($atts)
 	{
+		extract(shortcode_atts(array('id' => NULL), $atts));
 		
-		$tasks = $this->tasksModel->getTasksByProject(1);
+		if($id == NULL) { 
+			$projects = $this->projectsModel->getProjects();
+			foreach($projects as $project) {
+				$tasks[$project->title] = $this->tasksModel->getTasksByProject($project->id);
+			}
+		} else {
+			$projects[] = $this->projectsModel->getProjectById($id);
+			$tasks[$projects[0]->title] = $this->tasksModel->getTasksByProject($projects[0]->id);
+		}
+		
+		ob_start();
 		require_once('frontend/projects_new.php');
+		return ob_get_clean();
 	}
 	/***************************************************\
 	|                       MISC                        |
