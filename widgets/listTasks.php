@@ -1,4 +1,4 @@
-<table width="100%" class="gen-table" id="propel-tasks">
+<table width="100%" class="gen-table tablesorter" id="propel-tasks">
 	<thead>
 		<tr>
 			<th><p>Name</p></th>
@@ -36,7 +36,9 @@
 
 </table>
 
+
 <script type="text/JavaScript">
+
 
 	function gen_expand(elem) {
 		jQuery('#gen-row-' + elem.id).toggle();
