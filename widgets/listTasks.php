@@ -17,20 +17,21 @@
 	<?php
 
 	foreach($tasks as $task) {
-		$owner = ($task->uid == 0) ? "-" : $this->tasksModel->getUserById($task->uid)->user_nicename;
-		$start = ($task->start == "0000-00-00") ? "-" : $task->start;
-		$end   = ($task->end == "0000-00-00") ? "-" : $task->end;
-		$x = ($task->complete == 100) ? "" : "un"; 
-		echo "<tbody onClick='gen_expand(this)' id='{$task->id}'><tr><td data-value='{$task->title}'><p>{$task->title}</p></td>";
-		echo "<td data-value='{$task->priority}'><p>{$task->priority}</p></td>";
-		echo "<td data-value='{$task->uid}'><p>$owner</p></td>";
-		echo "<td data-value='{$task->start}'><p>$start</p></td>";
-		echo "<td data-value='{$task->end}'><p>$end</p></td>";
-		echo "<td data-value='{$task->complete}'><p>{$task->complete}</p></td>";
-		echo "<td class='gen-icon gen-delete-icon'><a href='?action=propel-delete-task&task={$task->id}' title='Delete'>Delete</a></td>";
-		echo "<td class='gen-icon gen-edit-icon'><a href='?page=propel-edit-task&id={$task->id}' title='Edit'>Edit</a></td>";
-		echo "<td class='gen-icon gen-{$x}checked-icon'><a href='?action=propel-complete-task&task={$task->id}' title='Mark as complete'>Complete</a></td>";
-		echo "</tr><tr class='gen-hidden' id='gen-row-{$task->id}'><td>&nbsp</td><td colspan='8'><p>{$task->description}</p></td></tr></tbody>";	
+		$meta = get_post_meta($task->ID, "_propel_task_metadata", true);
+		$owner = ($meta['assigned_to'] == 0) ? "-" : $this->tasksModel->getUserById($meta['assigned_to'])->user_nicename;
+		$start = ($meta['start'] == "0000-00-00") ? "-" : $meta['start'];
+		$end   = ($meta['end'] == "0000-00-00") ? "-" : $meta['end'];
+		$x = ($meta['complete'] == 100) ? "" : "un"; 
+		echo "<tbody onClick='gen_expand(this)' id='{$task->ID}'><tr><td data-value='{$task->post_title}'><p>{$task->post_title}</p></td>";
+		echo "<td data-value='{$meta['priority']}'><p>{$meta['priority']}</p></td>";
+		echo "<td data-value='{$owner}'><p>$owner</p></td>";
+		echo "<td data-value='{$start}'><p>$start</p></td>";
+		echo "<td data-value='{$end}'><p>$end</p></td>";
+		echo "<td data-value='{$meta['complete']}'><p>{$meta['complete']}</p></td>";
+		echo "<td class='gen-icon gen-delete-icon'><a href='?action=propel-delete-task&task={$task->ID}' title='Delete'>Delete</a></td>";
+		echo "<td class='gen-icon gen-edit-icon'><a href='?page=propel-edit-task&id={$task->ID}' title='Edit'>Edit</a></td>";
+		echo "<td class='gen-icon gen-{$x}checked-icon'><a href='?action=propel-complete-task&task={$task->ID}' title='Mark as complete'>Complete</a></td>";
+		echo "</tr><tr class='gen-hidden' id='gen-row-{$task->ID}'><td>&nbsp</td><td colspan='8'><p>{$task->post_content}</p></td></tr></tbody>";	
 	}
 	?>
 

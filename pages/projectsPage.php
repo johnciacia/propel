@@ -22,9 +22,9 @@
 	<?php
 		foreach($projects as $project) {
 			echo "<tr>";
-			echo "<td>{$project->id}</td>";
-			echo "<td><a href='admin.php?page=propel-edit-project&id={$project->id}'>{$project->title}</a></td>";
-			echo "<td><a href='?action=propel-delete-project&id={$project->id}' onClick='return delete_project()'>Delete</a> | <a href='admin.php?page=propel-edit-project&id={$project->id}'>Edit</a></td>";
+			echo "<td>{$project->ID}</td>";
+			echo "<td><a href='admin.php?page=propel-edit-project&id={$project->ID}'>{$project->post_title}</a></td>";
+			echo "<td><a href='?action=propel-delete-project&id={$project->ID}' onClick='return delete_project()'>Delete</a> | <a href='admin.php?page=propel-edit-project&id={$project->ID}'>Edit</a></td>";
 			echo "</tr>";
 		
 		}

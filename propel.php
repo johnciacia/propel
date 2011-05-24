@@ -4,7 +4,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 1.6
+Version: 1.7
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -26,6 +26,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
 
+/**
+ * @since 1.7
+*/
+if(get_option('PROPEL_DBVERSION') == 1.4)
+	add_action('admin_notices', function() {
+		echo "<div id='my_admin_notice' class='updated fade'><p><strong>Propel has changed its database structure. To continue using this plugin, you must first use our <a href='?page=propel_migrate_tool'>migration tool</a></strong></p></div>";
+	});
+ 
 require_once('models/projectsModel.php');
 require_once('models/tasksModel.php');
 $propel = new Propel();
@@ -117,6 +125,11 @@ class Propel
 	*/
 	public function admin_menu ()
 	{
+		if(get_option('PROPEL_DBVERSION') == 1.4) {
+			add_menu_page('Propel', 'Propel', 'activate_plugins', 
+				'propel_migrate_tool', array(&$this , 'migrateTool'));			
+			return;
+		}
 		
 		add_menu_page('Propel', 'Propel', 'publish_pages', 
 			'propel', array(&$this , 'propelPage'));
@@ -144,7 +157,10 @@ class Propel
 	{
 		wp_enqueue_script('wp-lists');
 		wp_enqueue_script('common');
-		wp_enqueue_script('postbox');			
+		wp_enqueue_script('postbox');	
+		wp_enqueue_script('jquery-datatables', 
+			WP_PLUGIN_URL . '/propel/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core') );		
+			
 	}
 	
     /**
@@ -421,6 +437,12 @@ class Propel
 	{
 		$id = $this->tasksModel->createTask($_POST);
 		$task = $this->tasksModel->getTaskById($id, ARRAY_A);
+		$meta = get_post_meta($id, "_propel_task_metadata", true);
+		
+		$task['complete'] = $meta['complete'];
+		$task['end'] = $meta['end'];
+		$task['priority'] = $meta['priority'];
+		
 		
 		if($task['complete'] == 100) {
 			$task['status'] = "Complete";
@@ -492,55 +514,29 @@ class Propel
 	}
 	/***************************************************\
 	|                       MISC                        |
-	\***************************************************/		
+	\***************************************************/	
+	public function migrateTool ()
+	{
+		global $wpdb;
+		define('PROPEL_MIGRATE_DB', 1);
+		require_once('migrate.php');
+	}	
+	
+	
 	/**
 	* @see http://codex.wordpress.org/Creating_Tables_with_Plugins
 	* @since 1.0
 	*/
 	public function install ()
 	{
-		global $wpdb;
-		$table_name = $wpdb->prefix . "projects";
-
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $table_name . "` (
-			`id` int(11) NOT NULL auto_increment,
-			`title` varchar(255) NOT NULL,
-			`description` text NOT NULL,
-			`start` date NOT NULL,
-			`end` date NOT NULL,
-			PRIMARY KEY  (`id`)
-			);";
-		$result = $wpdb->query($sql);
-        
-		$table_name = $wpdb->prefix . "tasks";
-		$sql = "CREATE TABLE `" . $table_name . "` (
-			`id` int(11) NOT NULL auto_increment,
-			`pid` int(11) NOT NULL,
-			`uid` int(11) NOT NULL default '0',
-			`title` varchar(255) NOT NULL,
-			`description` text NOT NULL,
-			`start` date NOT NULL,
-			`end` date NOT NULL,
-			`priority` int(11) NOT NULL,
-			`complete` int(11) NOT NULL default '0',
-			`approved` int(11) NOT NULL default '1',
-			PRIMARY KEY  (`id`)
-			);";
-		$result = $wpdb->query($sql);
-
-		/*
-		* There was an error creating the database.
-		*/
-		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-			return;
-		}
+	
 
 		add_option('propel_theme', WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css');
 		add_option('PROPEL_ERROR', '');
 		/*
 		* @since 1.2
 		*/
-		add_option("PROPEL_DBVERSION", 1.4);
+		add_option("PROPEL_DBVERSION", 1.5);
 	}
 	
 }
