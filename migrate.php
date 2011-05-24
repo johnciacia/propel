@@ -79,8 +79,12 @@ function create_task($task, $project, $id) {
 	<a href="http://wordpress.org/tags/propel">WordPress forum</a>.
 	</p>
 
+<?php if(get_option('PROPEL_DBVERSION') != 1.5) : ?>
 	<form method="POST">
 		<input type="hidden" value="update" name="update" />
 		<input type="submit" class="button" value="Update" />
 	</form>
+<?php else: ?>
+	<a href="admin.php?page=propel">Go to projects</a>
+<?php endif; ?>
 	</div>
