@@ -34,6 +34,8 @@ if(get_option('PROPEL_DBVERSION') == 1.4)
 		echo "<div id='my_admin_notice' class='updated fade'><p><strong>Propel has changed its database structure. To continue using this plugin, you must first use our <a href='?page=propel_migrate_tool'>migration tool</a></strong></p></div>";
 	});
  
+register_post_type("propel_project");
+
 require_once('models/projectsModel.php');
 require_once('models/tasksModel.php');
 $propel = new Propel();
@@ -82,6 +84,9 @@ add_action('admin_post_propel-create-project',
 add_action('admin_action_propel-delete-task', 
 	array(&$propel, 'deleteTaskAction'));
 	
+add_action('admin_action_propel-insert-comment', 
+	array(&$propel, 'insertCommentAction'));
+
 add_action('admin_action_propel-complete-task', 
 	array(&$propel, 'completeTaskAction'));	
 	
@@ -93,7 +98,10 @@ add_action('admin_post_propel-update-task',
 
 add_action('wp_ajax_propel-quick-tasks', 
 	array(&$propel, 'quickTaskAjax'));	
-
+	
+add_action('wp_ajax_propel-get-task-details', 
+	array(&$propel, 'getTaskDetailsAjax'));
+	
 add_action('wp_ajax_propel-rss', 
 	array(&$propel, 'rss'));	
 /**
@@ -214,6 +222,11 @@ class Propel
 		add_meta_box('propel-list-my-tasks', 'My Tasks', array(&$this, 'listMyTasksWidget'), 
 			'propel_page_propel-dashboard', 'normal', 'core'); 
 
+		add_meta_box('propel-beta-comments', 'Comments (Alpha)', array(&$this, 'commentsWidget'), 
+			'propel_page_propel-dashboard', 'normal', 'core');
+			
+		add_meta_box('propel-activity-feed', 'Activity Feed (Alpha)', array(&$this, 'activityFeedWidget'), 
+			'propel_page_propel-dashboard', 'normal', 'core');
 	}
 	
 	public function on_load_admin_page_propel_edit_project ()
@@ -383,6 +396,18 @@ class Propel
 		$users = $this->tasksModel->getUsers();
 		require_once('widgets/createTask.php');
 	}
+	
+	public function commentsWidget ()
+	{
+		$projects = $this->projectsModel->getProjects();
+		require_once('widgets/comments.php');
+	}
+	
+	public function activityFeedWidget ()
+	{
+		
+		require_once('widgets/activityFeed.php');
+	}
 
 
 	/***************************************************\
@@ -433,6 +458,21 @@ class Propel
 		wp_redirect($_POST['redirect']);
 	}
 	
+	//@TODO: Filter data?
+	public function insertCommentAction ()
+	{
+		$current_user = wp_get_current_user();
+		$data = array(
+			'comment_post_ID' => $_POST['propel_post_id'],
+			'comment_content' => $_POST['propel_content'],
+			'comment_approved' => 1,
+			'comment_author' => $current_user->display_name,
+			'user_id' => $current_user->ID,
+			'comment_author_email' => $current_user->user_email);
+		wp_insert_comment($data);
+		wp_redirect($_SERVER['HTTP_REFERER']);
+	}
+	
 	public function quickTaskAjax ()
 	{
 		$id = $this->tasksModel->createTask($_POST);
@@ -464,6 +504,23 @@ class Propel
 		
 		echo json_encode($task);
 		die();		
+	}
+	
+	public function getTaskDetailsAjax ()
+	{
+		global $wpdb;
+		
+		$task = $this->tasksModel->getTaskById($_POST['id']);
+		$sql = "SELECT * FROM {$wpdb->prefix}comments WHERE `comment_post_ID` = {$_POST['id']}";
+		$comments = $wpdb->get_results($sql);
+		
+		$f = "$task->post_content<br /><table width='100%'>";
+		foreach($comments as $comment) {
+			$f .= "<tr><td width='60'>".get_avatar($comment->user_id, 50)."<br /><p>{$comment->comment_author}</p></td><td><p>{$comment->comment_content}</p></td></tr>";
+		}
+		$f .= "</table>";
+		
+		die($f);
 	}
 	
 	public function rss ()

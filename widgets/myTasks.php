@@ -38,7 +38,7 @@
 		
 		$x = ($meta['complete'] == 100) ? "" : "un"; 
 		//echo "<tbody>";
-		echo "<tr id='propel-task-{$task->ID}' data-value='{$task->post_content}'>";
+		echo "<tr id='propel-task-{$task->ID}' data-value='{$task->ID}'>";
 		echo "<td><div style='background-color: $color' class='propel-status'>$z</div></td>";
 		echo "<td><p>{$task->post_title}</p></td>";
 		echo "<td><p>{$project->post_title}</p></td>";
@@ -102,9 +102,21 @@ jQuery(document).ready(function() {
 		{
 			/* Open this row */
 			this.src = "http://www.datatables.net/examples/examples_support/details_close.png";
-			oTable.fnOpen( nTr, '<tr><td><p style="margin-left: 50px;">'+jQuery("#" + nTr.id ).attr('data-value')+'</p></td></tr>', 'details' );
+			oTable.fnOpen( nTr, '<tr><td><p style="margin-left: 50px;" id="'+jQuery("#" + nTr.id ).attr('data-value')+'">'+get_details(jQuery("#" + nTr.id ).attr('data-value'))+'</p></td></tr>', 'details' );
 		}
 	} );
 } );
-	
+
+function get_details(id) {
+		var data = {
+			action: 'propel-get-task-details',
+			id: id
+		};
+
+		var r;
+		jQuery.post(ajaxurl, data, function(response) {
+			jQuery("#" + id).html(response);
+		});
+		
+}
 </script>
