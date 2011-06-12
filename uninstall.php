@@ -7,8 +7,9 @@ function uninstall() {
 	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}projects");
 	$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}tasks");
 	delete_option( 'propel_theme' );
-	delete_option( 'propel_error' );
+	delete_option( 'PROPEL_ERROR' );
 	delete_option( 'PROPEL_DBVERSION' );
+	delete_option( 'PROPEL_INCLUDE_CSS' );
 }
 
 uninstall();

@@ -58,12 +58,10 @@
 <script type="text/JavaScript">
 
 jQuery(document).ready(function() {
-	/*
-	 * Insert a 'details' column to the table
-	 */
+
 	var nCloneTh = document.createElement( 'th' );
 	var nCloneTd = document.createElement( 'td' );
-	nCloneTd.innerHTML = '<img style="margin-left: 5px; margin-right:5px;" src="http://www.datatables.net/examples/examples_support/details_open.png" />';
+	nCloneTd.innerHTML = '<img style="margin-left: 5px; margin-right:5px;" src="<?php echo WP_PLUGIN_URL ?>/propel/images/details_open.png" />';
 	nCloneTd.className = "center";
 	
 	jQuery('#propel-my-tasks thead tr').each( function () {
@@ -74,9 +72,7 @@ jQuery(document).ready(function() {
 		this.insertBefore(  nCloneTd.cloneNode( true ), this.childNodes[0] );
 	} );
 	
-	/*
-	 * Initialse DataTables, with no sorting on the 'details' column
-	 */
+
 	var oTable = jQuery('#propel-my-tasks').dataTable( {
 		"bStateSave": true,
 		"sPaginationType": "full_numbers",
@@ -86,22 +82,19 @@ jQuery(document).ready(function() {
 		"aaSorting": [[1, 'asc']]
 	});
 	
-	/* Add event listener for opening and closing details
-	 * Note that the indicator for showing which row is open is not controlled by DataTables,
-	 * rather it is done here
-	 */
+	
 	jQuery('#propel-my-tasks tbody td img').live('click', function () {
 		var nTr = this.parentNode.parentNode;
 		if ( this.src.match('details_close') )
 		{
 			/* This row is already open - close it */
-			this.src = "http://www.datatables.net/examples/examples_support/details_open.png";
+			this.src = "<?php echo WP_PLUGIN_URL ?>/propel/images/details_open.png";
 			oTable.fnClose( nTr );
 		}
 		else
 		{
 			/* Open this row */
-			this.src = "http://www.datatables.net/examples/examples_support/details_close.png";
+			this.src = "<?php echo WP_PLUGIN_URL ?>/propel/images/details_close.png";
 			oTable.fnOpen( nTr, '<tr><td><p style="margin-left: 50px;" id="'+jQuery("#" + nTr.id ).attr('data-value')+'">'+get_details(jQuery("#" + nTr.id ).attr('data-value'))+'</p></td></tr>', 'details' );
 		}
 	} );
@@ -113,7 +106,6 @@ function get_details(id) {
 			id: id
 		};
 
-		var r;
 		jQuery.post(ajaxurl, data, function(response) {
 			jQuery("#" + id).html(response);
 		});

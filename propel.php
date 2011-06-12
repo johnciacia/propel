@@ -30,9 +30,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * @since 1.7
 */
 if(get_option('PROPEL_DBVERSION') == 1.4)
-	add_action('admin_notices', function() {
-		echo "<div id='my_admin_notice' class='updated fade'><p><strong>Propel has changed its database structure. To continue using this plugin, you must first use our <a href='?page=propel_migrate_tool'>migration tool</a></strong></p></div>";
-	});
+	add_action('admin_notices', 'propel_add_notice');
+	
+	
+function propel_add_notice () {
+	echo "<div id='my_admin_notice' class='updated fade'><p><strong>Propel has changed its database structure. To continue using this plugin, you must first use our <a href='?page=propel_migrate_tool'>migration tool</a></strong></p></div>";
+}
  
 register_post_type("propel_project");
 
@@ -87,6 +90,9 @@ add_action('admin_action_propel-delete-task',
 add_action('admin_action_propel-insert-comment', 
 	array(&$propel, 'insertCommentAction'));
 
+add_action('admin_post_propel-update-settings', 
+	array(&$propel, 'updateSettingsAction'));
+	
 add_action('admin_action_propel-complete-task', 
 	array(&$propel, 'completeTaskAction'));	
 	
@@ -147,7 +153,10 @@ class Propel
 		
 		add_submenu_page('propel', 'Projects', "Projects", 
 			'publish_pages', 'propel-projects', array(&$this, 'projectsPage'));
-						
+
+		add_submenu_page('propel', 'Settings', "Settings", 
+			'publish_pages', 'propel-settings', array(&$this, 'settingsPage'));
+									
 		add_submenu_page(null, null, 'Edit Project', 
 			'publish_pages', 'propel-edit-project', array(&$this, 'editProjectPage'));
 			
@@ -197,7 +206,8 @@ class Propel
 
 		wp_enqueue_style('genesis-ui');
 		wp_enqueue_style('propel-jquery-ui');
-		wp_enqueue_style('propel-ui');
+		if(get_option('PROPEL_INCLUDE_CSS') == true)
+			wp_enqueue_style('propel-ui');
 	}
 
     /**
@@ -222,11 +232,11 @@ class Propel
 		add_meta_box('propel-list-my-tasks', 'My Tasks', array(&$this, 'listMyTasksWidget'), 
 			'propel_page_propel-dashboard', 'normal', 'core'); 
 
-		add_meta_box('propel-beta-comments', 'Comments (Alpha)', array(&$this, 'commentsWidget'), 
-			'propel_page_propel-dashboard', 'normal', 'core');
+		//add_meta_box('propel-beta-comments', 'Comments (Alpha)', array(&$this, 'commentsWidget'), 
+		//	'propel_page_propel-dashboard', 'normal', 'core');
 			
-		add_meta_box('propel-activity-feed', 'Activity Feed (Alpha)', array(&$this, 'activityFeedWidget'), 
-			'propel_page_propel-dashboard', 'normal', 'core');
+		//add_meta_box('propel-activity-feed', 'Activity Feed (Alpha)', array(&$this, 'activityFeedWidget'), 
+		//	'propel_page_propel-dashboard', 'normal', 'core');
 	}
 	
 	public function on_load_admin_page_propel_edit_project ()
@@ -280,6 +290,14 @@ class Propel
 					);
 		$pagehook = "toplevel_page_propel";
 		require_once('template.php');
+	}
+	
+	public function settingsPage ()
+	{
+		require_once('models/misc.php');
+		$helper = new fileHelper();
+		$themes = $helper->getTemplates();
+		require_once('pages/settingsPage.php');
 	}
 	
 	public function projectsPage ()
@@ -458,9 +476,23 @@ class Propel
 		wp_redirect($_POST['redirect']);
 	}
 	
+	public function updateSettingsAction ()
+	{	
+		
+		if($_POST['propel_include_css'] == "on") {
+			update_option('PROPEL_INCLUDE_CSS', true);
+		} else {
+			update_option('PROPEL_INCLUDE_CSS', false);			
+		}
+		
+		update_option('propel_theme', $_POST['propel_theme']);
+		wp_redirect($_SERVER['HTTP_REFERER']);
+	}
+	
 	//@TODO: Filter data?
 	public function insertCommentAction ()
 	{
+		
 		$current_user = wp_get_current_user();
 		$data = array(
 			'comment_post_ID' => $_POST['propel_post_id'],
@@ -516,9 +548,16 @@ class Propel
 		
 		$f = "$task->post_content<br /><table width='100%'>";
 		foreach($comments as $comment) {
-			$f .= "<tr><td width='60'>".get_avatar($comment->user_id, 50)."<br /><p>{$comment->comment_author}</p></td><td><p>{$comment->comment_content}</p></td></tr>";
+			$f .= "<tr><td width='40'>";
+			$f .= get_avatar($comment->user_id, 40);
+			$f .= "</td><td valign='top'><p>{$comment->comment_author}: {$comment->comment_content}</p></td></tr>";
 		}
-		$f .= "</table>";
+		$f .= "</table><br />";
+		$f .= "<form method='POST' action='admin.php'>
+				<input type='text' name='propel_content' placeholder='Write a comment...' style='width:400px' />
+				<input type='hidden' name='propel_post_id' value='$task->ID' />
+				<input type='hidden' name='action' value='propel-insert-comment' />
+				<input type='submit' class='button' /></form>";
 		
 		die($f);
 	}
@@ -557,14 +596,17 @@ class Propel
 		
 		if($id == NULL) { 
 			$projects = $this->projectsModel->getProjects();
+
 			foreach($projects as $project) {
-				$tasks[$project->title] = $this->tasksModel->getTasksByProject($project->id);
+
+				$tasks[$project->post_name] = $this->tasksModel->getTasksByProject($project->ID);
 			}
 		} else {
 			$projects[] = $this->projectsModel->getProjectById($id);
 			$tasks[$projects[0]->title] = $this->tasksModel->getTasksByProject($projects[0]->id);
 		}
-		
+	
+					
 		ob_start();
 		require_once('frontend/projects_new.php');
 		return ob_get_clean();
@@ -586,10 +628,15 @@ class Propel
 	*/
 	public function install ()
 	{
-	
-
 		add_option('propel_theme', WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css');
+		/*
+		* @since 1.6
+		*/
 		add_option('PROPEL_ERROR', '');
+		/*
+		* @since 1.7
+		*/
+		add_option('PROPEL_INCLUDE_CSS', true);
 		/*
 		* @since 1.2
 		*/
