@@ -1,0 +1,1 @@
+SELECT * FROM `wp_posts` JOIN wp_comments ON (wp_posts.ID = wp_comments.comment_post_ID) WHERE wp_posts.post_type IN ("propel_project", "propel_task") ORDER BY wp_comments.comment_date,wp_posts.post_date ASC LIMIT 5
