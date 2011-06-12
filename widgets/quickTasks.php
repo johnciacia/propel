@@ -10,7 +10,7 @@
 		<td>
 			<select id="pid" name="pid">
 			<?php foreach($projects as $project) : ?>
-				<option value="<?php echo $project->id; ?>"><?php echo $project->title; ?></option>
+				<option value="<?php echo $project->ID; ?>"><?php echo $project->post_title; ?></option>
 			<?php endforeach; ?>		
 			</select>
 		</td>
@@ -53,23 +53,17 @@ jQuery(document).ready(function($){
 
 		jQuery.post(ajaxurl, data, function(response) {
 			r = jQuery.parseJSON(response);
-			jQuery("#propel-my-tasks").prepend(
-				"<tbody onClick='gen_expand(this)' id='"+r.id+"'>"
-				+ "<tr>"
-				+ "<td><div style='background-color: " + r.color + ";' class='propel-status'>" + r.status + "</div></td>"
-				+ "<td><p>" + r.title + "</p></td>" 
-				+ "<td><p>" + r.pid + "</p></td> "
-				+ "<td><p>" + r.priority + "</p></td>"
-				+ "<td><p>" + r.complete + "</p></td>"
-				+ "<td class='gen-icon gen-delete-icon'><a href='?action=propel-delete-task&task="+r.id+"' title='Delete'>Delete</a></td>"
-				+ "<td class='gen-icon gen-edit-icon'><a href='?page=propel-edit-task&id="+r.id+"' title='Edit'>Edit</a></td>"
-				+ "<td class='gen-icon gen-unchecked-icon'><a href='?action=propel-complete-task&task="+r.id+"' title='Mark as complete'>Complete</a></td>"
-				+ "</tr>"
-				+ "<tr class='gen-hidden' id='gen-row-"+r.id+"'><td>&nbsp;</td><td colspan='7'><p>" + r.description + "</p></td></tr>"
-				+ "</tbody>");
-			
+			jQuery("#propel-my-tasks").dataTable().fnAddData(
+				["", 
+				"<div style='background-color: " + r.color + ";' class='propel-status'>" + r.status + "</div>", 
+				"<p>" + r.post_title + "</p>", 
+				"<p>" + r.pid + "</p>", 
+				"<p>" + r.priority + "</p>", 
+				"<p>" + r.complete + "</p>", 
+				" ", 
+				" ", 
+				" "]);
 
-			console.log(r)
 		});
 		
 		return false;

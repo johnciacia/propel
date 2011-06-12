@@ -4,7 +4,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 1.6.1
+Version: 1.7
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -25,6 +25,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
+
+/**
+ * @since 1.7
+*/
+if(get_option('PROPEL_DBVERSION') == 1.4)
+	add_action('admin_notices', 'propel_add_notice');
+	
+	
+function propel_add_notice () {
+	echo "<div id='my_admin_notice' class='updated fade'><p><strong>Propel has changed its database structure. To continue using this plugin, you must first use our <a href='?page=propel_migrate_tool'>migration tool</a></strong></p></div>";
+}
+ 
+register_post_type("propel_project");
 
 require_once('models/projectsModel.php');
 require_once('models/tasksModel.php');
@@ -74,6 +87,12 @@ add_action('admin_post_propel-create-project',
 add_action('admin_action_propel-delete-task', 
 	array(&$propel, 'deleteTaskAction'));
 	
+add_action('admin_action_propel-insert-comment', 
+	array(&$propel, 'insertCommentAction'));
+
+add_action('admin_post_propel-update-settings', 
+	array(&$propel, 'updateSettingsAction'));
+	
 add_action('admin_action_propel-complete-task', 
 	array(&$propel, 'completeTaskAction'));	
 	
@@ -85,7 +104,10 @@ add_action('admin_post_propel-update-task',
 
 add_action('wp_ajax_propel-quick-tasks', 
 	array(&$propel, 'quickTaskAjax'));	
-
+	
+add_action('wp_ajax_propel-get-task-details', 
+	array(&$propel, 'getTaskDetailsAjax'));
+	
 add_action('wp_ajax_propel-rss', 
 	array(&$propel, 'rss'));	
 /**
@@ -105,18 +127,38 @@ class Propel
 	private $projectsModel;
 	private $tasksModel;
 	
-	public function __construct()
+	public function __construct ()
 	{
 		$this->projectsModel = new ProjectsModel();
 		$this->tasksModel = new TasksModel();
 	}
-	
+
+	public function __call ($name, $arguments) 
+	{
+		if(substr($name, -6) == "Widget") {
+			$this->loadWidget($name, $arguments);
+			return;
+		}
+		
+		if(substr($name, -6) == "Action") {
+			$this->doAction($name, $arguments);
+			return;
+		}
+		
+
+	}
+		
 	/**
 	* @see http://codex.wordpress.org/Function_Reference/add_action
 	* @since 1.0
 	*/
 	public function admin_menu ()
 	{
+		if(get_option('PROPEL_DBVERSION') == 1.4) {
+			add_menu_page('Propel', 'Propel', 'activate_plugins', 
+				'propel_migrate_tool', array(&$this , 'migrateTool'));			
+			return;
+		}
 		
 		add_menu_page('Propel', 'Propel', 'publish_pages', 
 			'propel', array(&$this , 'propelPage'));
@@ -126,7 +168,10 @@ class Propel
 		
 		add_submenu_page('propel', 'Projects', "Projects", 
 			'publish_pages', 'propel-projects', array(&$this, 'projectsPage'));
-						
+
+		add_submenu_page('propel', 'Settings', "Settings", 
+			'publish_pages', 'propel-settings', array(&$this, 'settingsPage'));
+									
 		add_submenu_page(null, null, 'Edit Project', 
 			'publish_pages', 'propel-edit-project', array(&$this, 'editProjectPage'));
 			
@@ -144,7 +189,10 @@ class Propel
 	{
 		wp_enqueue_script('wp-lists');
 		wp_enqueue_script('common');
-		wp_enqueue_script('postbox');			
+		wp_enqueue_script('postbox');	
+		wp_enqueue_script('jquery-datatables', 
+			WP_PLUGIN_URL . '/propel/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core') );		
+			
 	}
 	
     /**
@@ -173,7 +221,8 @@ class Propel
 
 		wp_enqueue_style('genesis-ui');
 		wp_enqueue_style('propel-jquery-ui');
-		wp_enqueue_style('propel-ui');
+		if(get_option('PROPEL_INCLUDE_CSS') == true)
+			wp_enqueue_style('propel-ui');
 	}
 
     /**
@@ -198,6 +247,11 @@ class Propel
 		add_meta_box('propel-list-my-tasks', 'My Tasks', array(&$this, 'listMyTasksWidget'), 
 			'propel_page_propel-dashboard', 'normal', 'core'); 
 
+		//add_meta_box('propel-beta-comments', 'Comments (Alpha)', array(&$this, 'commentsWidget'), 
+		//	'propel_page_propel-dashboard', 'normal', 'core');
+			
+		//add_meta_box('propel-activity-feed', 'Activity Feed (Alpha)', array(&$this, 'activityFeedWidget'), 
+		//	'propel_page_propel-dashboard', 'normal', 'core');
 	}
 	
 	public function on_load_admin_page_propel_edit_project ()
@@ -253,6 +307,14 @@ class Propel
 		require_once('template.php');
 	}
 	
+	public function settingsPage ()
+	{
+		require_once('models/misc.php');
+		$helper = new Helper();
+		$themes = $helper->getTemplates();
+		require_once('pages/settingsPage.php');
+	}
+	
 	public function projectsPage ()
 	{
 		$projects = $this->projectsModel->getProjects();
@@ -292,26 +354,7 @@ class Propel
 	/***************************************************\
 	|                      WIDGETS                      |
 	\***************************************************/
-	public function aboutWidget()
-	{
-		require_once('widgets/about.php');
-	}
-	
-	public function faqWidget ()
-	{
-		require_once('widgets/faq.php');
-	}
-	
-	public function supportWidget ()
-	{
-		require_once('widgets/support.php');		
-	}
-	
-	public function contributeWidget ()
-	{
-		require_once('widgets/contribute.php');
-	}
-	
+
 	public function latestNewsWidget ($data)
 	{
 		$id = 0;
@@ -332,63 +375,98 @@ class Propel
 		$feed = $data['feeds'][$id];
 		require('widgets/rss.php');
 	}
-		
-	public function editProjectWidget ()
-	{
-		$project = $this->projectsModel->getProjectById($_GET['id']);
-		require_once('widgets/editProject.php');
-	} 
+	
 	
 	public function listProjectsWidget ()
 	{
 		echo "List projects";
 	}
-	
-	public function listMyTasksWidget ()
-	{
-		$tasks = $this->tasksModel->getTasksByUser();
-		require_once('widgets/myTasks.php');
-	}
-	
-	public function quickTasksWidget ()
-	{	
-		$projects = $this->projectsModel->getProjects();
-		require_once('widgets/quickTasks.php');
-	}
-	
-	public function listTasksWidget ()
-	{
-		$tasks = $this->tasksModel->getTasksByProject($_GET['id']);
-		require_once('widgets/listTasks.php');
-	}
-	
-	public function createTaskWidget ()
-	{
-		$users = $this->tasksModel->getUsers();
-		require_once('widgets/createTask.php');
-	}
 
+	public function loadWidget ($name, $arguments) 
+	{
+		switch($name) {
+			case "aboutWidget": 
+				require_once('widgets/about.php');
+				break;
+				
+			case "faqWidget":
+				require_once('widgets/faq.php');
+				break;
+				
+			case "activityFeedWidget":
+				require_once('widgets/activityFeed.php');
+				break;
+				
+			case "createTaskWidget":
+				$users = $this->tasksModel->getUsers();
+				require_once('widgets/createTask.php');
+				break;
+				
+			case "listTasksWidget":
+				$tasks = $this->tasksModel->getTasksByProject($_GET['id']);
+				require_once('widgets/listTasks.php');
+				break;
+				
+			case "quickTasksWidget":
+				$projects = $this->projectsModel->getProjects();
+				require_once('widgets/quickTasks.php');
+				break;
+				
+			case "supportWidget":
+				require_once('widgets/support.php');
+				break;
+				
+			case "contributeWidget":
+				require_once('widgets/contribute.php');
+				break;
+				
+			case "editProjectWidget":
+				$project = $this->projectsModel->getProjectById($_GET['id']);
+				require_once('widgets/editProject.php');
+				break;
+				
+			case "listMyTasksWidget":
+				$tasks = $this->tasksModel->getTasksByUser();
+				require_once('widgets/myTasks.php');
+				break;
+			
+			default:
+				die("No such widget...");
+		}
+	}
 
 	/***************************************************\
 	|                      ACTIONS                      |
 	\***************************************************/
-	public function updateProjectAction ()
+	public function doAction($name, $arguments)
 	{
-		$this->projectsModel->updateProject($_POST);
+		
+		switch($name) {
+			case "updateProjectAction":
+				$this->projectsModel->updateProject($_POST);
+				break;
+				
+			case "deleteProjectAction":
+				$this->projectsModel->deleteProject($_GET['id']);
+				$this->tasksModel->deleteTasksByProject($_GET['id']);
+				break;
+				
+			case "createProjectAction":
+				$this->projectsModel->createProject($_POST);
+				wp_redirect("admin.php?page=propel-projects");
+				
+			case "deleteTaskAction":
+				$this->tasksModel->deleteTask($_GET['task']);
+				break;
+				
+			case "updateTaskAction":
+				$this->tasksModel->updateTask($_POST);
+				break;
+			default:
+				die();
+		}
+		
 		wp_redirect($_SERVER['HTTP_REFERER']);
-	}
-	
-	public function deleteProjectAction ()
-	{
-		$this->projectsModel->deleteProject($_GET['id']);
-		$this->tasksModel->deleteTasksByProject($_GET['id']);
-		wp_redirect($_SERVER['HTTP_REFERER']);
-	}
-	
-	public function createProjectAction ()
-	{
-		$this->projectsModel->createProject($_POST);
-		wp_redirect("admin.php?page=propel-projects");	
 	}
 	
 	public function createTaskAction ()
@@ -405,22 +483,46 @@ class Propel
 		wp_redirect($_SERVER['HTTP_REFERER']);
 	}
 	
-	public function deleteTaskAction ()
-	{
-		$this->tasksModel->deleteTask($_GET['task']);
+	
+	public function updateSettingsAction ()
+	{	
+		
+		if($_POST['propel_include_css'] == "on") {
+			update_option('PROPEL_INCLUDE_CSS', true);
+		} else {
+			update_option('PROPEL_INCLUDE_CSS', false);			
+		}
+		
+		update_option('propel_theme', $_POST['propel_theme']);
 		wp_redirect($_SERVER['HTTP_REFERER']);
 	}
 	
-	public function updateTaskAction ()
+	//@TODO: Filter data?
+	public function insertCommentAction ()
 	{
-		$this->tasksModel->updateTask($_POST);
-		wp_redirect($_POST['redirect']);
+		
+		$current_user = wp_get_current_user();
+		$data = array(
+			'comment_post_ID' => $_POST['propel_post_id'],
+			'comment_content' => $_POST['propel_content'],
+			'comment_approved' => 1,
+			'comment_author' => $current_user->display_name,
+			'user_id' => $current_user->ID,
+			'comment_author_email' => $current_user->user_email);
+		wp_insert_comment($data);
+		wp_redirect($_SERVER['HTTP_REFERER']);
 	}
 	
 	public function quickTaskAjax ()
 	{
 		$id = $this->tasksModel->createTask($_POST);
 		$task = $this->tasksModel->getTaskById($id, ARRAY_A);
+		$meta = get_post_meta($id, "_propel_task_metadata", true);
+		
+		$task['complete'] = $meta['complete'];
+		$task['end'] = $meta['end'];
+		$task['priority'] = $meta['priority'];
+		
 		
 		if($task['complete'] == 100) {
 			$task['status'] = "Complete";
@@ -444,29 +546,35 @@ class Propel
 		die();		
 	}
 	
+	public function getTaskDetailsAjax ()
+	{
+		global $wpdb;
+		
+		$task = $this->tasksModel->getTaskById($_POST['id']);
+		$sql = "SELECT * FROM {$wpdb->prefix}comments WHERE `comment_post_ID` = {$_POST['id']}";
+		$comments = $wpdb->get_results($sql);
+		
+		$f = "$task->post_content<br /><table width='100%'>";
+		foreach($comments as $comment) {
+			$f .= "<tr><td width='40'>";
+			$f .= get_avatar($comment->user_id, 40);
+			$f .= "</td><td valign='top'><p>{$comment->comment_author}: {$comment->comment_content}</p></td></tr>";
+		}
+		$f .= "</table><br />";
+		$f .= "<form method='POST' action='admin.php'>
+				<input type='text' name='propel_content' placeholder='Write a comment...' style='width:400px' />
+				<input type='hidden' name='propel_post_id' value='$task->ID' />
+				<input type='hidden' name='action' value='propel-insert-comment' />
+				<input type='submit' class='button' /></form>";
+		
+		die($f);
+	}
+	
 	public function rss ()
 	{
-		$rss = fetch_feed($_POST['feed']);
-		if (!is_wp_error( $rss ) ) { 
-		    $maxitems = $rss->get_item_quantity(5); 
-		    $rss_items = $rss->get_items(0, $maxitems); 
-		}
-		
-		echo '<ul>';
-		if ($maxitems == 0) echo '<li>No items.</li>';
-		else {
-			foreach ($rss_items as $item) { 
-				echo "<li>
-						<p><a href='".$item->get_permalink()."' title='Posted ". $item->get_date('j F Y | g:i a') . "'>" . $item->get_title() . "</a><br />";
-				$description = strip_tags($item->get_description()); 
-		       	$description = substr($description, 0, -37);
-		       	echo $description;
-			    echo '</p></li>';
-			}
-		}
-				     
-		echo '</ul>';	
-		die();	
+		require_once('models/misc.php');
+		$helper = new Helper();
+		$helper->rss();
 	}
 	
 	/***************************************************\
@@ -478,69 +586,51 @@ class Propel
 		
 		if($id == NULL) { 
 			$projects = $this->projectsModel->getProjects();
+
 			foreach($projects as $project) {
-				$tasks[$project->title] = $this->tasksModel->getTasksByProject($project->id);
+
+				$tasks[$project->post_name] = $this->tasksModel->getTasksByProject($project->ID);
 			}
 		} else {
 			$projects[] = $this->projectsModel->getProjectById($id);
 			$tasks[$projects[0]->title] = $this->tasksModel->getTasksByProject($projects[0]->id);
 		}
-		
+	
+					
 		ob_start();
 		require_once('frontend/projects_new.php');
 		return ob_get_clean();
 	}
 	/***************************************************\
 	|                       MISC                        |
-	\***************************************************/		
+	\***************************************************/	
+	public function migrateTool ()
+	{
+		global $wpdb;
+		define('PROPEL_MIGRATE_DB', 1);
+		require_once('migrate.php');
+	}	
+	
+	
 	/**
 	* @see http://codex.wordpress.org/Creating_Tables_with_Plugins
 	* @since 1.0
 	*/
 	public function install ()
 	{
-		global $wpdb;
-		$table_name = $wpdb->prefix . "projects";
-
-		$sql = "CREATE TABLE IF NOT EXISTS `" . $table_name . "` (
-			`id` int(11) NOT NULL auto_increment,
-			`title` varchar(255) NOT NULL,
-			`description` text NOT NULL,
-			`start` date NOT NULL,
-			`end` date NOT NULL,
-			PRIMARY KEY  (`id`)
-			);";
-		$result = $wpdb->query($sql);
-        
-		$table_name = $wpdb->prefix . "tasks";
-		$sql = "CREATE TABLE `" . $table_name . "` (
-			`id` int(11) NOT NULL auto_increment,
-			`pid` int(11) NOT NULL,
-			`uid` int(11) NOT NULL default '0',
-			`title` varchar(255) NOT NULL,
-			`description` text NOT NULL,
-			`start` date NOT NULL,
-			`end` date NOT NULL,
-			`priority` int(11) NOT NULL,
-			`complete` int(11) NOT NULL default '0',
-			`approved` int(11) NOT NULL default '1',
-			PRIMARY KEY  (`id`)
-			);";
-		$result = $wpdb->query($sql);
-
-		/*
-		* There was an error creating the database.
-		*/
-		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-			return;
-		}
-
 		add_option('propel_theme', WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css');
+		/*
+		* @since 1.6
+		*/
 		add_option('PROPEL_ERROR', '');
+		/*
+		* @since 1.7
+		*/
+		add_option('PROPEL_INCLUDE_CSS', true);
 		/*
 		* @since 1.2
 		*/
-		add_option("PROPEL_DBVERSION", 1.4);
+		add_option("PROPEL_DBVERSION", 1.5);
 	}
 	
 }

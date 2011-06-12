@@ -2,12 +2,12 @@
 <table width="100%">
 	<tr>
 		<td width="20%"><p>Name: </p></td>
-		<td><input style="width:100%" type="text" name="title" value="<?php echo $project->title; ?>" /></td>
+		<td><input style="width:100%" type="text" name="title" value="<?php echo $project->post_title; ?>" /></td>
 	</tr>
 	
 	<tr>
 		<td><p>Overview: </p></td>
-		<td><textarea style="width:100%" name="description"><?php echo $project->description; ?></textarea></td>
+		<td><textarea style="width:100%" name="description"><?php echo $project->post_content; ?></textarea></td>
 	</tr>
 	
 	<tr>

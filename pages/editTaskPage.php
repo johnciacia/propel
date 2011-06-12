@@ -1,4 +1,5 @@
 <?php $referer = $_SERVER['HTTP_REFERER']; ?>
+<?php $meta = get_post_meta($task->ID, "_propel_task_metadata", true); ?>
 <div id="picasso-general" class="wrap">
 <?php screen_icon('options-general'); ?>
 <h2>Propel</h2>
@@ -8,17 +9,17 @@
 	<table class="propel" width="100%">
 		<tr>
 			<td width="20%"><p>Name</p></td>
-			<td><input type="text" name="title" style="width:100%" value="<?php echo $task->title; ?>"/></td>
+			<td><input type="text" name="title" style="width:100%" value="<?php echo $task->post_title; ?>"/></td>
 		</tr>
 
 		<tr>
 			<td><p>Start Date</p></td>
-			<td><input type="text" name="start_date" class="date" value="<?php echo $task->start; ?>" /></td>
+			<td><input type="text" name="start_date" class="date" value="<?php echo $meta['start']; ?>" /></td>
 		</tr>
 
 		<tr>
 			<td><p>End Date</p></td>
-			<td><input type="text" name="end_date" class="date" value="<?php echo $task->end; ?>" /></td>
+			<td><input type="text" name="end_date" class="date" value="<?php echo $meta['end']; ?>" /></td>
 		</tr>
 
 		<tr>
@@ -28,7 +29,7 @@
 					<option value="0">Unassigned</option>
 	                <?php
 	                foreach($users as $user) {
-						if($user->id == $task->uid)
+						if($user->id == $meta['assigned_to'])
 	                    	echo '<option value="' . $user->id . '" selected>' . $user->user_nicename . '</option>';
 						else
 		                    echo '<option value="' . $user->id . '">' . $user->user_nicename . '</option>';
@@ -45,7 +46,7 @@
 					<option value="1">Low</option>
 	                <?php
 	                for ($i = 1; $i <= 10; $i ++) {
-						if($i == $task->priority) {
+						if($i == $meta['priority']) {
 	                    	echo '<option value="' . $i . '" selected>' . $i . '</option>';
 						} else {
 						    echo '<option value="' . $i . '">' . $i . '</option>';
@@ -63,7 +64,7 @@
 	            <select name="complete">
 	                <?php
 	                for ($i = 0; $i <= 100; $i++) {
-						if($i == $task->complete)
+						if($i == $meta['complete'])
 							echo '<option value="' . $i . '" selected>' . $i . '%</option>';
 		                else 
 	                    	echo '<option value="' . $i . '">' . $i . '%</option>';
@@ -75,7 +76,7 @@
 
 		<tr>
 			<td><p>Description</p></td>
-			<td><textarea class="propel-description" style="width:100%" name="description"><?php echo $task->description; ?></textarea></td>
+			<td><textarea class="propel-description" style="width:100%" name="description"><?php echo $task->post_content; ?></textarea></td>
 		</tr>
 
 		<!---	

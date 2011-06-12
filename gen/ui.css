@@ -15,11 +15,12 @@
 .gen-table .gen-hidden {
 	display: none;
 }
-
+/*
 .gen-table tbody:hover {
 	background-color: #F1F1F1;
 	cursor: pointer;
 }
+*/
 
 .gen-table td {
 	border-top: 1px solid #DFDFDF;
@@ -59,4 +60,53 @@
 
 .gen-checked-icon a {
 	background: url('images/checked.png') no-repeat;
+}
+
+.gen-table th.sortable {
+	color: #666;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.dataTables_length {
+	width: 40%;
+	float: left;
+	margin: 5px;
+}
+
+.dataTables_filter {
+	width:30%;
+	float: right;
+	text-align: right;
+	margin: 5px;
+}
+
+.dataTables_info {
+	width:40%;
+	float: left;
+	margin: 5px;
+	margin-top: 15px;
+}
+
+.dataTables_paginate {
+	float: right;
+	text-align: right;
+	margin: 5px;
+	margin-top: 15px;
+}
+
+.paginate_active, .paginate_button {
+	margin: 2px;
+	border: 1px solid lightGrey;
+	font-weight: normal;
+	color: #555;
+	padding: 4px;
+	cursor: pointer;
+	background: #E6E6E6 url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/base/images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x;
+}
+
+.paginate_active {
+	font-weight: bold;
+	border: 1px solid darkGrey;
+	
 }
