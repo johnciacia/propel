@@ -1,6 +1,5 @@
 <?php
 
-
 class ProjectsModel 
 {
 	private $table_name;
@@ -12,15 +11,36 @@ class ProjectsModel
 	
 	public function createProject ($args)
 	{
+		
 		//global $wpdb;
+		global $current_user;
+		$user_info = get_currentuserinfo();
+		
 		$project = array(
 			'post_title' => $args['title'],
 			'post_content' => $args['description'],
 			'post_status' => 'publish',
 			'post_type' => "propel_project"
 		);
-
-		return wp_insert_post( $project );
+		
+		$id = wp_insert_post( $project );
+		
+		$args['start_date'] = isset($args['start_date']) ? $args['start_date'] : "0000-00-00";
+		$args['priority'] = isset($args['priority']) ? $args['priority'] : 1;
+		$args['complete'] = isset($args['complete']) ? $args['complete'] : 0;
+		$args['user'] = isset($args['user']) ? $args['user'] : $current_user->ID;	
+		
+		$meta = array(
+			'start' => $args['start_date'], 
+			'end' => $args['end_date'],
+			'priority' => $args['priority'],
+			'complete' => $args['complete'],
+		);
+		
+		add_post_meta($id, "_propel_project_metadata", $meta);
+		add_post_meta($id, "_propel_project_user", $args['user']);
+		
+		return $id;
 	}
 	
 	public function getProjects ()
