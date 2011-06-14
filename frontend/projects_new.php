@@ -52,7 +52,7 @@
 
 <script>
 	jQuery(document).ready(function() {
-		jQuery(".propel-projects").tabs();
+		jQuery(".propel-projects").tabs().wrap('<div class="propel">');
 		<?php echo $script; ?>
 	});
 </script>

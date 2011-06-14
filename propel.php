@@ -191,6 +191,8 @@ class Propel
 		wp_enqueue_script('postbox');	
 		wp_enqueue_script('jquery-datatables', 
 			WP_PLUGIN_URL . '/propel/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core') );		
+		wp_register_style("propel-admin-jquery-ui", WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css');
+		wp_enqueue_style('propel-admin-jquery-ui');
 			
 	}
 	
