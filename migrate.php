@@ -53,7 +53,8 @@ function create_task($task, $project, $id) {
 		'end' => $task->end,
 		'priority' => $task->priority,
 		'complete' => $task->complete,
-		'assigned_to' => $task->uid);
+		'assigned_to' => $task->uid
+	);
 
 	add_post_meta($id, "_propel_task_metadata", $meta);
 	add_post_meta($id, "_propel_task_user", $task->uid);

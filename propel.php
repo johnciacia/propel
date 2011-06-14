@@ -258,7 +258,7 @@ class Propel
 	
 	public function on_load_admin_page_propel_edit_project ()
 	{			
-		add_meta_box('propel-list-tasks', 'Tasks', array(&$this, 'listTasksWidget'), 
+		add_meta_box('propel-list-tasks', 'Tasks', array(&$this, 'listMyTasksWidget'), 
 			'admin_page_propel-edit-project', 'normal', 'core');
 			
 		add_meta_box('propel-add-task', 'Add Task', array(&$this, 'createTaskWidget'), 
