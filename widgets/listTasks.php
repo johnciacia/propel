@@ -1,12 +1,12 @@
 <table width="100%" class="gen-table tablesorter" id="propel-tasks">
 	<thead>
 		<tr>
-			<th><p>Name</p></th>
-			<th><p>Priority</p></th>
-			<th><p>Owner</p></th>
-			<th><p>Start</p></th>
-			<th><p>Due</p></th>
-			<th><p>%</p></th>
+			<th class="sortable"><p>Name</p></th>
+			<th class="sortable"><p>Priority</p></th>
+			<th class="sortable"><p>Owner</p></th>
+			<th class="sortable"><p>Start</p></th>
+			<th class="sortable"><p>Due</p></th>
+			<th class="sortable"><p>%</p></th>
 			<th></th>
 			<th></th>
 			<th></th>

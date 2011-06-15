@@ -1,7 +1,7 @@
 <table width="100%" id="propel-my-tasks" class="gen-table">
 	<thead>
 		<tr>
-			<th class="sortable"></th>
+			<th></th>
 			<th class="sortable"><p>Name</p></th>
 			<th class="sortable"><p>Project</p></th>
 			<th class="sortable"><p>Start Date</p></th>
@@ -15,8 +15,6 @@
 	</thead>
 	
 	<?php
-
-
 	foreach($tasks as $task) {
 		$meta = get_post_meta($task->ID, "_propel_task_metadata", true);
 		$project = $this->projectsModel->getProjectById($task->post_parent);

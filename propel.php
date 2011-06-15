@@ -258,7 +258,7 @@ class Propel
 	
 	public function on_load_admin_page_propel_edit_project ()
 	{			
-		add_meta_box('propel-list-tasks', 'Tasks', array(&$this, 'listMyTasksWidget'), 
+		add_meta_box('propel-list-tasks', 'Tasks', array(&$this, 'listTasksWidget'), 
 			'admin_page_propel-edit-project', 'normal', 'core');
 			
 		add_meta_box('propel-add-task', 'Add Task', array(&$this, 'createTaskWidget'), 
@@ -406,7 +406,7 @@ class Propel
 				
 			case "listTasksWidget":
 				$tasks = $this->tasksModel->getTasksByProject($_GET['id']);
-				require_once('widgets/listTasks.php');
+				require_once('widgets/myTasks.php');
 				break;
 				
 			case "quickTasksWidget":
