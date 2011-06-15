@@ -13,9 +13,7 @@
 		</tr>
 	</thead>
 	
-
 	<?php
-
 	foreach($tasks as $task) {
 		$meta = get_post_meta($task->ID, "_propel_task_metadata", true);
 		$owner = ($meta['assigned_to'] == 0) ? "-" : $this->tasksModel->getUserById($meta['assigned_to'])->user_nicename;
@@ -39,7 +37,6 @@
 
 
 <script type="text/JavaScript">
-
 
 	function gen_expand(elem) {
 		jQuery('#gen-row-' + elem.id).toggle();

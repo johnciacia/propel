@@ -1,11 +1,13 @@
 <table width="100%" id="propel-my-tasks" class="gen-table">
 	<thead>
 		<tr>
-			<th class="sortable" width="80"></th>
+			<th class="sortable"></th>
 			<th class="sortable"><p>Name</p></th>
 			<th class="sortable"><p>Project</p></th>
+			<th class="sortable"><p>Start Date</p></th>
+			<th class="sortable"><p>End Date</p></th>
 			<th class="sortable"><p>Priority</p></th>
-			<th class="sortable"><p>%</p></th>
+			<th class="sortable"><p>Progress</p></th>
 			<th></th>
 			<th></th>
 			<th></th>
@@ -18,6 +20,7 @@
 	foreach($tasks as $task) {
 		$meta = get_post_meta($task->ID, "_propel_task_metadata", true);
 		$project = $this->projectsModel->getProjectById($task->post_parent);
+		
 		if($meta['complete'] == 100) {
 			$z = "Complete";
 			$color = "#0000cc";
@@ -42,8 +45,10 @@
 		echo "<td><div style='background-color: $color' class='propel-status'>$z</div></td>";
 		echo "<td><p>{$task->post_title}</p></td>";
 		echo "<td><p>{$project->post_title}</p></td>";
+		echo "<td><p>{$meta['start']}</p></td>";
+		echo "<td><p>{$meta['end']}</p></td>";
 		echo "<td><p>{$meta['priority']}</p></td>";
-		echo "<td><p>{$meta['complete']}</p></td>";
+		echo "<td><p>{$meta['complete']}%</p></td>";
 		echo "<td class='gen-icon gen-delete-icon'><a href='?action=propel-delete-task&task={$task->ID}' title='Delete'>Delete</a></td>";
 		echo "<td class='gen-icon gen-edit-icon'><a href='?page=propel-edit-task&id={$task->ID}' title='Edit'>Edit</a></td>";
 		echo "<td class='gen-icon gen-{$x}checked-icon'><a href='?action=propel-complete-task&task={$task->ID}' title='Mark as complete'>Complete</a></td>";	

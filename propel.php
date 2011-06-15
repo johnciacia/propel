@@ -428,7 +428,7 @@ class Propel
 				break;
 				
 			case "listMyTasksWidget":
-				$tasks = $this->tasksModel->getTasksByUser();
+				$tasks = $this->tasksModel->getTasksByProject($_GET['id']);
 				require_once('widgets/myTasks.php');
 				break;
 			
@@ -449,8 +449,8 @@ class Propel
 				break;
 				
 			case "deleteProjectAction":
-				$this->projectsModel->deleteProject($_GET['id']);
-				$this->tasksModel->deleteTasksByProject($_GET['id']);
+				$this->projectsModel->deleteProject($_GET['project']);
+				$this->tasksModel->deleteTasksByProject($_GET['project']);
 				break;
 				
 			case "createProjectAction":

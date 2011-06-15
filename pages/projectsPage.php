@@ -13,6 +13,8 @@
 				<tr>
 					<th></th>
 					<th class="sortable"><p>Project</p></th>
+					<th class="sortable"><p>Start Date</p></th>
+					<th class="sortable"><p>End Date</p></th>
 					<th class="sortable"><p>Priority</p></th>
 					<th class="sortable"><p>%</p></th>
 					<th></th>
@@ -52,6 +54,8 @@
 				echo "<tr id='propel-project-{$project->ID}' data-value='{$project->ID}'>";
 					echo "<td><div style='background-color: $color' class='propel-status'>$z</div></td>";
 					echo "<td><a href='admin.php?page=propel-edit-project&id={$project->ID}'>{$project->post_title}</a></td>";
+					echo "<td><p>{$meta['start']}</p></td>";
+					echo "<td><p>{$meta['end']}</p></td>";
 					echo "<td><p>{$meta['priority']}</p></td>";
 					echo "<td><p>{$meta['complete']}</p></td>";
 					echo "<td class='gen-icon gen-delete-icon'><a href='?action=propel-delete-project&project={$project->ID}' title='Delete'>Delete</a></td>";
@@ -190,12 +194,12 @@
 
 				<tr>
 					<td><p>Start Date</p></td>
-					<td><input type="text" name="start_date" class="date" value="<?php echo $meta['start']; ?>" /></td>
+					<td><input type="text" name="start_date" class="date" value="" /></td>
 				</tr>
 		
 				<tr>
 					<td><p>End Date</p></td>
-					<td><input type="text" name="end_date" class="date" value="<?php echo $meta['end']; ?>" /></td>
+					<td><input type="text" name="end_date" class="date" value="" /></td>
 				</tr>
 
 				<tr>
