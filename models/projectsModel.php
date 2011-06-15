@@ -12,7 +12,6 @@ class ProjectsModel
 	public function createProject ($args)
 	{
 		
-		//global $wpdb;
 		global $current_user;
 		$user_info = get_currentuserinfo();
 		
@@ -41,6 +40,7 @@ class ProjectsModel
 		add_post_meta($id, "_propel_project_user", $args['user']);
 		
 		return $id;
+		
 	}
 	
 	public function getProjects ()
@@ -66,6 +66,15 @@ class ProjectsModel
 		$project['post_content'] = $args['description'];
 
 		wp_update_post( $project );
+		
+		$meta = array(
+			'start' => $args['start_date'], 
+			'end' => $args['end_date'],
+			'priority' => $args['priority'],
+			'complete' => $args['complete']
+		);
+		
+		update_post_meta($args['id'], "_propel_project_metadata", $meta);
 			
 	}	
 	
