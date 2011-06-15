@@ -428,7 +428,7 @@ class Propel
 				break;
 				
 			case "listMyTasksWidget":
-				$tasks = $this->tasksModel->getTasksByProject($_GET['id']);
+				$tasks = $this->tasksModel->getTasksByUser();
 				require_once('widgets/myTasks.php');
 				break;
 			
