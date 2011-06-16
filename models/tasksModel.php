@@ -57,6 +57,7 @@ class TasksModel
 	
 	public function createTask ($args)
 	{
+	
 		global $current_user;
 		$user_info = get_currentuserinfo();
 		
@@ -71,7 +72,10 @@ class TasksModel
 		
 		$id = wp_insert_post( $task );
 		
+<<<<<<< HEAD
 		//Set post meta
+=======
+>>>>>>> d2b00128ef8251f948618e20bdc46880053939df
 		$args['start_date'] = isset($args['start_date']) ? $args['start_date'] : "0000-00-00";
 		$args['priority'] = isset($args['priority']) ? $args['priority'] : 1;
 		$args['complete'] = isset($args['complete']) ? $args['complete'] : 0;
@@ -82,7 +86,8 @@ class TasksModel
 			'end' => $args['end_date'],
 			'priority' => $args['priority'],
 			'complete' => $args['complete'],
-			'assigned_to' => $args['user']);
+			'assigned_to' => $args['user']
+		);
 		
 		add_post_meta($id, "_propel_task_metadata", $meta);
 		add_post_meta($id, "_propel_task_user", $args['user']);
@@ -137,7 +142,9 @@ class TasksModel
 			'end' => $args['end_date'],
 			'priority' => $args['priority'],
 			'complete' => $args['complete'],
-			'assigned_to' => $args['user']);
+			'assigned_to' => $args['user']
+		);
+		
 		update_post_meta($args['id'], "_propel_task_metadata", $meta);
 
 
