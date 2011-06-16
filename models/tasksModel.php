@@ -60,6 +60,7 @@ class TasksModel
 		global $current_user;
 		$user_info = get_currentuserinfo();
 		
+		//Create post
 		$task = array(
 			'post_title' => $args['title'],
 			'post_content' => $args['description'],
@@ -70,7 +71,7 @@ class TasksModel
 		
 		$id = wp_insert_post( $task );
 		
-		
+		//Set post meta
 		$args['start_date'] = isset($args['start_date']) ? $args['start_date'] : "0000-00-00";
 		$args['priority'] = isset($args['priority']) ? $args['priority'] : 1;
 		$args['complete'] = isset($args['complete']) ? $args['complete'] : 0;
@@ -85,6 +86,11 @@ class TasksModel
 		
 		add_post_meta($id, "_propel_task_metadata", $meta);
 		add_post_meta($id, "_propel_task_user", $args['user']);
+		
+		//Set post tags
+		$tags = explode(",", $args['tags']);
+		$tags = sanitize_term($tags, 'post_tag');
+		wp_set_object_terms($id, $tags, 'post_tag');
 		
 		return $id;
 
@@ -133,7 +139,10 @@ class TasksModel
 			'complete' => $args['complete'],
 			'assigned_to' => $args['user']);
 		update_post_meta($args['id'], "_propel_task_metadata", $meta);
-		
+
+
+		$tags = explode(",", $args['tags']);
+		wp_set_object_terms($args['id'], $tags, 'post_tag');		
 	}
 	
 	//	

@@ -1,5 +1,10 @@
 <?php $referer = $_SERVER['HTTP_REFERER']; ?>
 <?php $meta = get_post_meta($task->ID, "_propel_task_metadata", true); ?>
+<?php $tags = wp_get_post_tags($task->ID); 
+foreach($tags as $tag) {
+	$a[] = $tag->name;
+}
+$tags = @implode(",", $a); ?>
 <div id="picasso-general" class="wrap">
 <?php screen_icon('options-general'); ?>
 <h2>Propel</h2>
@@ -77,6 +82,11 @@
 		<tr>
 			<td><p>Description</p></td>
 			<td><textarea class="propel-description" style="width:100%" name="description"><?php echo $task->post_content; ?></textarea></td>
+		</tr>
+		
+		<tr>
+			<td><p>Tags (comma separated)</p></td>
+			<td><input type="text" name="tags" value="<?php echo $tags; ?>" /></tr>
 		</tr>
 
 		<!---	
