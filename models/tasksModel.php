@@ -73,7 +73,8 @@ class TasksModel
 		$id = wp_insert_post( $task );
 		
 		//Set post meta
-		$args['start_date'] = isset($args['start_date']) ? $args['start_date'] : "0000-00-00";
+		$args['start_date'] = !empty($args['start_date']) ? $args['start_date'] : "0000-00-00";
+		$args['end_date'] = !empty($args['end_date']) ? $args['end_date'] : "0000-00-00";
 		$args['priority'] = isset($args['priority']) ? $args['priority'] : 1;
 		$args['complete'] = isset($args['complete']) ? $args['complete'] : 0;
 		$args['user'] = isset($args['user']) ? $args['user'] : $current_user->ID;	
@@ -85,6 +86,7 @@ class TasksModel
 			'complete' => $args['complete'],
 			'assigned_to' => $args['user']
 		);
+		
 		
 		add_post_meta($id, "_propel_task_metadata", $meta);
 		add_post_meta($id, "_propel_task_user", $args['user']);

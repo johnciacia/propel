@@ -38,6 +38,7 @@ function propel_add_notice () {
 }
  
 
+require_once('functions.php');
 require_once('models/projectsModel.php');
 require_once('models/tasksModel.php');
 $propel = new Propel();
