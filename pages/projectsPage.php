@@ -11,12 +11,12 @@
 		<table id="propel-my-projects" class="widefat">
 			<thead>
 				<tr>
-					<th></th>
-					<th class="sortable"><p>Project</p></th>
-					<th class="sortable"><p>Start Date</p></th>
-					<th class="sortable"><p>End Date</p></th>
-					<th class="sortable"><p>Priority</p></th>
-					<th class="sortable"><p>%</p></th>
+					<th style="width:50px;"></th>
+					<th>Project</th>
+					<th>Start Date</th>
+					<th>End Date</th>
+					<th>Priority</th>
+					<th>%</th>
 					<th></th>
 					<th></th>
 					<th></th>
