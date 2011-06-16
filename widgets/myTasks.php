@@ -8,8 +8,8 @@
 			<?php } else { ?>
 				<th class="sortable"><p><?php _e("Project", "propel"); ?></p></th>
 			<?php } ?>
-			<th class="sortable"><p>Start Date</p></th>
-			<th class="sortable"><p>End Date</p></th>
+			<th class="sortable"><p><?php _e("Start Date", "propel") ?></p></th>
+			<th class="sortable"><p><?php _e("End Date", "propel") ?></p></th>
 			<th class="sortable"><p><?php _e("Priority", "propel"); ?></p></th>
 			<th class="sortable"><p><?php _e("Progress", "propel"); ?></p></th>
 			<th></th>
@@ -74,16 +74,51 @@ jQuery(document).ready(function() {
 		this.insertBefore(  nCloneTd.cloneNode( true ), this.childNodes[0] );
 	} );
 	
+	jQuery.fn.dataTableExt.oSort['percent-asc']  = function(a,b) {
+			console.log("asc");
+		var x = (a == "-") ? 0 : a.replace( /%/, "" );
+		var y = (b == "-") ? 0 : b.replace( /%/, "" );
+		x = parseFloat( x );
+		y = parseFloat( y );
+		return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+	};
 
+	jQuery.fn.dataTableExt.oSort['percent-desc'] = function(a,b) {
+			console.log("desc");
+		var x = (a == "-") ? 0 : a.replace( /%/, "" );
+		var y = (b == "-") ? 0 : b.replace( /%/, "" );
+		x = parseFloat( x );
+		y = parseFloat( y );
+		return ((x < y) ?  1 : ((x > y) ? -1 : 0));
+	};
+	
+	/*
+	jQuery.fn.dataTableExt.oStdClasses.sPaging = "tablenav-pages";
+	jQuery.fn.dataTableExt.oStdClasses.sPageFirst = "first-page";
+ 	jQuery.fn.dataTableExt.oStdClasses.sPageLast = "last-page";
+	jQuery.fn.dataTableExt.oStdClasses.sPageButton = "";
+	jQuery.fn.dataTableExt.oStdClasses.sPageButtonActive = "current-page";
+	jQuery.fn.dataTableExt.oStdClasses.sPageButtonStaticDisabled = "disabled";
+	jQuery.fn.dataTableExt.oStdClasses.sPagePrevious = "prev-page";
+	jQuery.fn.dataTableExt.oStdClasses.sPageNext = "next-page";
+	
+	
+	jQuery.fn.dataTableExt.oStdClasses.sStripOdd = "alternate";
+	*/
+	
 	var oTable = jQuery('#propel-my-tasks').dataTable( {
 		"bStateSave": true,
 		"sPaginationType": "full_numbers",
 		"aoColumnDefs": [
 			{ "bSortable": false, "aTargets": [ 0 ] }
 		],
-		"aaSorting": [[1, 'asc']]
+		"aaSorting": [[1, 'asc']],
+				"aoColumns" : [
+			null, null, null, null, null, null, null, null, null, null, null
+		]
 	});
 	
+
 	
 	jQuery('#propel-my-tasks tbody td img').live('click', function () {
 		var nTr = this.parentNode.parentNode;

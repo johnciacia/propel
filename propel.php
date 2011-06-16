@@ -464,6 +464,8 @@ class Propel
 				
 			case "updateTaskAction":
 				$this->tasksModel->updateTask($_POST);
+				wp_redirect($_POST['redirect']);
+				die();
 				break;
 			default:
 				die();
