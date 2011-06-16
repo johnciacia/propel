@@ -47,7 +47,7 @@
 	    </tr>
 
 		<tr>
-			<td><p><?php _e("Progress", "propel"); ?></p></td>
+			<td><p>Completed</p></td>
 			<td>
 	            <select name="complete">
 	                <?php
@@ -65,15 +65,12 @@
 			<td><textarea class="propel-description" style="width:100%" name="description"></textarea></td>
 		</tr>
 
-		<tr>
-			<td><p>Tags (comma separated)</p></td>
-			<td><input type="text" name="tags" /></td>
-		</tr>
-		
+		<!---	
 		<tr>
 			<td><p>Send E-Mail</p></td>
 			<td><input type="checkbox" name="email" />
 		</tr>
+		 -->
 
 		<tr>
 			<td>&nbsp;</td>

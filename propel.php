@@ -4,7 +4,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 1.7.1
+Version: 1.7.0
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -258,7 +258,7 @@ class Propel
 	
 	public function on_load_admin_page_propel_edit_project ()
 	{			
-		add_meta_box('propel-list-tasks', 'Tasks', array(&$this, 'listTasksWidget'), 
+		add_meta_box('propel-list-tasks', 'Tasks', array(&$this, 'listMyTasksWidget'), 
 			'admin_page_propel-edit-project', 'normal', 'core');
 			
 		add_meta_box('propel-add-task', 'Add Task', array(&$this, 'createTaskWidget'), 
@@ -406,7 +406,7 @@ class Propel
 				
 			case "listTasksWidget":
 				$tasks = $this->tasksModel->getTasksByProject($_GET['id']);
-				require_once('widgets/myTasks.php');
+				require_once('widgets/listTasks.php');
 				break;
 				
 			case "quickTasksWidget":

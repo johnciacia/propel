@@ -61,7 +61,6 @@ class TasksModel
 		global $current_user;
 		$user_info = get_currentuserinfo();
 		
-		//Create post
 		$task = array(
 			'post_title' => $args['title'],
 			'post_content' => $args['description'],
@@ -73,9 +72,13 @@ class TasksModel
 		$id = wp_insert_post( $task );
 		
 <<<<<<< HEAD
+<<<<<<< HEAD
 		//Set post meta
 =======
 >>>>>>> d2b00128ef8251f948618e20bdc46880053939df
+=======
+		
+>>>>>>> parent of 441355a... added basic support for tags
 		$args['start_date'] = isset($args['start_date']) ? $args['start_date'] : "0000-00-00";
 		$args['priority'] = isset($args['priority']) ? $args['priority'] : 1;
 		$args['complete'] = isset($args['complete']) ? $args['complete'] : 0;
@@ -91,11 +94,6 @@ class TasksModel
 		
 		add_post_meta($id, "_propel_task_metadata", $meta);
 		add_post_meta($id, "_propel_task_user", $args['user']);
-		
-		//Set post tags
-		$tags = explode(",", $args['tags']);
-		$tags = sanitize_term($tags, 'post_tag');
-		wp_set_object_terms($id, $tags, 'post_tag');
 		
 		return $id;
 
@@ -146,10 +144,7 @@ class TasksModel
 		);
 		
 		update_post_meta($args['id'], "_propel_task_metadata", $meta);
-
-
-		$tags = explode(",", $args['tags']);
-		wp_set_object_terms($args['id'], $tags, 'post_tag');		
+		
 	}
 	
 	//	
