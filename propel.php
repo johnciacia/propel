@@ -217,7 +217,9 @@ class Propel
 			WP_PLUGIN_URL . '/propel/js/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('jquery-ui-progressbar', 
 			WP_PLUGIN_URL . '/propel/js/jquery.ui.progressbar.min.js', array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
-					
+		wp_enqueue_script('propel-functions', 
+			WP_PLUGIN_URL . '/propel/js/functions.js', array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
+								
 		wp_register_style("propel-jquery-ui", get_option('propel_theme'));
 		wp_register_style("genesis-ui", WP_PLUGIN_URL . '/propel/gen/ui.css');
 		wp_register_style("propel-ui", WP_PLUGIN_URL . '/propel/style.css');
@@ -249,6 +251,9 @@ class Propel
 
 		add_meta_box('propel-list-my-tasks', 'My Tasks', array(&$this, 'listMyTasksWidget'), 
 			'propel_page_propel-dashboard', 'normal', 'core'); 
+			
+		add_meta_box('propel-list-archived-tasks', 'Archived Tasks', array(&$this, 'archivedTasksWidget'), 
+			'propel_page_propel-dashboard', 'normal', 'core');
 
 		//add_meta_box('propel-beta-comments', 'Comments (Alpha)', array(&$this, 'commentsWidget'), 
 		//	'propel_page_propel-dashboard', 'normal', 'core');
@@ -261,7 +266,10 @@ class Propel
 	{			
 		add_meta_box('propel-list-tasks', 'Tasks', array(&$this, 'listTasksWidget'), 
 			'admin_page_propel-edit-project', 'normal', 'core');
-			
+
+		add_meta_box('propel-list-archived-tasks', 'Archived Tasks', array(&$this, 'archivedTasksWidget'), 
+			'admin_page_propel-edit-project', 'normal', 'core');
+						
 		add_meta_box('propel-add-task', 'Add Task', array(&$this, 'createTaskWidget'), 
 			'admin_page_propel-edit-project', 'side', 'core');	
 			
@@ -407,7 +415,14 @@ class Propel
 				
 			case "listTasksWidget":
 				$tasks = $this->tasksModel->getTasksByProject($_GET['id']);
-				require_once('widgets/myTasks.php');
+				$show_complete = false;
+				require('widgets/myTasks.php');
+				break;
+				
+			case "archivedTasksWidget":
+				$tasks = $this->tasksModel->getTasksByProject($_GET['id']);
+				$show_complete = true;
+				require('widgets/myTasks.php');
 				break;
 				
 			case "quickTasksWidget":
@@ -430,6 +445,7 @@ class Propel
 				
 			case "listMyTasksWidget":
 				$tasks = $this->tasksModel->getTasksByUser();
+				$show_complete = false;
 				require_once('widgets/myTasks.php');
 				break;
 			
