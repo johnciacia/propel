@@ -52,6 +52,7 @@
 		echo "<td class='gen-icon gen-edit-icon'><a href='?page=propel-edit-task&id={$task->ID}' title='Edit'>Edit</a></td>";
 		echo "<td class='gen-icon gen-{$x}checked-icon'><a href='?action=propel-complete-task&task={$task->ID}' title='Mark as complete'>Complete</a></td>";	
 		echo "</tr>";
+		//echo "<tr><td></td><td colspan='10'><small>tags</small></td></tr>";
 
 	}
 	?>
@@ -70,8 +71,11 @@ jQuery(document).ready(function() {
 		this.insertBefore( nCloneTh, this.childNodes[0] );
 	} );
 	
+	var i = 0;
 	jQuery('#propel-my-tasks tbody tr').each( function () {
-		this.insertBefore(  nCloneTd.cloneNode( true ), this.childNodes[0] );
+		//if(i % 2 == 0)
+			this.insertBefore(  nCloneTd.cloneNode( true ), this.childNodes[0] );
+		i++;
 	} );
 	
 	jQuery.fn.dataTableExt.oSort['percent-asc']  = function(a,b) {

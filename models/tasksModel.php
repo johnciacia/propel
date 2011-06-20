@@ -112,14 +112,10 @@ class TasksModel
 		return $wpdb->query($sql);		
 	}
 
-	//@todo - convert to custom post type
 	public function completeTask ($id)
 	{
-		global $wpdb;
-		return $wpdb->update("{$wpdb->prefix}tasks", 
-			array('complete' =>  100), 
-			array('id' => $id));
-			
+		$meta = array('complete' => 100);
+		return update_post_meta($id, "_propel_task_metadata", $meta);
 	}
 	
 	//@todo - convert to custom post type	
