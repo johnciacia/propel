@@ -217,8 +217,8 @@ class Propel
 			WP_PLUGIN_URL . '/propel/js/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('jquery-ui-progressbar', 
 			WP_PLUGIN_URL . '/propel/js/jquery.ui.progressbar.min.js', array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
-		wp_enqueue_script('propel-functions', 
-			WP_PLUGIN_URL . '/propel/js/functions.js', array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
+		//wp_enqueue_script('propel-functions', 
+		//	WP_PLUGIN_URL . '/propel/js/functions.js', array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
 								
 		wp_register_style("propel-jquery-ui", get_option('propel_theme'));
 		wp_register_style("genesis-ui", WP_PLUGIN_URL . '/propel/gen/ui.css');
@@ -614,7 +614,7 @@ class Propel
 			}
 		} else {
 			$projects[] = $this->projectsModel->getProjectById($id);
-			$tasks[$projects[0]->title] = $this->tasksModel->getTasksByProject($projects[0]->id);
+			$tasks[$projects[0]->post_name] = $this->tasksModel->getTasksByProject($projects[0]->ID);
 		}
 	
 					
