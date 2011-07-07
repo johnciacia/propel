@@ -4,7 +4,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 1.7.2
+Version: 1.8
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
