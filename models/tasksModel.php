@@ -148,10 +148,7 @@ class TasksModel
 	//	
     public function getUsers ()
     {
-        global $wpdb;
-        $table_name = $wpdb->prefix . "users";
-        $sql = "SELECT `id`,`user_nicename` FROM `$table_name`";
-        return $wpdb->get_results($sql, OBJECT);
+        return get_users();
     }
 
     public function getUserById ($id)
