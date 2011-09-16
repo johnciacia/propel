@@ -27,28 +27,7 @@
 			foreach($projects as $project) {
 			
 				$meta = get_post_meta($project->ID, "_propel_project_metadata", true);
-				
-				if ( $meta['complete'] == 100 ) {
-				
-					$z = "Complete";
-					$color = "#0000cc";
-				
-				} 
-				
-				else {
-				
-					if(date("Y-m-d") == $meta['end']) {
-						$z = "Today";
-						$color = "#ffa500";
-					} else if(date("Y-m-d") > $meta['end']) {
-						$z = "Overdue";
-						$color = "#ff0000";
-					} else {
-						$z = "Later";
-						$color = "#008000";
-					}
-				}
-				
+				list($z, $color) = propel_get_status($meta);				
 				$x = ($meta['complete'] == 100) ? "" : "un"; 
 		
 				echo "<tr id='propel-project-{$project->ID}' data-value='{$project->ID}'>";
