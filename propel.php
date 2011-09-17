@@ -420,7 +420,8 @@ class Propel
 				break;
 				
 			case "archivedTasksWidget":
-				$tasks = $this->tasksModel->getTasksByProject($_GET['id']);
+				//@todo remove error supression operator
+				$tasks = $this->tasksModel->getTasksByProject(@$_GET['id']);
 				$show_complete = true;
 				require('widgets/myTasks.php');
 				break;
