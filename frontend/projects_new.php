@@ -21,7 +21,8 @@
 	<?php 
 	foreach($tasks[$project->post_name] as $task) : 
 		$meta = (object)get_post_meta($task->ID, "_propel_task_metadata", true);
-		$script .= 'jQuery("#progress-'.$task->ID.'").progressbar({value: '.$meta->complete.'});';
+		$progress = ($meta->complete != "") ? $meta->complete : 0;
+		$script .= 'jQuery("#progress-'.$task->ID.'").progressbar({value: '.$progress.'});' . "\n";
 	?>
 	<tbody>
 	<tr>
