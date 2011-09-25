@@ -266,7 +266,7 @@ class Propel
 	
 	public function timeLoggerWidget ()
 	{
-		echo "Time Logger Widget...";
+		require_once( 'widgets/timeLog.php' );
 	}
 	
 	public function addNewTimeWidget () 
@@ -547,14 +547,29 @@ class Propel
 	
 	public function addTimeAction ()
 	{
-		$meta = get_post_meta( $_POST['id'], '_propel_time', true );
+
+		$post = get_post( $_POST['id'] );
+
+		if($post->post_type != "propel_project") {
+			$task = $post->post_title;
+			$post = get_post( $post->post_parent );	
+		}
 		
-		if($meta == "")
-			$meta = array();
-			
-		array_push($meta, 'foo');	
-		
-		update_post_meta( $_POST['id'], '_propel_time', $meta );
+		$meta = get_post_meta( $post->ID, '_project_owner', true );
+
+		$title ="$meta [$post->post_title] - $task";
+
+		$post = array(
+		  'comment_status' => 'open',
+		  'ping_status' => 'closed',
+		  'post_parent' =>  $_POST['id'],
+		  'post_status' => 'publish',
+		  'post_title' => $title,
+		  'post_type' => 'propel_time'
+		);  
+
+		$id = wp_insert_post( $post );
+
 		wp_redirect($_SERVER['HTTP_REFERER']);
 		
 	}
