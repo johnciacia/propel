@@ -71,7 +71,11 @@ add_action('load-admin_page_propel-edit-project',
 	array(&$propel, 'on_load_admin_page_propel_edit_project'));
 
 add_action('load-toplevel_page_propel',
-	array(&$propel, 'on_load_toplevel_page_propel'));	
+	array(&$propel, 'on_load_toplevel_page_propel'));
+
+add_action('load-propel_page_propel-time',
+	array(&$propel, 'on_load_propel_page_propel_time'));
+	
 /**
  * Actions
  */
@@ -107,6 +111,9 @@ add_action('wp_ajax_propel-quick-tasks',
 	
 add_action('wp_ajax_propel-get-task-details', 
 	array(&$propel, 'getTaskDetailsAjax'));
+
+add_action('admin_post_propel_add_time', 
+	array(&$propel, 'addTimeAction'));
 	
 add_action('wp_ajax_propel-rss', 
 	array(&$propel, 'rss'));	
@@ -171,7 +178,10 @@ class Propel
 
 		add_submenu_page('propel', 'Settings', "Settings", 
 			'publish_pages', 'propel-settings', array(&$this, 'settingsPage'));
-									
+
+		add_submenu_page('propel', 'Time Logger', "Time Logger", 
+			'publish_pages', 'propel-time', array(&$this, 'timeLoggerPage'));
+												
 		add_submenu_page(null, null, 'Edit Project', 
 			'publish_pages', 'propel-edit-project', array(&$this, 'editProjectPage'));
 			
@@ -237,10 +247,53 @@ class Propel
 		$columns['toplevel_page_propel'] = 2;
 		$columns['propel_page_propel-dashboard'] = 2;
 		$columns['admin_page_propel-edit-project'] = 2;
+		$columns['propel_page_propel-time'] = 2;
 		return $columns;
 	}
 
+	public function on_load_propel_page_propel_time() 
+	{
+		add_meta_box('propel-time-logger', 'Time Logger', array(&$this, 'timeLoggerWidget'), 
+			'propel_page_propel-time', 'normal', 'core');
 
+		add_meta_box('propel-add-new-time', 'Add New', array(&$this, 'addNewTimeWidget'), 
+			'propel_page_propel-time', 'side', 'core'); 
+			
+		add_meta_box('propel-filter-time', 'Filter Time', array(&$this, 'filterTimeWidget'), 
+			'propel_page_propel-time', 'side', 'core');
+
+	}
+	
+	public function timeLoggerWidget ()
+	{
+		echo "Time Logger Widget...";
+	}
+	
+	public function addNewTimeWidget () 
+	{
+		$projects = $this->projectsModel->getProjects();
+		require_once('widgets/addTime.php');
+	}
+	
+	public function filterTimeWidget ()
+	{
+		echo "Filter time log";
+	}
+	
+	public function timeLoggerPage ()
+	{
+		global $screen_layout_columns;
+		$data = array(
+					'feeds' => array(
+						"http://www.johnciacia.com/category/propel/feed",
+						"http://wordpress.org/support/rss/tags/propel",
+						"http://plugins.trac.wordpress.org/log/propel?limit=10&mode=stop_on_copy&format=rss"
+						)
+					);
+		$pagehook = "propel_page_propel-time";
+		require_once('template.php');		
+	}
+	
 	/**
 	* Add widgets to the edit-album page
 	*/
@@ -350,6 +403,7 @@ class Propel
 	
 	public function createProjectPage ()
 	{
+		$users = $this->tasksModel->getUsers();
 		require_once('pages/createProjectPage.php');
 	}
 	
@@ -489,6 +543,20 @@ class Propel
 		}
 		
 		wp_redirect($_SERVER['HTTP_REFERER']);
+	}
+	
+	public function addTimeAction ()
+	{
+		$meta = get_post_meta( $_POST['id'], '_propel_time', true );
+		
+		if($meta == "")
+			$meta = array();
+			
+		array_push($meta, 'foo');	
+		
+		update_post_meta( $_POST['id'], '_propel_time', $meta );
+		wp_redirect($_SERVER['HTTP_REFERER']);
+		
 	}
 	
 	public function createTaskAction ()
