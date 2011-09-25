@@ -75,6 +75,7 @@ class ProjectsModel
 			'complete' => $args['complete']
 		);
 		
+		update_post_meta($args['id'], "_propel_project_owner", $args['owner']);
 		update_post_meta($args['id'], "_propel_project_metadata", $meta);
 			
 	}	

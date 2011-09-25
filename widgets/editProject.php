@@ -59,6 +59,21 @@
 	</tr>
 	
 	<tr>
+		<td><p>Owner</p></td>
+		<td>
+			<select name="owner">
+			<?php foreach($users as $user) : ?>
+				<?php if($user->ID == $owner) : ?>
+					<option value="<?php echo $user->ID; ?>" selected><?php echo $user->user_nicename; ?></option>
+				<?php else : ?>
+					<option value="<?php echo $user->ID; ?>"><?php echo $user->user_nicename; ?></option>
+				<?php endif; ?>
+			<?php endforeach; ?>
+			</select>
+		</td>
+	</tr>
+
+	<tr>
 		<td colspan="2"><input class="button-primary" type="submit" value="Submit"></td>
 	</tr>
 	

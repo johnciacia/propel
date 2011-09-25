@@ -495,6 +495,8 @@ class Propel
 				
 			case "editProjectWidget":
 				$project = $this->projectsModel->getProjectById($_GET['id']);
+				$users = $this->tasksModel->getUsers(); 
+				$owner = get_post_meta( $_GET['id'], '_propel_project_owner', true);
 				require_once('widgets/editProject.php');
 				break;
 				
