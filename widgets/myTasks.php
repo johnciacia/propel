@@ -21,11 +21,12 @@
 	<?php
 	foreach($tasks as $task) {
 		//Get the post meta information
-		$meta = get_post_meta($task->ID, "_propel_task_metadata", true);	
-		if($show_complete == false && $meta['complete'] == 100)
+		$meta = get_post_meta($task->ID, "_propel_task_metadata", true);
+		//@todo remove error supression operator	
+		if($show_complete == false && @$meta['complete'] == 100)
 			continue;
-
-		if($show_complete == true && $meta['complete'] < 100) 
+		//@todo remove error supression operator
+		if($show_complete == true && @$meta['complete'] < 100) 
 			continue;
 			
 		//Get the owner of this task. If the task is unassigned display a dash

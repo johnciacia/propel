@@ -15,6 +15,18 @@
 		<td>Description:</td>
 		<td><textarea style="width:100%" name="description"></textarea>
 	</tr>
+
+	<tr>
+		<td>Owner:</td>
+		<td>
+			<select name="owner">
+				<?php foreach($users as $user) {
+					echo "<option value='{$user->ID}'>{$user->user_nicename}</option>";
+				}
+				?>
+			</select>
+		</td>
+	</tr>
 	
 	<tr>
 		<td>&nbsp;</td>
