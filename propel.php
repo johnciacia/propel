@@ -1,5 +1,9 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+/**
+* @todo: create import tool
+* @todo: remove unnecessary code
+*/
+
 /*
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
@@ -41,6 +45,12 @@ function propel_add_notice () {
 require_once('functions.php');
 require_once('models/projectsModel.php');
 require_once('models/tasksModel.php');
+
+require_once( __DIR__ . '/post-types/project.php' );
+require_once( __DIR__ . '/post-types/task.php' );
+require_once( __DIR__ . '/post-types/time.php' );
+
+
 $propel = new Propel();
 
 
@@ -66,54 +76,21 @@ add_filter('screen_layout_columns',
 */  
 add_action('load-propel_page_propel-dashboard', 
 	array(&$propel, 'on_load_propel_page_propel_dashboard'));
-	
-add_action('load-admin_page_propel-edit-project',
-	array(&$propel, 'on_load_admin_page_propel_edit_project'));
 
 add_action('load-toplevel_page_propel',
 	array(&$propel, 'on_load_toplevel_page_propel'));
-
-add_action('load-propel_page_propel-time',
-	array(&$propel, 'on_load_propel_page_propel_time'));
 	
 /**
  * Actions
  */
-add_action('admin_post_propel_update_project', 
-	array(&$propel, 'updateProjectAction'));
-
-add_action('admin_action_propel-delete-project', 
-	array(&$propel, 'deleteProjectAction'));
-
-add_action('admin_post_propel-create-project', 
-	array(&$propel, 'createProjectAction'));
-		
-add_action('admin_action_propel-delete-task', 
-	array(&$propel, 'deleteTaskAction'));
-	
-add_action('admin_action_propel-insert-comment', 
-	array(&$propel, 'insertCommentAction'));
-
 add_action('admin_post_propel-update-settings', 
 	array(&$propel, 'updateSettingsAction'));
-	
-add_action('admin_action_propel-complete-task', 
-	array(&$propel, 'completeTaskAction'));	
-	
-add_action('admin_post_propel_create_task', 
-	array(&$propel, 'createTaskAction'));
-
-add_action('admin_post_propel-update-task', 
-	array(&$propel, 'updateTaskAction'));
 
 add_action('wp_ajax_propel-quick-tasks', 
 	array(&$propel, 'quickTaskAjax'));	
 	
 add_action('wp_ajax_propel-get-task-details', 
 	array(&$propel, 'getTaskDetailsAjax'));
-
-add_action('admin_post_propel_add_time', 
-	array(&$propel, 'addTimeAction'));
 	
 add_action('wp_ajax_propel-rss', 
 	array(&$propel, 'rss'));	
@@ -172,24 +149,9 @@ class Propel
 			
 		add_submenu_page('propel', 'Dashboard', "Dashboard", 
 			'publish_pages', 'propel-dashboard', array(&$this, 'dashboardPage'));
-		
-		add_submenu_page('propel', 'Projects', "Projects", 
-			'publish_pages', 'propel-projects', array(&$this, 'projectsPage'));
 
 		add_submenu_page('propel', 'Settings', "Settings", 
-			'publish_pages', 'propel-settings', array(&$this, 'settingsPage'));
-
-		add_submenu_page('propel', 'Time Logger', "Time Logger", 
-			'publish_pages', 'propel-time', array(&$this, 'timeLoggerPage'));
-												
-		add_submenu_page(null, null, 'Edit Project', 
-			'publish_pages', 'propel-edit-project', array(&$this, 'editProjectPage'));
-			
-		add_submenu_page(null, null, 'Edit Task', 
-			'publish_pages', 'propel-edit-task', array(&$this, 'editTaskPage'));
-
-		add_submenu_page(null, null, 'Create Project', 
-			'publish_pages', 'propel-create-project', array(&$this, 'createProjectPage'));					
+			'publish_pages', 'propel-settings', array(&$this, 'settingsPage'));				
 	}
 
 	/**
@@ -216,7 +178,6 @@ class Propel
      */
 	public function init ()
 	{ 
-		register_post_type("propel_project");
 			
 		wp_enqueue_script('jquery');
 		wp_enqueue_script('jquery-ui-core');
@@ -250,49 +211,6 @@ class Propel
 		$columns['propel_page_propel-time'] = 2;
 		return $columns;
 	}
-
-	public function on_load_propel_page_propel_time() 
-	{
-		add_meta_box('propel-time-logger', 'Time Logger', array(&$this, 'timeLoggerWidget'), 
-			'propel_page_propel-time', 'normal', 'core');
-
-		add_meta_box('propel-add-new-time', 'Add New', array(&$this, 'addNewTimeWidget'), 
-			'propel_page_propel-time', 'side', 'core'); 
-			
-		add_meta_box('propel-filter-time', 'Filter Time', array(&$this, 'filterTimeWidget'), 
-			'propel_page_propel-time', 'side', 'core');
-
-	}
-	
-	public function timeLoggerWidget ()
-	{
-		require_once( 'widgets/timeLog.php' );
-	}
-	
-	public function addNewTimeWidget () 
-	{
-		$projects = $this->projectsModel->getProjects();
-		require_once('widgets/addTime.php');
-	}
-	
-	public function filterTimeWidget ()
-	{
-		echo "Filter time log";
-	}
-	
-	public function timeLoggerPage ()
-	{
-		global $screen_layout_columns;
-		$data = array(
-					'feeds' => array(
-						"http://www.johnciacia.com/category/propel/feed",
-						"http://wordpress.org/support/rss/tags/propel",
-						"http://plugins.trac.wordpress.org/log/propel?limit=10&mode=stop_on_copy&format=rss"
-						)
-					);
-		$pagehook = "propel_page_propel-time";
-		require_once('template.php');		
-	}
 	
 	/**
 	* Add widgets to the edit-album page
@@ -313,21 +231,6 @@ class Propel
 			
 		//add_meta_box('propel-activity-feed', 'Activity Feed (Alpha)', array(&$this, 'activityFeedWidget'), 
 		//	'propel_page_propel-dashboard', 'normal', 'core');
-	}
-	
-	public function on_load_admin_page_propel_edit_project ()
-	{			
-		add_meta_box('propel-list-tasks', 'Tasks', array(&$this, 'listTasksWidget'), 
-			'admin_page_propel-edit-project', 'normal', 'core');
-
-		add_meta_box('propel-list-archived-tasks', 'Archived Tasks', array(&$this, 'archivedTasksWidget'), 
-			'admin_page_propel-edit-project', 'normal', 'core');
-						
-		add_meta_box('propel-add-task', 'Add Task', array(&$this, 'createTaskWidget'), 
-			'admin_page_propel-edit-project', 'side', 'core');	
-			
-		add_meta_box('propel-edit-project', 'Edit Project', array(&$this, 'editProjectWidget'), 
-			'admin_page_propel-edit-project', 'side', 'core');	
 	}
 	
 	public function on_load_toplevel_page_propel ()
@@ -357,8 +260,7 @@ class Propel
 	/***************************************************\
 	|                       PAGES                       |
 	\***************************************************/	
-	public function propelPage ()
-	{
+	public function propelPage () {
 		global $screen_layout_columns;
 		$data = array(
 					'feeds' => array(
@@ -371,50 +273,19 @@ class Propel
 		require_once('template.php');
 	}
 	
-	public function settingsPage ()
-	{
+	public function settingsPage () {
 		require_once('models/misc.php');
 		$helper = new Helper();
 		$themes = $helper->getTemplates();
 		require_once('pages/settingsPage.php');
 	}
 	
-	public function projectsPage ()
-	{
-		$projects = $this->projectsModel->getProjects();
-		require_once('pages/projectsPage.php');
-	}
-	
-	public function dashboardPage ()
-	{
+	public function dashboardPage () {
 		global $screen_layout_columns;
 		$data = array();
 		$pagehook = "propel_page_propel-dashboard";
 		require_once('template.php');
 	}
-	
-	public function editProjectPage ()
-	{
-		global $screen_layout_columns;
-		$data = array();
-		$pagehook = "admin_page_propel-edit-project";
-		require_once('template.php');
-	}
-	
-	public function createProjectPage ()
-	{
-		$users = $this->tasksModel->getUsers();
-		require_once('pages/createProjectPage.php');
-	}
-	
-	public function editTaskPage ()
-	{
-		$task = $this->tasksModel->getTaskById($_GET['id']);
-		$users = $this->tasksModel->getUsers();
-		require_once('pages/editTaskPage.php');
-	}
-	
-	
 	
 	/***************************************************\
 	|                      WIDGETS                      |
@@ -439,12 +310,6 @@ class Propel
 		$id = 2;
 		$feed = $data['feeds'][$id];
 		require('widgets/rss.php');
-	}
-	
-	
-	public function listProjectsWidget ()
-	{
-		echo "List projects";
 	}
 
 	public function loadWidget ($name, $arguments) 
@@ -514,82 +379,15 @@ class Propel
 	/***************************************************\
 	|                      ACTIONS                      |
 	\***************************************************/
-	public function doAction($name, $arguments)
-	{
+	public function doAction($name, $arguments) {
 		
 		switch($name) {
-			case "updateProjectAction":
-				$this->projectsModel->updateProject($_POST);
-				break;
-				
-			case "deleteProjectAction":
-				$this->projectsModel->deleteProject($_GET['project']);
-				$this->tasksModel->deleteTasksByProject($_GET['project']);
-				break;
-				
-			case "createProjectAction":
-				$this->projectsModel->createProject($_POST);
-				wp_redirect("admin.php?page=propel-projects");
-				
-			case "deleteTaskAction":
-				$this->tasksModel->deleteTask($_GET['task']);
-				break;
-				
-			case "updateTaskAction":
-				$this->tasksModel->updateTask($_POST);
-				wp_redirect($_POST['redirect']);
-				die();
-				break;
 			default:
-				die();
+				die("Unknown action. This could be a bug...");
 		}
 		
 		wp_redirect($_SERVER['HTTP_REFERER']);
 	}
-	
-	public function addTimeAction ()
-	{
-
-		$post = get_post( $_POST['id'] );
-
-		if($post->post_type != "propel_project") {
-			$task = $post->post_title;
-			$post = get_post( $post->post_parent );	
-		}
-		
-		$meta = get_post_meta( $post->ID, '_project_owner', true );
-
-		$title ="$meta [$post->post_title] - $task";
-
-		$post = array(
-		  'comment_status' => 'open',
-		  'ping_status' => 'closed',
-		  'post_parent' =>  $_POST['id'],
-		  'post_status' => 'publish',
-		  'post_title' => $title,
-		  'post_type' => 'propel_time'
-		);  
-
-		$id = wp_insert_post( $post );
-
-		wp_redirect($_SERVER['HTTP_REFERER']);
-		
-	}
-	
-	public function createTaskAction ()
-	{
-		if($this->tasksModel->createTask($_POST) == false)
-			update_option('PROPEL_ERROR', "Task creation failed.");
-			
-		wp_redirect($_SERVER['HTTP_REFERER']);
-	}
-	
-	public function completeTaskAction () 
-	{
-		$this->tasksModel->completeTask($_GET['task']);
-		wp_redirect($_SERVER['HTTP_REFERER']);
-	}
-	
 	
 	public function updateSettingsAction ()
 	{	
@@ -603,22 +401,7 @@ class Propel
 		update_option('propel_theme', $_POST['propel_theme']);
 		wp_redirect($_SERVER['HTTP_REFERER']);
 	}
-	
-	//@TODO: Filter data?
-	public function insertCommentAction ()
-	{
-		
-		$current_user = wp_get_current_user();
-		$data = array(
-			'comment_post_ID' => $_POST['propel_post_id'],
-			'comment_content' => $_POST['propel_content'],
-			'comment_approved' => 1,
-			'comment_author' => $current_user->display_name,
-			'user_id' => $current_user->ID,
-			'comment_author_email' => $current_user->user_email);
-		wp_insert_comment($data);
-		wp_redirect($_SERVER['HTTP_REFERER']);
-	}
+
 	
 	public function quickTaskAjax ()
 	{
