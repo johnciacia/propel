@@ -38,6 +38,7 @@ class ProjectsModel
 		
 		add_post_meta($id, "_propel_project_metadata", $meta);
 		add_post_meta($id, "_propel_project_user", $args['user']);
+		add_post_meta($id, "_propel_project_owner", $args['owner']);
 		
 		return $id;
 		
@@ -74,6 +75,7 @@ class ProjectsModel
 			'complete' => $args['complete']
 		);
 		
+		update_post_meta($args['id'], "_propel_project_owner", $args['owner']);
 		update_post_meta($args['id'], "_propel_project_metadata", $meta);
 			
 	}	
