@@ -31,7 +31,8 @@ class Post_Type_Project {
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 	}
 
-	public statuc function admin_menu() {
+
+	public static function admin_menu() {
 		global $submenu;
 		unset($submenu['edit.php?post_type=propel_project'][10]);
 	}
@@ -78,7 +79,7 @@ class Post_Type_Project {
 			'update_item' => __( 'Update Category' ),
 			'add_new_item' => __( 'Add New Category' ),
 			'new_item_name' => __( 'New Category Name' ),
-			'menu_name' => __( 'Category' )); 	
+			'menu_name' => __( 'Categories' )); 	
 
 		register_taxonomy('propel_category', 'propel_project', array(
 			'hierarchical' => true,
@@ -102,8 +103,9 @@ class Post_Type_Project {
     		'not_found' =>  __( 'No projects found' ),
     		'not_found_in_trash' => __( 'No projects found in Trash' ), 
     		'parent_item_colon' => '',
-    		'menu_name' => 'Propel' );
-
+    		'menu_name' => 'Propel'
+    	);
+    	
 		$args = array(
 			'labels' => $labels,
 			'public' => true,
@@ -116,7 +118,15 @@ class Post_Type_Project {
 			'has_archive' => true, 
 			'hierarchical' => false,
 			'menu_position' => null,
-			'supports' => array( 'title','editor','comments', 'author', 'custom-fields', 'revisions' ) ); 
+			'supports' => array( 'title','editor','comments', 'author', 'custom-fields', 'revisions' )
+		);
+    	
+		function modify_menu() {
+			global $submenu;
+			unset($submenu['edit.php?post_type=propel_project'][10]);
+		}
+		add_action('admin_menu','modify_menu');
+
 		
 		register_post_type( self::POST_TYPE, $args );
 
@@ -135,7 +145,7 @@ class Post_Type_Project {
 		$new_columns['start'] = __( 'Start Date', 'propel' );
 		$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
-		$new_columns['complete'] = __( '%' );
+		$new_columns['complete'] = __( 'Progress', 'propel' );
 		$new_columns['comments'] = $columns['comments'];
 		return $new_columns;
 	}
@@ -178,20 +188,20 @@ class Post_Type_Project {
 					break;
 				}
 
-				echo "<a href='edit.php?post_type=propel_project&client=" . $user->ID . "'>" . $user->user_nicename . "</a>";
+				echo "<a href='edit.php?post_type=propel_project&client=" . $user->ID . "'>" . $user->display_name . "</a>";
 				break;
 
 			case 'start':
 				$date = get_post_meta( $id, '_propel_start_date', true );
 				if($date) {
-					echo date( "Y-m-d" , $date );
+					echo date( "M. jS, Y" , $date );
 				}
 				break;
 
 			case 'end':
 				$date = get_post_meta( $id, '_propel_end_date', true );
 				if($date) {
-					echo date( "Y-m-d" , $date );
+					echo date( "M. jS, Y" , $date );
 				}
 				break;
 
@@ -200,7 +210,7 @@ class Post_Type_Project {
 				break;
 
 			case 'complete':
-				echo get_post_meta( $id, '_propel_complete', true );
+				echo "" . get_post_meta( $id, '_propel_complete', true ) . "%";
 				break;
 
 			default:
@@ -247,11 +257,11 @@ class Post_Type_Project {
 
 		$start = get_post_meta( get_the_ID(), '_propel_start_date', true );
 		if($start)
-			$start = date( "Y-m-d", $start );
+			$start = date( "M. jS, Y", $start );
 
 		$end = get_post_meta( get_the_ID(), '_propel_end_date', true );
 		if($end)
-			$end = date( "Y-m-d", $end );
+			$end = date( "M. jS, Y", $end );
 
 		$priority = get_post_meta( get_the_ID(), '_propel_priority', true );
 		if(!$priority)
