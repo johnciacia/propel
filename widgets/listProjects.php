@@ -23,10 +23,10 @@
 		} 
 		
 		else {
-			if(date("Y-m-d") == $meta['end']) {
+			if(date("M. jS, Y") == $meta['end']) {
 				$z = "Today";
 				$color = "#ffa500";
-			} else if(date("Y-m-d") > $meta['end']) {
+			} else if(date("M. jS, Y") > $meta['end']) {
 				$z = "Overdue";
 				$color = "#ff0000";
 			} else {

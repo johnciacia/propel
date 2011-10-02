@@ -138,13 +138,13 @@ class Post_Type_Task {
 	 */
 	public static function register_columns($columns) {
 		$new_columns['cb'] = '<input type="checkbox" />';
-		$new_columns['title'] = _x( 'Project Name', 'column name' );
+		$new_columns['title'] = _x( 'Task Name', 'column name' );
 		$new_columns['project'] = __( 'Project', 'propel' );
 		$new_columns['start'] = __( 'Start Date', 'propel' );
 		$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
-		$new_columns['complete'] = __( '%' );
-		$new_columns['categories'] = $columns['categories'];
+		$new_columns['complete'] = __( 'Progress', 'propel' );
+		$new_columns['categories'] = __( 'Categories', 'propel' );
 		$new_columns['tags'] = $columns['tags'];
 		$new_columns['comments'] = $columns['comments'];
 		return $new_columns;
@@ -184,14 +184,14 @@ class Post_Type_Task {
 			case 'start':
 				$date = get_post_meta( $id, '_propel_start_date', true );
 				if($date) {
-					echo date( "Y-m-d" , $date );
+					echo date( "M. jS, Y" , $date );
 				}
 				break;
 
 			case 'end':
 				$date = get_post_meta( $id, '_propel_end_date', true );
 				if($date) {
-					echo date( "Y-m-d" , $date );
+					echo date( "M. jS, Y" , $date );
 				}
 				break;
 
@@ -200,7 +200,7 @@ class Post_Type_Task {
 				break;
 
 			case 'complete':
-				echo get_post_meta( $id, '_propel_complete', true );
+				echo "" . get_post_meta( $id, '_propel_complete', true ) . "%";
 				break;
 
 			default:
@@ -218,11 +218,11 @@ class Post_Type_Task {
 
 		$start = get_post_meta( get_the_ID(), '_propel_start_date', true );
 		if($start)
-			$start = date("Y-m-d", $start);
+			$start = date("M. jS, Y", $start);
 
 		$end = get_post_meta( get_the_ID(), '_propel_end_date', true );
 		if($end)
-			$end = date("Y-m-d", $end);
+			$end = date("M. jS, Y", $end);
 
 		$priority = get_post_meta( get_the_ID(), '_propel_priority', true );
 		if(!$priority)

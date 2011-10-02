@@ -39,7 +39,7 @@
 jQuery(document).ready(function($){
 	
 	jQuery('.date').datepicker({
-		dateFormat : 'yy-mm-dd'
+		dateFormat : 'MMM dd yyyy'
 	});
 	
 	$('#propel-quick-tasks').submit(function() {

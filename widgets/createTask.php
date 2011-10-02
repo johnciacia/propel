@@ -70,7 +70,7 @@
 			<td><input type="text" name="tags" /></td>
 		</tr>
 
-		<!---	
+		<!--
 		<tr>
 			<td><p>Send E-Mail</p></td>
 			<td><input type="checkbox" name="email" />
@@ -94,7 +94,7 @@
 <script type="text/javascript">
 jQuery(document).ready(function(){
 	jQuery('.date').datepicker({
-		dateFormat : 'yy-mm-dd'
+		dateFormat : 'MMM dd yyyy'
 	});
 });
 </script>

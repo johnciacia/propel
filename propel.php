@@ -74,8 +74,7 @@ class Propel {
 			//return;
 		}
 
-		add_submenu_page('options-general.php', 'Propel', "Propel", 
-			'publish_pages', 'propel-settings', array(__CLASS__, 'settingsPage'));				
+		add_submenu_page('options-general.php', 'Propel', "Propel", 'publish_pages', 'propel-settings', array(__CLASS__, 'settingsPage'));				
 	}
 
 	/**

@@ -51,9 +51,9 @@
 			<select name="owner">
 			<?php foreach($users as $user) : ?>
 				<?php if($user->ID == $owner) : ?>
-					<option value="<?php echo $user->ID; ?>" selected><?php echo $user->user_nicename; ?></option>
+					<option value="<?php echo $user->ID; ?>" selected><?php echo $user->display_name; ?></option>
 				<?php else : ?>
-					<option value="<?php echo $user->ID; ?>"><?php echo $user->user_nicename; ?></option>
+					<option value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
 				<?php endif; ?>
 			<?php endforeach; ?>
 			</select>
