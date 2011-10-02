@@ -22,7 +22,7 @@ class Post_Type_Time {
 		add_action( 'admin_post_propel_create_invoice', array( __CLASS__, 'create_invoice' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
-		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
+		//add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
 		add_action( 'load-edit.php', array( __CLASS__, 'onload' ) );
 		add_action( 'restrict_manage_posts', array( __CLASS__, 'restrict_manage_posts' ) );
 		add_filter( 'bulk_actions-' . self::POST_TYPE , array( __CLASS__, 'bulk_actions' ) );
@@ -127,13 +127,18 @@ class Post_Type_Time {
 		
 		register_post_type(self::POST_TYPE, $args );
 
+
+		
 		$argv = array(
 			'label' => "Billed",
 			'public' => true,
 			'exclude_from_search' => false,
 			'show_in_admin_all_list' => true,
-			'show_in_admin_status_list' => true );
-		register_post_status( 'billed'/*, $argv */ );
+			'show_in_admin_status_list' => true,
+			'post_type' => 'propel_time' );
+			
+		Propel::register_post_status( 'billed', $argv );
+		//register_post_status( 'billed'/*, $argv */ );
 	}
 
 
@@ -152,7 +157,7 @@ class Post_Type_Time {
 	 */
 	public static function edit_task_meta($post) {
 		wp_nonce_field( plugin_basename( __FILE__ ), 'propel_nonce' );
-		
+
 		$projects = query_posts( 'post_type=propel_project&post_status=publish' );
 		echo "<select name='parent_id' id='parent_id'>";
 		foreach($projects as $project) {
@@ -296,7 +301,12 @@ class Post_Type_Time {
 			?>
 			<script type="text/javascript">
 				jQuery(document).ready(function() {
-					jQuery('<option>').val('billed').text('Billed').appendTo("select[name='post_status']");
+					jQuery('<option>').val('billed').text('Billed').appendTo("#post_status");
+					<?php if( get_post_status( get_the_ID() ) == "billed") : ?>
+					jQuery("label[for='post_status']").html('Status: <strong>Billed</strong>');
+					jQuery("#save-post").val('Save Billed');
+					jQuery('#post_status').val('billed')
+					<?php endif; ?>
 				});
 			</script>
 			<?php

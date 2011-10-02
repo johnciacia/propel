@@ -203,7 +203,51 @@ class Propel {
 		*/
 		add_option( 'PROPEL_DBVERSION', 1.6 );
 	}
+
+
+	public static function register_post_status($post_status, $args) {
+		register_post_status($post_status);
+
+		
+
+		add_action( 'admin_footer', array('footer', 'foo') );
+	}
+
+	public static function footer( $msg ) {
+		die(var_dump($msg));
+	}
 	
 }
 
+
+function footer($args) {
+			if(isset($_GET['post'])) :
+				$post = get_post($_GET['post']);
+				if( $post->post_type == $args['post_type']) :
+				?>
+				<script type="text/javascript">
+					jQuery(document).ready(function() {
+						jQuery('<option>').val('billed').text('<?php echo $args['label'] ?>').appendTo("#post_status");
+						<?php if( get_post_status( get_the_ID() ) == "billed") : ?>
+						jQuery("label[for='post_status']").html('Status: <strong>Billed</strong>');
+						jQuery("#save-post").val('Save Billed');
+						jQuery('#post_status').val('billed')
+						<?php endif; ?>
+					});
+				</script>
+				<?php
+				endif;
+			endif;
+
+			if(isset($_GET['post_type']) && $_GET['post_type'] != $args['post_type']) return;
+			?>
+			<script type="text/javascript">
+				jQuery(document).ready(function() {
+					jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action']");
+					jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action2']");
+					jQuery("<li>").html(" | <a href='edit.php?post_status=billed&post_type=propel_time'>Billed <span class='count'>(14)</span></a>").appendTo('.subsubsub')
+				});
+			</script>
+			<?php
+		}
 ?>
