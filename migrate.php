@@ -2,6 +2,7 @@
 if ( ! defined( 'PROPEL_MIGRATE_DB' ) )
 	exit();
 
+if( get_option('PROPEL_DBVERSION') == 1.4 ) :
 ?>
 
 
@@ -63,7 +64,7 @@ function create_task($task, $project, $id) {
 
 ?>
 
-	<div id="picasso-general" class="wrap">
+	<div id="propel-general" class="wrap">
 	<?php screen_icon('options-general'); ?>
 	<h2>Propel</h2>
 
@@ -89,3 +90,9 @@ function create_task($task, $project, $id) {
 	<a href="admin.php?page=propel">Go to projects</a>
 <?php endif; ?>
 	</div>
+
+<?php endif; ?>
+
+<?php if( get_option('PROPEL_DBVERSION') == 1.5 ) : ?>
+TODO: Implement migration tool
+<?php endif; ?>

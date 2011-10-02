@@ -1,4 +1,5 @@
 <?php
+
 //Miscellaneous functions that don't have a better home
 
 /**
