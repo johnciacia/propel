@@ -30,6 +30,7 @@ class Post_Type_Project {
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 	}
 
+
 	/**
 	 * @since 2.0
 	 */
@@ -98,7 +99,7 @@ class Post_Type_Project {
     		'parent_item_colon' => '',
     		'menu_name' => 'Propel'
     	);
-
+    	
 		$args = array(
 			'labels' => $labels,
 			'public' => true,
@@ -112,7 +113,14 @@ class Post_Type_Project {
 			'hierarchical' => false,
 			'menu_position' => null,
 			'supports' => array( 'title','editor','comments', 'author', 'custom-fields', 'revisions' )
-		); 
+		);
+    	
+		function modify_menu() {
+			global $submenu;
+			unset($submenu['edit.php?post_type=propel_project'][10]);
+		}
+		add_action('admin_menu','modify_menu');
+
 		
 		register_post_type( self::POST_TYPE, $args );
 
