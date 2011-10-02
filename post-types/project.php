@@ -23,18 +23,12 @@ class Post_Type_Project {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
-		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
 		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
-	}
-
-
-	public static function admin_menu() {
-		global $submenu;
-		unset($submenu['edit.php?post_type=propel_project'][10]);
 	}
 
 	/**
@@ -120,19 +114,19 @@ class Post_Type_Project {
 			'menu_position' => null,
 			'supports' => array( 'title','editor','comments', 'author', 'custom-fields', 'revisions' )
 		);
-    	
-		function modify_menu() {
-			global $submenu;
-			unset($submenu['edit.php?post_type=propel_project'][10]);
-		}
-		add_action('admin_menu','modify_menu');
-
 		
 		register_post_type( self::POST_TYPE, $args );
 
-
 	}
 
+	/**
+	 * @since 2.0
+	 */
+	public static function admin_menu() {
+		global $submenu;
+		unset($submenu['edit.php?post_type=propel_project'][10]);
+	}
+	
 	/**
 	 * @since 2.0
 	 * @see http://shibashake.com/wordpress-theme/add-custom-post-type-columns
