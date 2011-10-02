@@ -24,10 +24,16 @@ class Post_Type_Project {
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
+	}
+
+	public statuc function admin_menu() {
+		global $submenu;
+		unset($submenu['edit.php?post_type=propel_project'][10]);
 	}
 
 	/**
@@ -209,9 +215,12 @@ class Post_Type_Project {
 		add_meta_box( 'propel_project_meta', __('Project', 'propel' ),
 			array( __CLASS__, 'edit_project_meta'), 'propel_project', 'side' );
 
-		if( isset($_GET['action']) && $_GET['action'] == "edit" )
+		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {
 		add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),
 			array( __CLASS__ , 'project_tasks'), 'propel_project', 'normal', 'high' );
+
+		add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
+		}
 	}
 
 	/**
@@ -288,6 +297,10 @@ class Post_Type_Project {
 		update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
 		update_post_meta( $post_id, '_propel_owner', (int)$_POST['owner'] );
 
+	}
+
+	public static function add_task() {
+		require_once( __DIR__ . '/../metaboxes/add-task.php' );	
 	}
 
 	/**

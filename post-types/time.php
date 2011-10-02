@@ -22,9 +22,9 @@ class Post_Type_Time {
 		add_action( 'admin_post_propel_create_invoice', array( __CLASS__, 'create_invoice' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
-		//add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
+		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
 		add_action( 'load-edit.php', array( __CLASS__, 'onload' ) );
-		add_action( 'restrict_manage_posts', array( __CLASS__, 'restrict_manage_posts' ) );
+		//add_action( 'restrict_manage_posts', array( __CLASS__, 'restrict_manage_posts' ) );
 		add_filter( 'bulk_actions-' . self::POST_TYPE , array( __CLASS__, 'bulk_actions' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
@@ -123,7 +123,7 @@ class Post_Type_Time {
 			'has_archive' => true, 
 			'hierarchical' => false,
 			'menu_position' => null,
-			'supports' => array('title')); 
+			'supports' => array('')); 
 		
 		register_post_type(self::POST_TYPE, $args );
 
@@ -136,9 +136,8 @@ class Post_Type_Time {
 			'show_in_admin_all_list' => true,
 			'show_in_admin_status_list' => true,
 			'post_type' => 'propel_time' );
-			
-		Propel::register_post_status( 'billed', $argv );
-		//register_post_status( 'billed'/*, $argv */ );
+		//Propel::register_post_status( 'billed', $argv );
+		register_post_status( 'billed'/*, $argv */ );
 	}
 
 
@@ -171,6 +170,7 @@ class Post_Type_Time {
 			}
 		}
 		echo "</select>";
+		echo "<input type='hidden' name='post_title' value='foo' />";
 
 		wp_reset_query();
 	}

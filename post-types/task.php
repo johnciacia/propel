@@ -144,7 +144,7 @@ class Post_Type_Task {
 		$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
 		$new_columns['complete'] = __( '%' );
-		$new_columns['categories'] = $columns['categories'];
+		$new_columns['category'] = $columns['category'];
 		$new_columns['tags'] = $columns['tags'];
 		$new_columns['comments'] = $columns['comments'];
 		return $new_columns;
@@ -213,7 +213,7 @@ class Post_Type_Task {
 			array( __CLASS__, 'edit_task_meta'), 'propel_task', 'side' );
 	}
 
-	public function edit_task_meta() {
+	public static function edit_task_meta() {
 		wp_nonce_field( plugin_basename( __FILE__ ), 'propel_nonce' );
 
 		$start = get_post_meta( get_the_ID(), '_propel_start_date', true );
@@ -237,6 +237,7 @@ class Post_Type_Task {
 
 		require_once( __DIR__ . '/../metaboxes/task-meta.php' );
 	}
+	
 }
 
 ?>
