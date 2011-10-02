@@ -4,6 +4,7 @@
  * @todo: add custom post status "Archived" - archiving a project also archives the tasks associated with it
  * @todo: deleting a project deletes the tasks associated with it
  * @todo: add ability to filter start date, and end date
+ * @todo: add metabox to add a task
  * @todo: verify that start, end, priority, and complete get sorted properly
  * @todo: add metabox for archived tasks
  * @todo: update tasks metabox
