@@ -144,7 +144,7 @@ class Post_Type_Task {
 		$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
 		$new_columns['complete'] = __( 'Progress', 'propel' );
-		$new_columns['categories'] = __( 'Categories', 'propel' );
+		$new_columns['propel_categories'] = __( 'Categories', 'propel' );
 		$new_columns['tags'] = $columns['tags'];
 		$new_columns['comments'] = $columns['comments'];
 		return $new_columns;
@@ -202,6 +202,17 @@ class Post_Type_Task {
 			case 'complete':
 				echo "" . get_post_meta( $id, '_propel_complete', true ) . "%";
 				break;
+			
+			case 'propel_categories':
+				$categories = get_the_terms(0, "propel_category");
+				$categories_html = array();
+				if(is_array($categories)) {
+					foreach ($categories as $category) {
+						array_push($categories_html, '<a href="' . get_term_link($category->slug, 'propel_category') . '">' . $category->name . '</a>');
+					}
+					echo implode($categories_html, ", ");
+        		}
+        		break;
 
 			default:
 				break;
