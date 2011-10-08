@@ -220,7 +220,7 @@ class Post_Type_Project {
 
 		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {
 		add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),
-			array( __CLASS__ , 'project_tasks'), 'propel_project', 'normal', 'high' );
+			array( __CLASS__ , 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 
 		add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
 		}
@@ -229,7 +229,7 @@ class Post_Type_Project {
 	/**
 	 *
 	 */
-	public static function project_tasks() {
+	public static function project_tasks( $post, $id ) {
 		$args = array(
 			'order'=> 'ASC',
 			'post_parent' => get_the_ID(),

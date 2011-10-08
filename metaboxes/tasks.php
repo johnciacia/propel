@@ -6,7 +6,7 @@
 			<th class="sortable"><p>Owner</p></th>
 			<th class="sortable"><p>Start</p></th>
 			<th class="sortable"><p>Due</p></th>
-			<th class="sortable"><p>%</p></th>
+			<th class="sortable"><p>Progress</p></th>
 			<th></th>
 			<th></th>
 			<th></th>
@@ -14,19 +14,22 @@
 	</thead>
 	
 	<?php
-
 	foreach($tasks as $task) {
-		$meta = get_post_meta($task->ID, "_propel_task_metadata", true);
-		$owner = ($meta['assigned_to'] == 0) ? "-" : $this->tasksModel->getUserById($meta['assigned_to'])->user_nicename;
-		$start = ($meta['start'] == "0000-00-00") ? "-" : $meta['start'];
-		$end   = ($meta['end'] == "0000-00-00") ? "-" : $meta['end'];
-		$x = ($meta['complete'] == 100) ? "" : "un"; 
+		
+		$progress = get_post_meta( $task->ID, '_propel_complete', true );
+		$priority = get_post_meta( $task->ID, '_propel_priority', true );
+		$start = get_post_meta( $task->ID, '_propel_start_date', true );
+		$end = get_post_meta( $task->ID, '_propel_end_date', true );
+		$userdata = get_userdata( $task->post_author );
+		$author = $userdata->user_nicename;
+
+		$x = ($progress == 100) ? "" : "un"; 
 		echo "<tbody onClick='gen_expand(this)' id='{$task->ID}'><tr><td data-value='{$task->post_title}'><p>{$task->post_title}</p></td>";
-		echo "<td data-value='{$meta['priority']}'><p>{$meta['priority']}</p></td>";
-		echo "<td data-value='{$owner}'><p>$owner</p></td>";
+		echo "<td data-value='$priority'><p>$priority</p></td>";
+		echo "<td data-value='{$author}'><p>$author</p></td>";
 		echo "<td data-value='{$start}'><p>$start</p></td>";
 		echo "<td data-value='{$end}'><p>$end</p></td>";
-		echo "<td data-value='{$meta['complete']}'><p>{$meta['complete']}</p></td>";
+		echo "<td data-value='{$progress}'><p>{$progress}%</p></td>";
 		echo "<td class='gen-icon gen-delete-icon'><a href='?action=propel-delete-task&task={$task->ID}' title='Delete'>Delete</a></td>";
 		echo "<td class='gen-icon gen-edit-icon'><a href='post.php?post={$task->ID}&action=edit' title='Edit'>Edit</a></td>";
 		echo "<td class='gen-icon gen-{$x}checked-icon'><a href='?action=propel-complete-task&task={$task->ID}' title='Mark as complete'>Complete</a></td>";
