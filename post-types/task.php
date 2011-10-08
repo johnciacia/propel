@@ -22,9 +22,14 @@ class Post_Type_Task {
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
 		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
+	}
+
+	public static function admin_menu() {
+		remove_meta_box( 'postcustom', 'propel_task', 'core' );
 	}
 
 	/**
@@ -220,8 +225,13 @@ class Post_Type_Task {
 	}
 
 	public static function add_meta_boxes() {
+
+		add_meta_box('custom-fields', __('Custom Fields'),
+			'post_custom_meta_box', self::POST_TYPE, 'normal', 'low');
+
+
 		add_meta_box( 'propel_task_meta', __( 'Task', 'propel' ),
-			array( __CLASS__, 'edit_task_meta'), 'propel_task', 'side' );
+			array( __CLASS__, 'edit_task_meta'), self::POST_TYPE, 'side' );
 	}
 
 	public static function edit_task_meta() {
