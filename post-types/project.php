@@ -309,7 +309,7 @@ class Post_Type_Project {
 	public static function wp_ajax_add_task() {
 		check_ajax_referer( 'add-task', 'security' );
 		$post = array(
-			'post_title' => urldecode( $_POST['title'] ),
+			'post_title' => $_POST['title'],
 			'post_content' => $_POST['description'],
 			'post_parent' => $_POST['parent'],
 			'post_type' => 'propel_task',
@@ -317,14 +317,14 @@ class Post_Type_Project {
 		);
 
 		$id = wp_insert_post( $post );
-		if( !$id ) return 0;
+		if( !$id ) die(0);
 
 		update_post_meta( $id, '_propel_start_date', time() );
 		update_post_meta( $id, '_propel_end_date', strtotime( $_POST['end_date'] ) );
 		update_post_meta( $id, '_propel_complete', 0 );
 		update_post_meta( $id, '_propel_priority', $_POST['priority'] );
 
-		return $id;
+		die($id);
 	}
 
 	/**

@@ -21,7 +21,7 @@ class Post_Type_Task {
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
-		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
+		//add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
@@ -43,36 +43,7 @@ class Post_Type_Task {
 		if( $pagenow != "edit.php" && $_GET['post_type'] != self::POST_TYPE )
 			return $query;
 
-		if( isset($_GET['post_status'] ) && $_GET['post_status'] == "archive" ) {
-			$query->query_vars['post_type'] = "propel_time";
-			$query->query_vars['post_status'] = "archive";
-		}
-
-	}
-
-
-	public static function admin_footer() {
-		if(isset($_GET['post'])) :
-			$post = get_post($_GET['post']);
-			if( $post->post_type == self::POST_TYPE) :
-			?>
-			<script type="text/javascript">
-				jQuery(document).ready(function() {
-					jQuery('<option>').val('archive').text('Archive').appendTo("select[name='post_status']");
-				});
-			</script>
-			<?php
-			endif;
-		endif;
-
-		if(isset($_GET['post_type']) && $_GET['post_type'] != self::POST_TYPE) return;
-		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function() {
-				jQuery("<li>").html(" | <a href='edit.php?post_status=archive&post_type=propel_task'>Archived <span class='count'>(0)</span></a>").appendTo('.subsubsub')
-			});
-		</script>
-		<?php
+		return $query;
 	}
 
 	public static function save_post($post_id) {
@@ -134,7 +105,15 @@ class Post_Type_Task {
 		
 		register_post_type(self::POST_TYPE, $args);
 
-		register_post_status( 'archive' );
+		$argv = array(
+			'label' => "Archive",
+			'public' => true,
+			'exclude_from_search' => false,
+			'show_in_admin_all_list' => true,
+			'show_in_admin_status_list' => true,
+			'post_type' => 'propel_task' );
+
+		Propel_Functions::register_post_status( 'archive', $argv );
 	}
 
 	/**

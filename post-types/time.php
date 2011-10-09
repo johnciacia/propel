@@ -24,29 +24,9 @@ class Post_Type_Time {
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
 		add_action( 'load-edit.php', array( __CLASS__, 'onload' ) );
-		//add_action( 'restrict_manage_posts', array( __CLASS__, 'restrict_manage_posts' ) );
 		add_filter( 'bulk_actions-' . self::POST_TYPE , array( __CLASS__, 'bulk_actions' ) );
-		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
-	}
-
-	/**
-	 * @since 2.0
-	 */
-	public static function parse_query($query) {
-		global $pagenow;
-		if ( !isset( $_GET['post_type'] ) )
-			return $query;
-
-		if( $pagenow != "edit.php" && $_GET['post_type'] != self::POST_TYPE )
-			return $query;
-
-		if( isset($_GET['post_status'] ) && $_GET['post_status'] == "billed" ) {
-			$query->query_vars['post_type'] = "propel_time";
-			$query->query_vars['post_status'] = "billed";
-		}
-
 	}
 
 	/**
@@ -136,8 +116,9 @@ class Post_Type_Time {
 			'show_in_admin_all_list' => true,
 			'show_in_admin_status_list' => true,
 			'post_type' => 'propel_time' );
-		//Propel::register_post_status( 'billed', $argv );
-		register_post_status( 'billed'/*, $argv */ );
+
+		Propel_Functions::register_post_status( 'billed', $argv );
+		//register_post_status( 'billed'/*, $argv */ );
 	}
 
 
@@ -295,35 +276,17 @@ class Post_Type_Time {
 	 * @since 2.0
 	 */
 	public static function admin_footer() {
-		if(isset($_GET['post'])) :
-			$post = get_post($_GET['post']);
-			if( $post->post_type == self::POST_TYPE) :
-			?>
-			<script type="text/javascript">
-				jQuery(document).ready(function() {
-					jQuery('<option>').val('billed').text('Billed').appendTo("#post_status");
-					<?php if( get_post_status( get_the_ID() ) == "billed") : ?>
-					jQuery("label[for='post_status']").html('Status: <strong>Billed</strong>');
-					jQuery("#save-post").val('Save Billed');
-					jQuery('#post_status').val('billed')
-					<?php endif; ?>
-				});
-			</script>
-			<?php
-			endif;
-		endif;
-
 		if(isset($_GET['post_type']) && $_GET['post_type'] != self::POST_TYPE) return;
 		?>
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
 				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action']");
 				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action2']");
-				jQuery("<li>").html(" | <a href='edit.php?post_status=billed&post_type=propel_time'>Billed <span class='count'>(14)</span></a>").appendTo('.subsubsub')
 			});
 		</script>
 		<?php
 	}
+
 
 	/**
 	 * Create a WP-Invoice
