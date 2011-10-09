@@ -308,9 +308,8 @@ class Post_Type_Project {
 
 	public static function wp_ajax_add_task() {
 		check_ajax_referer( 'add-task', 'security' );
-
 		$post = array(
-			'post_title' => $_POST['title'],
+			'post_title' => urldecode( $_POST['title'] ),
 			'post_content' => $_POST['description'],
 			'post_parent' => $_POST['parent'],
 			'post_type' => 'propel_task',
@@ -320,7 +319,7 @@ class Post_Type_Project {
 		$id = wp_insert_post( $post );
 		if( !$id ) return 0;
 
-		update_post_meta( $id, '_propel_start_date', date() );
+		update_post_meta( $id, '_propel_start_date', time() );
 		update_post_meta( $id, '_propel_end_date', strtotime( $_POST['end_date'] ) );
 		update_post_meta( $id, '_propel_complete', 0 );
 		update_post_meta( $id, '_propel_priority', $_POST['priority'] );
@@ -341,7 +340,7 @@ class Post_Type_Project {
 						security: '<?php echo wp_create_nonce( "add-task" ); ?>',
 						parent: '<?php echo get_the_ID(); ?>',
 						title: $('input[name=task_title]').val(),
-						description: $('input[name=task_title]').val(),
+						description: $('textarea[name=task_description]').val(),
 						end_date: $('input[name=task_end_date]').val(),
 						priority: $('select[name=task_priority]').val()
 				};
