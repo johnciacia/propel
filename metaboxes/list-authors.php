@@ -1,5 +1,5 @@
-<?php $users = get_users(); 
-
+<?php 
+$users = get_users(); 
 $contributors = get_post_meta( get_the_ID(), '_propel_contributors');
 ?>
 
@@ -19,7 +19,7 @@ $contributors = get_post_meta( get_the_ID(), '_propel_contributors');
 		<?php foreach($users as $user) : ?>
 		<li id="propel_user-<?php echo $user->ID; ?>" class="popular-category">
 			<label class="selectit">
-				<?php if( in_array( $user->ID, $contributors[0] ) ) : ?>
+				<?php if( is_array($contributors[0]) && in_array( $user->ID, $contributors[0] ) ) : ?>
 				<input value="<?php echo $user->ID; ?>" type="checkbox" name="propel_user[]" id="in-propel_user-<?php echo $user->ID; ?>" checked> <?php echo $user->display_name; ?>
 				<?php else : ?>
 				<input value="<?php echo $user->ID; ?>" type="checkbox" name="propel_user[]" id="in-propel_user-<?php echo $user->ID; ?>"> <?php echo $user->display_name; ?>

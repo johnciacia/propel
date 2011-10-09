@@ -4,6 +4,8 @@ class Propel_Functions {
 	
 	var $args = array();
 	var $post_type;
+	var $post;
+	var $action;
 	var $status;
 
 	public static function register_post_status( $status, $args ) {
@@ -16,27 +18,34 @@ class Propel_Functions {
 		add_action( 'admin_footer', array( $functions, 'admin_footer' ) );
 	}
 
+	/**
+	 * $args['action']
+	 */
 	public static function add_post_action( $post_type, $args ) {
 		if( isset($_GET['post_type']) && $_GET['post_type'] != $post_type) return;
 
 		$functions = new Propel_Functions();
 		$functions->post_type = $post_type;
+		$functions->args = $args;
+
+
 		add_action( 'admin_footer', array( $functions, 'admin_footer_action' ) );
 		add_filter( 'post_row_actions', array( $functions, 'post_row_actions' ) );
 	}
 
 	public function post_row_actions( $actions ) {
-		$actions['bill'] = '<a href="bill" >Bill</a>';
+		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->post_type) return $actions;
+		$actions[$this->args['action']] = "<a href='post.php?post=" . get_the_ID() . "&action=" . $this->args['action'] . "'>" . $this->args['label'] . "</a>";
 		return $actions;
 	}
 
 	public function admin_footer_action() {
-		if(isset($_GET['post_type']) && $_GET['post_type'] != $this->post_type) return;
+		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->post_type) return;
 		?>
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
-				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action']");
-				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action2']");
+				jQuery('<option>').val("<?php echo $this->args['action']; ?>").text("<?php echo $this->args['label']; ?>").appendTo("select[name='action']");
+				jQuery('<option>').val("<?php echo $this->args['action']; ?>").text("<?php echo $this->args['label']; ?>").appendTo("select[name='action2']");
 			});
 		</script>
 		<?php
