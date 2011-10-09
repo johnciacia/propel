@@ -64,12 +64,11 @@ class Post_Type_Task {
 				return;
 		}
 		
-
 		update_post_meta( $post_id, '_propel_start_date', strtotime( $_POST['start_date'] ) );
 		update_post_meta( $post_id, '_propel_end_date', strtotime( $_POST['end_date'] ) );
 		update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
 		update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
-
+		update_post_meta( $post_id, '_propel_contributors', $_POST['propel_user'] );
 	}
 
 	public static function register_post_type()  {
@@ -128,6 +127,8 @@ class Post_Type_Task {
 		$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
 		$new_columns['complete'] = __( 'Progress', 'propel' );
+		$new_columns['contributors'] = __( 'Contributors', 'propel' );
+		$new_columns['comments'] = $columns['comments'];
 		$new_columns['propel_categories'] = __( 'Categories', 'propel' );
 		$new_columns['tags'] = $columns['tags'];
 		$new_columns['comments'] = $columns['comments'];
@@ -136,7 +137,6 @@ class Post_Type_Task {
 
 	/**
 	 * @since 2.0
-	 * @see http://scribu.net/wordpress/custom-sortable-columns.html
 	 */
 	public static function register_sortable_columns( $x ) {
 		$columns['start'] = 'start';
@@ -186,6 +186,16 @@ class Post_Type_Task {
 			case 'complete':
 				echo "" . get_post_meta( $id, '_propel_complete', true ) . "%";
 				break;
+
+			case 'contributors':
+				$contributors = get_post_meta( $id, '_propel_contributors' );
+				if( !$contributors ) break;
+
+				foreach($contributors[0] as $contributor) {
+					$user = get_userdata($contributor);
+					echo $user->display_name . "<br />";
+				}
+				break;
 			
 			case 'propel_categories':
 				$categories = get_the_terms(0, "propel_category");
@@ -211,6 +221,13 @@ class Post_Type_Task {
 
 		add_meta_box( 'propel_task_meta', __( 'Task', 'propel' ),
 			array( __CLASS__, 'edit_task_meta'), self::POST_TYPE, 'side' );
+
+		add_meta_box( 'propel_list_authors', __( 'Contributors', 'propel' ),
+			array( __CLASS__, 'list_authors'), self::POST_TYPE, 'side' );
+	}
+
+	public static function list_authors() {
+		require_once( __DIR__ . '/../metaboxes/list-authors.php')	;
 	}
 
 	public static function edit_task_meta() {

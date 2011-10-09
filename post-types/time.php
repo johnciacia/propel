@@ -118,6 +118,7 @@ class Post_Type_Time {
 			'post_type' => 'propel_time' );
 
 		Propel_Functions::register_post_status( 'billed', $argv );
+		Propel_Functions::add_post_action( 'propel_time', array() );
 		//register_post_status( 'billed'/*, $argv */ );
 	}
 
@@ -276,15 +277,7 @@ class Post_Type_Time {
 	 * @since 2.0
 	 */
 	public static function admin_footer() {
-		if(isset($_GET['post_type']) && $_GET['post_type'] != self::POST_TYPE) return;
-		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function() {
-				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action']");
-				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action2']");
-			});
-		</script>
-		<?php
+
 	}
 
 

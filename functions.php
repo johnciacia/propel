@@ -3,6 +3,7 @@
 class Propel_Functions {
 	
 	var $args = array();
+	var $post_type;
 	var $status;
 
 	public static function register_post_status( $status, $args ) {
@@ -14,6 +15,33 @@ class Propel_Functions {
 		add_filter( 'parse_query', array( $functions, 'parse_query' ) );
 		add_action( 'admin_footer', array( $functions, 'admin_footer' ) );
 	}
+
+	public static function add_post_action( $post_type, $args ) {
+		if( isset($_GET['post_type']) && $_GET['post_type'] != $post_type) return;
+
+		$functions = new Propel_Functions();
+		$functions->post_type = $post_type;
+		add_action( 'admin_footer', array( $functions, 'admin_footer_action' ) );
+		add_filter( 'post_row_actions', array( $functions, 'post_row_actions' ) );
+	}
+
+	public function post_row_actions( $actions ) {
+		$actions['bill'] = '<a href="bill" >Bill</a>';
+		return $actions;
+	}
+
+	public function admin_footer_action() {
+		if(isset($_GET['post_type']) && $_GET['post_type'] != $this->post_type) return;
+		?>
+		<script type="text/javascript">
+			jQuery(document).ready(function() {
+				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action']");
+				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action2']");
+			});
+		</script>
+		<?php
+	}
+
 
 	/**
 	 * @since 2.0
