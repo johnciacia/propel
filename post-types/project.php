@@ -239,7 +239,7 @@ class Post_Type_Project {
 
 		$tasks = get_children( $args );
 
-		require_once( __DIR__ .'/../metaboxes/tasks.php' );
+		require_once( __DIR__ . '/../metaboxes/tasks.php' );
 	}
 
 	/**
@@ -270,7 +270,7 @@ class Post_Type_Project {
 
 		$users = get_users();
 
-		require_once( __DIR__ .'/../metaboxes/project-meta.php' );
+		require_once( __DIR__ . '/../metaboxes/project-meta.php' );
 	}
 
 	/**

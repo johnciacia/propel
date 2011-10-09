@@ -19,7 +19,13 @@
 		$progress = get_post_meta( $task->ID, '_propel_complete', true );
 		$priority = get_post_meta( $task->ID, '_propel_priority', true );
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
+		if( isset( $start ) )
+			$start = date( get_option( 'date_format', $start) );
+
 		$end = get_post_meta( $task->ID, '_propel_end_date', true );
+		if( isset( $end ) )
+			$end = date( get_option( 'date_format', $end) );
+
 		$userdata = get_userdata( $task->post_author );
 		$author = $userdata->user_nicename;
 
