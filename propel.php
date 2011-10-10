@@ -8,7 +8,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 1.8
+Version: 2.0
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -56,7 +56,7 @@ class Propel {
 		add_action('admin_menu', array(__CLASS__, 'admin_menu'));
 		add_shortcode('pl-projects', array(__CLASS__, 'projectsShortcode'));
 		register_activation_hook(__FILE__, array(__CLASS__, 'install'));
-
+		require_once( __DIR__ . '/functions.php' );
 		require_once( __DIR__ . '/post-types/project.php' );
 		require_once( __DIR__ . '/post-types/task.php' );
 		require_once( __DIR__ . '/post-types/time.php' );

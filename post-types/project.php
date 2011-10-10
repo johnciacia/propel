@@ -29,6 +29,8 @@ class Post_Type_Project {
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
+		add_action('wp_ajax_add_task', array( __CLASS__, 'wp_ajax_add_task' ) );
+
 	}
 
 	/**
@@ -48,7 +50,6 @@ class Post_Type_Project {
 			$query->query_vars['post_type'] = "propel_project";
 			return $query;
 		}
-
 	}
 
 	/**
@@ -129,7 +130,6 @@ class Post_Type_Project {
 	
 	/**
 	 * @since 2.0
-	 * @see http://shibashake.com/wordpress-theme/add-custom-post-type-columns
 	 */
 	public static function register_columns($columns) {
 		$new_columns['cb'] = '<input type="checkbox" />';
@@ -146,7 +146,6 @@ class Post_Type_Project {
 
 	/**
 	 * @since 2.0
-	 * @see http://scribu.net/wordpress/custom-sortable-columns.html
 	 */
 	public static function register_sortable_columns( $x ) {
 		$columns['client'] = 'client';
@@ -221,7 +220,7 @@ class Post_Type_Project {
 
 		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {
 		add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),
-			array( __CLASS__ , 'project_tasks'), 'propel_project', 'normal', 'high' );
+			array( __CLASS__ , 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 
 		add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
 		}
@@ -230,7 +229,7 @@ class Post_Type_Project {
 	/**
 	 *
 	 */
-	public static function project_tasks() {
+	public static function project_tasks( $post, $id ) {
 		$args = array(
 			'order'=> 'ASC',
 			'post_parent' => get_the_ID(),
@@ -240,7 +239,7 @@ class Post_Type_Project {
 
 		$tasks = get_children( $args );
 
-		require_once( __DIR__ .'/../metaboxes/tasks.php' );
+		require_once( __DIR__ . '/../metaboxes/tasks.php' );
 	}
 
 	/**
@@ -271,7 +270,7 @@ class Post_Type_Project {
 
 		$users = get_users();
 
-		require_once( __DIR__ .'/../metaboxes/project-meta.php' );
+		require_once( __DIR__ . '/../metaboxes/project-meta.php' );
 	}
 
 	/**
@@ -307,14 +306,49 @@ class Post_Type_Project {
 		require_once( __DIR__ . '/../metaboxes/add-task.php' );	
 	}
 
+	public static function wp_ajax_add_task() {
+		check_ajax_referer( 'add-task', 'security' );
+		$post = array(
+			'post_title' => $_POST['title'],
+			'post_content' => $_POST['description'],
+			'post_parent' => $_POST['parent'],
+			'post_type' => 'propel_task',
+			'post_status' => 'publish'
+		);
+
+		$id = wp_insert_post( $post );
+		if( !$id ) die(0);
+
+		update_post_meta( $id, '_propel_start_date', time() );
+		update_post_meta( $id, '_propel_end_date', strtotime( $_POST['end_date'] ) );
+		update_post_meta( $id, '_propel_complete', 0 );
+		update_post_meta( $id, '_propel_priority', $_POST['priority'] );
+
+		die($id);
+	}
+
 	/**
 	 *
 	 */
 	public static function admin_footer() { ?>
 		<script type="text/javascript">
-		jQuery(document).ready(function() { 
-			jQuery("input[name=start_date]").datepicker();
-			jQuery("input[name=end_date]").datepicker();
+		jQuery(document).ready(function($) { 
+			$(".date").datepicker();
+			$("#add-task").click(function() {
+				var data = {
+						action: 'add_task',
+						security: '<?php echo wp_create_nonce( "add-task" ); ?>',
+						parent: '<?php echo get_the_ID(); ?>',
+						title: $('input[name=task_title]').val(),
+						description: $('textarea[name=task_description]').val(),
+						end_date: $('input[name=task_end_date]').val(),
+						priority: $('select[name=task_priority]').val()
+				};
+
+				jQuery.post(ajaxurl, data, function(response) {
+					location.reload();
+				});
+			});
 		});
 		</script>
 	<?php

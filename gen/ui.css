@@ -24,6 +24,7 @@
 
 .gen-table td {
 	border-top: 1px solid #DFDFDF;
+	padding-left: 10px;
 }
 
 .gen-icon {
@@ -63,9 +64,10 @@
 }
 
 .gen-table th.sortable {
-	color: #666;
+	color: #000;
 	cursor: pointer;
 	text-decoration: underline;
+	padding-left: 10px;
 }
 
 
@@ -103,7 +105,7 @@
 	color: #555;
 	padding: 4px;
 	cursor: pointer;
-	background: #E6E6E6 url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/base/images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x;
+	background: #E6E6E6;
 }
 
 .paginate_active {

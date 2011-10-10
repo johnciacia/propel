@@ -19,34 +19,13 @@ class Post_Type_Time {
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
-		add_action( 'admin_post_propel_create_invoice', array( __CLASS__, 'create_invoice' ) );
+		add_action( 'admin_action_bill', array( __CLASS__, 'bill' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
-		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
 		add_action( 'load-edit.php', array( __CLASS__, 'onload' ) );
-		//add_action( 'restrict_manage_posts', array( __CLASS__, 'restrict_manage_posts' ) );
 		add_filter( 'bulk_actions-' . self::POST_TYPE , array( __CLASS__, 'bulk_actions' ) );
-		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
-	}
-
-	/**
-	 * @since 2.0
-	 */
-	public static function parse_query($query) {
-		global $pagenow;
-		if ( !isset( $_GET['post_type'] ) )
-			return $query;
-
-		if( $pagenow != "edit.php" && $_GET['post_type'] != self::POST_TYPE )
-			return $query;
-
-		if( isset($_GET['post_status'] ) && $_GET['post_status'] == "billed" ) {
-			$query->query_vars['post_type'] = "propel_time";
-			$query->query_vars['post_status'] = "billed";
-		}
-
 	}
 
 	/**
@@ -61,10 +40,6 @@ class Post_Type_Time {
 	 */
 	public static function onload() {
 		if( !isset( $_GET['post_type'], $_REQUEST['action'] ) ) return;
-
-		if( $_GET['post_type'] == 'propel_time' && $_REQUEST['action'] == 'create_invoice' ) {
-			die( "Billing not implemented yet..." );
-		}
 
 		if( $_GET['post_type'] == 'propel_time' && $_GET['start'] == 1 ) {
 			if( !get_post_meta( $_GET['id'], '_propel_time_start', true ) )
@@ -136,8 +111,14 @@ class Post_Type_Time {
 			'show_in_admin_all_list' => true,
 			'show_in_admin_status_list' => true,
 			'post_type' => 'propel_time' );
-		//Propel::register_post_status( 'billed', $argv );
-		register_post_status( 'billed'/*, $argv */ );
+
+		Propel_Functions::register_post_status( 'billed', $argv );
+
+		$argz = array(
+			'action' => 'bill',
+			'label' => 'Bill' );
+		Propel_Functions::add_post_action( 'propel_time', $argz );
+		//register_post_status( 'billed'/*, $argv */ );
 	}
 
 
@@ -154,7 +135,7 @@ class Post_Type_Time {
 	 * @since 2.0
 	 * @param $post
 	 */
-	public static function edit_task_meta($post) {
+	public static function edit_task_meta( $post ) {
 		wp_nonce_field( plugin_basename( __FILE__ ), 'propel_nonce' );
 
 		$projects = query_posts( 'post_type=propel_project&post_status=publish' );
@@ -181,7 +162,7 @@ class Post_Type_Time {
 	 * @param $columns
 	 * @return $new_columns
 	 */
-	public static function register_columns($columns) {
+	public static function register_columns( $columns ) {
 		$new_columns['cb'] = '<input type="checkbox" />';
 		$new_columns['title'] = __('Title', 'propel');
 		$new_columns['action'] = __('Action', 'propel');
@@ -197,12 +178,11 @@ class Post_Type_Time {
 
 	/**
 	 * Make columns sortable
-	 * @see http://scribu.net/wordpress/custom-sortable-columns.html
 	 * @since 2.0
 	 * @param $columns
 	 * @return $new_columns
 	 */
-	public static function register_sortable_columns($columns) {
+	public static function register_sortable_columns( $columns ) {
 		$new_columns['client'] = 'client';
 		$new_columns['project'] = 'project';
 		$new_columns['task'] = 'task';
@@ -220,7 +200,7 @@ class Post_Type_Time {
 	 * @param $column_name
 	 * @param $id
 	 */		 
-	public static function manage_columns($column_name, $id) {
+	public static function manage_columns( $column_name, $id ) {
 		global $wpdb;
 
 		$post = get_post( $id );
@@ -290,46 +270,10 @@ class Post_Type_Time {
 	}
 
 	/**
-	 * JavaScript hacks to add custom bulk action and custom post status 
-	 * @see Post_Time_Propel::bulk_actions
-	 * @since 2.0
-	 */
-	public static function admin_footer() {
-		if(isset($_GET['post'])) :
-			$post = get_post($_GET['post']);
-			if( $post->post_type == self::POST_TYPE) :
-			?>
-			<script type="text/javascript">
-				jQuery(document).ready(function() {
-					jQuery('<option>').val('billed').text('Billed').appendTo("#post_status");
-					<?php if( get_post_status( get_the_ID() ) == "billed") : ?>
-					jQuery("label[for='post_status']").html('Status: <strong>Billed</strong>');
-					jQuery("#save-post").val('Save Billed');
-					jQuery('#post_status').val('billed')
-					<?php endif; ?>
-				});
-			</script>
-			<?php
-			endif;
-		endif;
-
-		if(isset($_GET['post_type']) && $_GET['post_type'] != self::POST_TYPE) return;
-		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function() {
-				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action']");
-				jQuery('<option>').val('create_invoice').text('Bill').appendTo("select[name='action2']");
-				jQuery("<li>").html(" | <a href='edit.php?post_status=billed&post_type=propel_time'>Billed <span class='count'>(14)</span></a>").appendTo('.subsubsub')
-			});
-		</script>
-		<?php
-	}
-
-	/**
 	 * Create a WP-Invoice
 	 * @since 2.0
 	 */
-	public static function create_invoice() {
+	public static function bill() {
 		die("Sorry, not implemented yet...");
 	}
 }

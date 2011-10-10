@@ -4,10 +4,7 @@
  * @todo create completed category / meta information - log when the task is marked complete
  * @todo add a clear button for dates - http://bugs.jqueryui.com/ticket/3999
  * @todo implement filtering for project, priority, and contributor
- * @todo add ability to assign tasks to users
  * @todo dispatch email when project is assigned to user
- * @todo add ability to assign multiple contributors
- * @todo add action/bulk action to mark tasks as complete
  */
 
 Post_Type_Task::init();
@@ -21,10 +18,15 @@ class Post_Type_Task {
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
-		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
+		add_action( 'admin_action_complete', array( __CLASS__, 'action_complete' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
+	}
+
+	public static function admin_menu() {
+		remove_meta_box( 'postcustom', 'propel_task', 'core' );
 	}
 
 	/**
@@ -38,36 +40,7 @@ class Post_Type_Task {
 		if( $pagenow != "edit.php" && $_GET['post_type'] != self::POST_TYPE )
 			return $query;
 
-		if( isset($_GET['post_status'] ) && $_GET['post_status'] == "archive" ) {
-			$query->query_vars['post_type'] = "propel_time";
-			$query->query_vars['post_status'] = "archive";
-		}
-
-	}
-
-
-	public static function admin_footer() {
-		if(isset($_GET['post'])) :
-			$post = get_post($_GET['post']);
-			if( $post->post_type == self::POST_TYPE) :
-			?>
-			<script type="text/javascript">
-				jQuery(document).ready(function() {
-					jQuery('<option>').val('archive').text('Archive').appendTo("select[name='post_status']");
-				});
-			</script>
-			<?php
-			endif;
-		endif;
-
-		if(isset($_GET['post_type']) && $_GET['post_type'] != self::POST_TYPE) return;
-		?>
-		<script type="text/javascript">
-			jQuery(document).ready(function() {
-				jQuery("<li>").html(" | <a href='edit.php?post_status=archive&post_type=propel_task'>Archived <span class='count'>(0)</span></a>").appendTo('.subsubsub')
-			});
-		</script>
-		<?php
+		return $query;
 	}
 
 	public static function save_post($post_id) {
@@ -88,12 +61,11 @@ class Post_Type_Task {
 				return;
 		}
 		
-
 		update_post_meta( $post_id, '_propel_start_date', strtotime( $_POST['start_date'] ) );
 		update_post_meta( $post_id, '_propel_end_date', strtotime( $_POST['end_date'] ) );
 		update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
 		update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
-
+		update_post_meta( $post_id, '_propel_contributors', $_POST['propel_user'] );
 	}
 
 	public static function register_post_type()  {
@@ -129,12 +101,24 @@ class Post_Type_Task {
 		
 		register_post_type(self::POST_TYPE, $args);
 
-		register_post_status( 'archive' );
+		$argv = array(
+			'label' => "Archive",
+			'public' => true,
+			'exclude_from_search' => false,
+			'show_in_admin_all_list' => true,
+			'show_in_admin_status_list' => true,
+			'post_type' => 'propel_task' );
+
+		Propel_Functions::register_post_status( 'archive', $argv );
+
+		$argz = array(
+			'action' => 'complete',
+			'label' => 'Complete' );
+		Propel_Functions::add_post_action( 'propel_task', $argz );
 	}
 
 	/**
 	 * @since 2.0
-	 * @see http://shibashake.com/wordpress-theme/add-custom-post-type-columns
 	 */
 	public static function register_columns($columns) {
 		$new_columns['cb'] = '<input type="checkbox" />';
@@ -144,7 +128,8 @@ class Post_Type_Task {
 		$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
 		$new_columns['complete'] = __( 'Progress', 'propel' );
-		$new_columns['categories'] = __( 'Categories', 'propel' );
+		$new_columns['contributors'] = __( 'Contributors', 'propel' );
+		$new_columns['propel_categories'] = __( 'Categories', 'propel' );
 		$new_columns['tags'] = $columns['tags'];
 		$new_columns['comments'] = $columns['comments'];
 		return $new_columns;
@@ -152,7 +137,6 @@ class Post_Type_Task {
 
 	/**
 	 * @since 2.0
-	 * @see http://scribu.net/wordpress/custom-sortable-columns.html
 	 */
 	public static function register_sortable_columns( $x ) {
 		$columns['start'] = 'start';
@@ -203,14 +187,48 @@ class Post_Type_Task {
 				echo "" . get_post_meta( $id, '_propel_complete', true ) . "%";
 				break;
 
+			case 'contributors':
+				$contributors = get_post_meta( $id, '_propel_contributors' );
+				if( !$contributors ) break;
+				if( !is_array( $contributors[0] ) ) break;
+
+				foreach($contributors[0] as $contributor) {
+					$user = get_userdata($contributor);
+					echo $user->display_name . "<br />";
+				}
+				break;
+			
+			case 'propel_categories':
+				$categories = get_the_terms(0, "propel_category");
+				$categories_html = array();
+				if(is_array($categories)) {
+					foreach ($categories as $category) {
+						array_push($categories_html, '<a href="' . get_term_link($category->slug, 'propel_category') . '">' . $category->name . '</a>');
+					}
+					echo implode($categories_html, ", ");
+        		}
+        		break;
+
 			default:
 				break;
 		}
 	}
 
 	public static function add_meta_boxes() {
+
+		add_meta_box('custom-fields', __('Custom Fields'),
+			'post_custom_meta_box', self::POST_TYPE, 'normal', 'low');
+
+
 		add_meta_box( 'propel_task_meta', __( 'Task', 'propel' ),
-			array( __CLASS__, 'edit_task_meta'), 'propel_task', 'side' );
+			array( __CLASS__, 'edit_task_meta'), self::POST_TYPE, 'side' );
+
+		add_meta_box( 'propel_list_authors', __( 'Contributors', 'propel' ),
+			array( __CLASS__, 'list_authors'), self::POST_TYPE, 'side' );
+	}
+
+	public static function list_authors() {
+		require_once( __DIR__ . '/../metaboxes/list-authors.php')	;
 	}
 
 	public static function edit_task_meta() {
@@ -237,7 +255,25 @@ class Post_Type_Task {
 
 		require_once( __DIR__ . '/../metaboxes/task-meta.php' );
 	}
-	
+
+	/**
+	 * @since 2.0
+	 */
+	public static function action_complete() {
+
+		if( is_array( $_REQUEST['post'] ) ) {
+			foreach( $_REQUEST['post'] as $post => $post_id) {
+				echo "<pre>" . print_r($post_id, true) . "</pre>";
+				update_post_meta( $post_id, '_propel_complete', 100 );
+			}
+		} else {
+			update_post_meta( $_GET['post'], '_propel_complete', 100 );
+		}
+
+		wp_redirect( 'edit.php?post_type=propel_task' );
+		die();
+	}
+
 }
 
 ?>
