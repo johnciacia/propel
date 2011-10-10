@@ -32,7 +32,7 @@
 		$x = ($progress == 100) ? "" : "un"; 
 		echo "<tbody onClick='gen_expand(this)' id='{$task->ID}'><tr><td data-value='{$task->post_title}'><p>{$task->post_title}</p></td>";
 		echo "<td data-value='$priority'><p>$priority</p></td>";
-		echo "<td data-value='{$author}'><p>$author</p></td>";
+		echo "<td data-value='{$author}'><p style='text-transform: capitalize;'>" . str_replace( '-', ' ', $author) . "</p></td>";
 		echo "<td data-value='{$start}'><p>$start</p></td>";
 		echo "<td data-value='{$end}'><p>$end</p></td>";
 		echo "<td data-value='{$progress}'><p>{$progress}%</p></td>";
