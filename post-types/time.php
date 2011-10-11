@@ -19,7 +19,7 @@ class Post_Type_Time {
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
-		add_action( 'admin_action_bill', array( __CLASS__, 'bill' ) );
+		//add_action( 'admin_action_bill', array( __CLASS__, 'bill' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'load-edit.php', array( __CLASS__, 'onload' ) );
@@ -102,8 +102,6 @@ class Post_Type_Time {
 		
 		register_post_type(self::POST_TYPE, $args );
 
-
-		
 		$argv = array(
 			'label' => "Billed",
 			'public' => true,
@@ -115,10 +113,10 @@ class Post_Type_Time {
 		Propel_Functions::register_post_status( 'billed', $argv );
 
 		$argz = array(
+			'post_type' => 'propel_time',
 			'action' => 'bill',
 			'label' => 'Bill' );
-		Propel_Functions::add_post_action( 'propel_time', $argz );
-		//register_post_status( 'billed'/*, $argv */ );
+		Propel_Functions::add_post_action( $argz, array( __CLASS__, 'bill' ) );
 	}
 
 

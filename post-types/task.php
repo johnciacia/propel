@@ -18,7 +18,7 @@ class Post_Type_Task {
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
-		add_action( 'admin_action_complete', array( __CLASS__, 'action_complete' ) );
+		//add_action( 'admin_action_complete', array( __CLASS__, 'action_complete' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
@@ -112,9 +112,10 @@ class Post_Type_Task {
 		Propel_Functions::register_post_status( 'archive', $argv );
 
 		$argz = array(
+			'post_type' => 'propel_task',
 			'action' => 'complete',
 			'label' => 'Complete' );
-		Propel_Functions::add_post_action( 'propel_task', $argz );
+		Propel_Functions::add_post_action( $argz, array( __CLASS__, 'action_complete' ) );
 	}
 
 	/**
@@ -259,19 +260,8 @@ class Post_Type_Task {
 	/**
 	 * @since 2.0
 	 */
-	public static function action_complete() {
-
-		if( is_array( $_REQUEST['post'] ) ) {
-			foreach( $_REQUEST['post'] as $post => $post_id) {
-				echo "<pre>" . print_r($post_id, true) . "</pre>";
-				update_post_meta( $post_id, '_propel_complete', 100 );
-			}
-		} else {
-			update_post_meta( $_GET['post'], '_propel_complete', 100 );
-		}
-
-		wp_redirect( 'edit.php?post_type=propel_task' );
-		die();
+	public static function action_complete( $post_id ) {
+		update_post_meta( $post_id, '_propel_complete', 100 );
 	}
 
 }

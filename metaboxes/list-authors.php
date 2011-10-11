@@ -11,8 +11,6 @@ $contributors = get_post_meta( get_the_ID(), '_propel_contributors');
 		</li>
 	</ul>
 
-
-
 	<div id="propel_user-all" class="tabs-panel" style="display: block; ">
 		<ul id="propel_userschecklist" class="list:propel_category categorychecklist form-no-clear">
 

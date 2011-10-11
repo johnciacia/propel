@@ -7,6 +7,7 @@ class Propel_Functions {
 	var $post;
 	var $action;
 	var $status;
+	var $cb;
 
 	public static function register_post_status( $status, $args ) {
 		register_post_status( $status );
@@ -19,18 +20,34 @@ class Propel_Functions {
 	}
 
 	/**
+	 * $args['post_type']
 	 * $args['action']
 	 */
-	public static function add_post_action( $post_type, $args ) {
-		if( isset($_GET['post_type']) && $_GET['post_type'] != $post_type) return;
+	public static function add_post_action( $args, $cb ) {
+		if( isset($_GET['post_type']) && $_GET['post_type'] != $args['post_type']) return;
 
 		$functions = new Propel_Functions();
-		$functions->post_type = $post_type;
+		//$functions->post_type = $args['post_type'];
 		$functions->args = $args;
-
+		$functions->args['cb'] = $cb;
 
 		add_action( 'admin_footer', array( $functions, 'admin_footer_action' ) );
 		add_filter( 'post_row_actions', array( $functions, 'post_row_actions' ) );
+		add_action( 'admin_action_' . $args['action'], array( $functions, 'do_action' ) );
+	}
+
+	public function do_action() {
+
+		if( is_array( $_REQUEST['post'] ) ) {
+			foreach( $_REQUEST['post'] as $post => $post_id) {
+				call_user_func($this->args['cb'], $post_id);	
+			}
+		} else {
+			call_user_func($this->args['cb'], $_GET['post']);
+		}
+
+		wp_redirect( 'edit.php?post_type=propel_task' );
+		die();
 	}
 
 	public function post_row_actions( $actions ) {
