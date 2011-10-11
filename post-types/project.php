@@ -1,15 +1,5 @@
 <?php
 
-/**
- * @todo: add custom post status "Archived" - archiving a project also archives the tasks associated with it
- * @todo: deleting a project deletes the tasks associated with it
- * @todo: add ability to filter start date, and end date
- * @todo: add metabox to add a task
- * @todo: verify that start, end, priority, and complete get sorted properly
- * @todo: add metabox for archived tasks
- * @todo: update tasks metabox
- */
-
 Post_Type_Project::init();
 
 class Post_Type_Project {
@@ -229,7 +219,7 @@ class Post_Type_Project {
 	}
 
 	/**
-	 *
+	 * @since 2.0
 	 */
 	public static function add_meta_boxes() {
 		add_meta_box( 'propel_project_meta', __('Project', 'propel' ),
@@ -244,7 +234,7 @@ class Post_Type_Project {
 	}
 
 	/**
-	 *
+	 * @since 2.0
 	 */
 	public static function project_tasks( $post, $id ) {
 		$args = array(
@@ -260,7 +250,7 @@ class Post_Type_Project {
 	}
 
 	/**
-	 *
+	 * @since 2.0
 	 */
 	public static function edit_project_meta() {
 		wp_nonce_field( plugin_basename( __FILE__ ), 'propel_nonce' );
@@ -291,7 +281,7 @@ class Post_Type_Project {
 	}
 
 	/**
-	 *
+	 * @since 2.0
 	 */
 	public static function save_post($post_id) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
@@ -319,10 +309,16 @@ class Post_Type_Project {
 
 	}
 
+	/**
+	 * @since 2.0
+	 */
 	public static function add_task() {
 		require_once( __DIR__ . '/../metaboxes/add-task.php' );	
 	}
 
+	/**
+	 * @since 2.0
+	 */
 	public static function wp_ajax_add_task() {
 		check_ajax_referer( 'add-task', 'security' );
 		$post = array(
@@ -346,7 +342,7 @@ class Post_Type_Project {
 	}
 
 	/**
-	 *
+	 * @since 2.0
 	 */
 	public static function admin_footer() { ?>
 		<script type="text/javascript">

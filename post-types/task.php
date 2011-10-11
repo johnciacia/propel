@@ -4,7 +4,6 @@
  * @todo create completed category / meta information - log when the task is marked complete
  * @todo add a clear button for dates - http://bugs.jqueryui.com/ticket/3999
  * @todo implement filtering for project, priority, and contributor
- * @todo dispatch email when project is assigned to user
  */
 
 Post_Type_Task::init();
@@ -18,13 +17,15 @@ class Post_Type_Task {
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
-		//add_action( 'admin_action_complete', array( __CLASS__, 'action_complete' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 	}
 
+	/**
+	 * @since 2.0
+	 */
 	public static function admin_menu() {
 		remove_meta_box( 'postcustom', 'propel_task', 'core' );
 	}
@@ -43,6 +44,9 @@ class Post_Type_Task {
 		return $query;
 	}
 
+	/**
+	 * @since 2.0
+	 */
 	public static function save_post($post_id) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
@@ -68,6 +72,9 @@ class Post_Type_Task {
 		update_post_meta( $post_id, '_propel_contributors', $_POST['propel_user'] );
 	}
 
+	/**
+	 * @since 2.0
+	 */
 	public static function register_post_type()  {
  		$labels = array(
 			'name' => _x('Tasks', 'post type general name'),
@@ -215,6 +222,9 @@ class Post_Type_Task {
 		}
 	}
 
+	/**
+	 * @since 2.0
+	 */
 	public static function add_meta_boxes() {
 
 		add_meta_box('custom-fields', __('Custom Fields'),
@@ -228,10 +238,16 @@ class Post_Type_Task {
 			array( __CLASS__, 'list_authors'), self::POST_TYPE, 'side' );
 	}
 
+	/**
+	 * @since 2.0
+	 */
 	public static function list_authors() {
 		require_once( __DIR__ . '/../metaboxes/list-authors.php')	;
 	}
 
+	/**
+	 * @since 2.0
+	 */
 	public static function edit_task_meta() {
 		wp_nonce_field( plugin_basename( __FILE__ ), 'propel_nonce' );
 

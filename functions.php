@@ -27,7 +27,6 @@ class Propel_Functions {
 		if( isset($_GET['post_type']) && $_GET['post_type'] != $args['post_type']) return;
 
 		$functions = new Propel_Functions();
-		//$functions->post_type = $args['post_type'];
 		$functions->args = $args;
 		$functions->args['cb'] = $cb;
 
@@ -36,6 +35,9 @@ class Propel_Functions {
 		add_action( 'admin_action_' . $args['action'], array( $functions, 'do_action' ) );
 	}
 
+	/**
+	 * @todo verify that the current user can perform said action
+	 */
 	public function do_action() {
 
 		if( is_array( $_REQUEST['post'] ) ) {
