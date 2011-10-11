@@ -29,6 +29,13 @@
 	</tr>
 
 	<tr>
+		<td><p>Author</p></td>
+		<td>
+			<?php  wp_dropdown_users( array( 'name' => 'task_author' ) ); ?>
+		</td>
+	</tr>
+
+	<tr>
 		<td colspan="2" style="text-align: right;"><input type="button" id="add-task" class="button-primary" value="Add Task" /></td>
 	</tr>
 </table>

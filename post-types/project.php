@@ -312,6 +312,7 @@ class Post_Type_Project {
 			'post_title' => $_POST['title'],
 			'post_content' => $_POST['description'],
 			'post_parent' => $_POST['parent'],
+			'post_author' => $_POST['user'],
 			'post_type' => 'propel_task',
 			'post_status' => 'publish'
 		);
@@ -342,7 +343,8 @@ class Post_Type_Project {
 						title: $('input[name=task_title]').val(),
 						description: $('textarea[name=task_description]').val(),
 						end_date: $('input[name=task_end_date]').val(),
-						priority: $('select[name=task_priority]').val()
+						priority: $('select[name=task_priority]').val(),
+						user: $('#task_author option:selected').val()
 				};
 
 				jQuery.post(ajaxurl, data, function(response) {
