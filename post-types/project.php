@@ -118,6 +118,23 @@ class Post_Type_Project {
 		
 		register_post_type( self::POST_TYPE, $args );
 
+		$argz = array(
+			'post_type' => 'propel_project',
+			'action' => 'complete',
+			'label' => 'Complete' );
+		Propel_Functions::add_post_action( $argz, array( __CLASS__, 'action_complete' ) );
+
+	}
+
+	/**
+	 * @since 2.0
+	 */
+	public static function action_complete( $post_id ) {
+		update_post_meta( $post_id, '_propel_complete', 100 );
+		$tasks = get_children( "post_parent=$post_id" );
+		foreach( $tasks as $task ) {
+			update_post_meta( $task->ID, '_propel_complete', 100 );
+		}
 	}
 
 	/**
