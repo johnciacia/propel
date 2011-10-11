@@ -46,18 +46,18 @@ class Propel_Functions {
 			call_user_func($this->args['cb'], $_GET['post']);
 		}
 
-		wp_redirect( 'edit.php?post_type=propel_task' );
+		wp_redirect( $_SERVER['HTTP_REFERER'] );
 		die();
 	}
 
 	public function post_row_actions( $actions ) {
-		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->post_type) return $actions;
+		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->args['post_type']) return $actions;
 		$actions[$this->args['action']] = "<a href='post.php?post=" . get_the_ID() . "&action=" . $this->args['action'] . "'>" . $this->args['label'] . "</a>";
 		return $actions;
 	}
 
 	public function admin_footer_action() {
-		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->post_type) return;
+		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->args['post_type']) return;
 		?>
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
