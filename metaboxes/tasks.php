@@ -38,8 +38,8 @@
 		echo "<td data-value='{$progress}'><p>{$progress}%</p></td>";
 		echo "<td class='gen-icon gen-delete-icon'><a href='?action=propel-delete-task&task={$task->ID}' title='Delete'>Delete</a></td>";
 		echo "<td class='gen-icon gen-edit-icon'><a href='post.php?post={$task->ID}&action=edit' title='Edit'>Edit</a></td>";
-		echo "<td class='gen-icon gen-{$x}checked-icon'><a href='?action=propel-complete-task&task={$task->ID}' title='Mark as complete'>Complete</a></td>";
-		echo "</tr><tr class='gen-hidden' id='gen-row-{$task->ID}'><td>&nbsp</td><td colspan='8'><p>{$task->post_content}</p></td></tr></tbody>";	
+		echo "<td class='gen-icon gen-{$x}checked-icon'><a href='post.php?action=complete&post={$task->ID}' title='Mark as complete'>Complete</a></td>";
+		echo "</tr><tr class='gen-hidden' id='gen-row-{$task->ID}'><td>&nbsp</td><td colspan='8'><p>{$task->post_content}</p></td></tr></tbody>";
 	}
 
 	?>

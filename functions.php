@@ -7,6 +7,7 @@ class Propel_Functions {
 	var $post;
 	var $action;
 	var $status;
+	var $cb;
 
 	public static function register_post_status( $status, $args ) {
 		register_post_status( $status );
@@ -19,28 +20,46 @@ class Propel_Functions {
 	}
 
 	/**
+	 * $args['post_type']
 	 * $args['action']
 	 */
-	public static function add_post_action( $post_type, $args ) {
-		if( isset($_GET['post_type']) && $_GET['post_type'] != $post_type) return;
+	public static function add_post_action( $args, $cb ) {
+		if( isset($_GET['post_type']) && $_GET['post_type'] != $args['post_type']) return;
 
 		$functions = new Propel_Functions();
-		$functions->post_type = $post_type;
 		$functions->args = $args;
-
+		$functions->args['cb'] = $cb;
 
 		add_action( 'admin_footer', array( $functions, 'admin_footer_action' ) );
 		add_filter( 'post_row_actions', array( $functions, 'post_row_actions' ) );
+		add_action( 'admin_action_' . $args['action'], array( $functions, 'do_action' ) );
+	}
+
+	/**
+	 * @todo verify that the current user can perform said action
+	 */
+	public function do_action() {
+
+		if( is_array( $_REQUEST['post'] ) ) {
+			foreach( $_REQUEST['post'] as $post => $post_id) {
+				call_user_func($this->args['cb'], $post_id);	
+			}
+		} else {
+			call_user_func($this->args['cb'], $_GET['post']);
+		}
+
+		wp_redirect( $_SERVER['HTTP_REFERER'] );
+		die();
 	}
 
 	public function post_row_actions( $actions ) {
-		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->post_type) return $actions;
+		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->args['post_type']) return $actions;
 		$actions[$this->args['action']] = "<a href='post.php?post=" . get_the_ID() . "&action=" . $this->args['action'] . "'>" . $this->args['label'] . "</a>";
 		return $actions;
 	}
 
 	public function admin_footer_action() {
-		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->post_type) return;
+		if( !isset($_GET['post_type']) || $_GET['post_type'] != $this->args['post_type']) return;
 		?>
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
