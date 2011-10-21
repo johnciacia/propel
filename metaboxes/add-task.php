@@ -34,6 +34,7 @@
 			<?php  
 			$current_user = wp_get_current_user();
 			wp_dropdown_users( array( 
+				'show_option_none' => 'Unassigned',
 				'name' => 'task_author', 
 				'selected' => $current_user->ID) ); 
 			?>

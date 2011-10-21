@@ -26,8 +26,12 @@
 		if( $end )
 			$end = date( get_option( 'date_format' ), $end);
 
-		$userdata = get_userdata( $task->post_author );
-		$author = $userdata->user_nicename;
+		if( $task->post_author ) {
+			$userdata = get_userdata( $task->post_author );
+			$author = $userdata->user_nicename;
+		} else {
+			$author = "Unassigned";
+		}
 
 		$x = ($progress == 100) ? "" : "un"; 
 		echo "<tbody onClick='gen_expand(this)' id='{$task->ID}'><tr><td data-value='{$task->post_title}'><p>{$task->post_title}</p></td>";
