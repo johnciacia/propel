@@ -39,6 +39,18 @@ class Post_Type_Project {
 				'meta_key' => '_propel_complete',
 				'orderby' => 'meta_value_num') );
 		}
+
+		if ( isset( $vars['orderby'] ) && 'start' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_start_date',
+				'orderby' => 'meta_value_num') );
+		}
+
+		if ( isset( $vars['orderby'] ) && 'end' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_end_date',
+				'orderby' => 'meta_value_num') );
+		}
 		return $vars;
 	 }
 
