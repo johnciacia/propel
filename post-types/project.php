@@ -21,8 +21,26 @@ class Post_Type_Project {
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_action( 'wp_ajax_add_task', array( __CLASS__, 'wp_ajax_add_task' ) );
 		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
-
+		add_filter( 'request', array( __CLASS__, 'request' ) );
 	}
+
+	/**
+	 *
+	 */
+	 public static function request($vars) {
+		if ( isset( $vars['orderby'] ) && 'priority' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_priority',
+				'orderby' => 'meta_value_num') );
+		}
+
+		if ( isset( $vars['orderby'] ) && 'complete' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_complete',
+				'orderby' => 'meta_value_num') );
+		}
+		return $vars;
+	 }
 
 	/**
 	 *
