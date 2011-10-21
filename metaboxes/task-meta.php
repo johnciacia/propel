@@ -13,7 +13,7 @@
 				echo $project->post_title;
 				echo '</option>';
 			} else {
-				echo '<option value=' . $project->ID . ' selected>';
+				echo '<option value=' . $project->ID . '>';
 				echo $project->post_title;
 				echo '</option>';				
 			}
