@@ -19,9 +19,25 @@ class Post_Type_Project {
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
-		add_action('wp_ajax_add_task', array( __CLASS__, 'wp_ajax_add_task' ) );
+		add_action( 'wp_ajax_add_task', array( __CLASS__, 'wp_ajax_add_task' ) );
+		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
 
 	}
+
+	/**
+	 *
+	 */
+	 public static function post() {
+		
+		if( isset($_GET['_wpnonce'], $_GET['action'], $_GET['post'] ) ) {
+			if ( !wp_verify_nonce($_GET['_wpnonce'], 'propel-trash') ) die('Security check');
+
+			wp_delete_post($_GET['post']);
+			wp_redirect( $_SERVER['HTTP_REFERER'] );
+			die();
+		}
+		
+	 }
 
 	/**
 	 * @since 2.0
