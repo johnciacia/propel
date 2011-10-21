@@ -31,7 +31,12 @@
 	<tr>
 		<td><p>Author</p></td>
 		<td>
-			<?php  wp_dropdown_users( array( 'name' => 'task_author' ) ); ?>
+			<?php  
+			$current_user = wp_get_current_user();
+			wp_dropdown_users( array( 
+				'name' => 'task_author', 
+				'selected' => $current_user->ID) ); 
+			?>
 		</td>
 	</tr>
 
