@@ -271,27 +271,53 @@ class Post_Type_Project {
 		add_meta_box( 'propel_project_meta', __('Project', 'propel' ),
 			array( __CLASS__, 'edit_project_meta'), 'propel_project', 'side' );
 
+
 		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {
+		add_meta_box('propel_completed_tasks', __('Completed Tasks', 'propel'),
+			array( __CLASS__, 'completed_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+
 		add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),
-			array( __CLASS__ , 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+			array( __CLASS__, 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 
 		add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
 		}
 	}
 
 	/**
+	 *
+	 */
+	public static function completed_tasks( $post, $id ) {
+		global $wpdb;
+		$parent = get_the_ID(); 
+		//@todo: profile query
+		$query = "SELECT `post_id`, `meta_value` AS `progress` 
+		    	FROM `{$wpdb->postmeta}`
+		        WHERE `meta_key` = '_propel_complete' 
+		        AND `meta_value` = 100 AND `{$wpdb->postmeta}`.`post_id` 
+		        	IN (SELECT `ID` FROM {$wpdb->posts}
+		        	WHERE `post_parent`={$parent} AND `post_status` = 'publish')
+		        ORDER BY `meta_value` DESC, `post_id` DESC;";
+
+		$posts = $wpdb->get_results($query);
+		require_once( __DIR__ . '/../metaboxes/completed-tasks.php');
+	}
+
+	/**
 	 * @since 2.0
 	 */
 	public static function project_tasks( $post, $id ) {
-		$args = array(
-			'order'=> 'ASC',
-			'post_parent' => get_the_ID(),
-			'post_status' => 'publish',
-			'post_type' => 'propel_task'
-		);
+		global $wpdb;
+		$parent = get_the_ID(); 
+		//@todo: profile query
+		$query = "SELECT `post_id`, `meta_value` AS `progress` 
+		    	FROM `{$wpdb->postmeta}`
+		        WHERE `meta_key` = '_propel_complete' 
+		        AND `meta_value` < 100 AND `{$wpdb->postmeta}`.`post_id` 
+		        	IN (SELECT `ID` FROM {$wpdb->posts}
+		        	WHERE `post_parent`={$parent} AND `post_status` = 'publish')
+		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
-		$tasks = get_children( $args );
-
+		$posts = $wpdb->get_results($query);
 		require_once( __DIR__ . '/../metaboxes/tasks.php' );
 	}
 

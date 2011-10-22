@@ -5,7 +5,7 @@
 		<td>
 		<?php
 
-		$projects = query_posts('post_type=propel_project&post_status=publish');
+		$projects = get_posts('post_type=propel_project&post_status=publish');
 		echo "<select name='parent_id' id='parent_id'>";
 		foreach($projects as $project) :
 			if($project->ID == $parent) {
@@ -18,7 +18,6 @@
 				echo '</option>';				
 			}
 		endforeach;
-		wp_reset_query();
 
 		?>
 		</td>

@@ -2,12 +2,12 @@
 
 	<tr>
 		<td><p>Start Date</p></td>
-		<td><input type="text" name="start_date" class="date" value="<?php echo $start; ?>" /></td>
+		<td><input type="text" name="start_date" class="date" value="<?php echo esc_attr($start); ?>" /></td>
 	</tr>
 
 	<tr>
 		<td><p>End Date</p></td>
-		<td><input type="text" name="end_date" class="date" value="<?php echo $end; ?>" /></td>
+		<td><input type="text" name="end_date" class="date" value="<?php echo esc_attr($end); ?>" /></td>
 	</tr>
 	
 	<tr>
@@ -16,12 +16,8 @@
 			<select name="priority">
 				<option value="1">Low</option>
 	                <?php
-	                for ($i = 1; $i <= 10; $i ++) {
-						if($i == $priority) {
-	                    	echo '<option value="' . $i . '" selected>' . $i . '</option>';
-						} else {
-						    echo '<option value="' . $i . '">' . $i . '</option>';
-	                	}
+	                for ($i = 1; $i <= 10; $i++) {	
+	                    echo "<option value='$i'".selected($priority, $i).">$i</option>";
 					}
 	                ?>
                 <option value="10">High</option>
@@ -35,10 +31,7 @@
             <select name="complete">
 	            <?php
 	            for ($i = 0; $i <= 100; $i++) {
-					if($i == $complete)
-						echo '<option value="' . $i . '" selected>' . $i . '%</option>';
-	                else 
-	                	echo '<option value="' . $i . '">' . $i . '%</option>';
+					echo "<option value='$i'".selected($complete, $i).">$i</option>";
 	            }
 	            ?> 
             </select>		
