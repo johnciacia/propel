@@ -299,7 +299,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);
-		require_once( __DIR__ . '/../metaboxes/completed-tasks.php');
+		require( __DIR__ . '/../metaboxes/tasks.php');
 	}
 
 	/**
@@ -318,7 +318,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);
-		require_once( __DIR__ . '/../metaboxes/tasks.php' );
+		require( __DIR__ . '/../metaboxes/tasks.php' );
 	}
 
 	/**
