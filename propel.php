@@ -54,7 +54,6 @@ class Propel {
 		add_action('admin_init', array(__CLASS__, 'admin_init'));
 		add_action('init', array(__CLASS__, 'init'));
 		add_action('admin_menu', array(__CLASS__, 'admin_menu'));
-		add_shortcode('pl-projects', array(__CLASS__, 'projectsShortcode'));
 		register_activation_hook(__FILE__, array(__CLASS__, 'install'));
 		require_once( __DIR__ . '/functions.php' );
 		require_once( __DIR__ . '/post-types/project.php' );
@@ -72,9 +71,7 @@ class Propel {
 			//add_menu_page(null, 'Propel', 'activate_plugins', 
 			//	'propel_migrate_tool', array(__CLASS__ , 'migrateTool'));			
 			//return;
-		}
-
-		add_submenu_page('options-general.php', 'Propel', "Propel", 'publish_pages', 'propel-settings', array(__CLASS__, 'settingsPage'));				
+		}			
 	}
 
 	/**
@@ -85,8 +82,10 @@ class Propel {
 		//wp_enqueue_script('wp-lists');
 		//wp_enqueue_script('common');
 		//wp_enqueue_script('postbox');	
-		//wp_enqueue_script('jquery-datatables', 
-		//	WP_PLUGIN_URL . '/propel/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core') );		
+		wp_enqueue_script('jquery-datatables', 
+			WP_PLUGIN_URL . '/propel/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core') );
+		wp_enqueue_script('propel-functions', 
+			WP_PLUGIN_URL . '/propel/js/functions.js', array( 'jquery-datatables' ) );
 		wp_register_style("propel-admin-jquery-ui", WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css');
 		wp_enqueue_style('propel-admin-jquery-ui');
 	}
@@ -109,8 +108,6 @@ class Propel {
 			WP_PLUGIN_URL . '/propel/js/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('jquery-ui-progressbar', 
 			WP_PLUGIN_URL . '/propel/js/jquery.ui.progressbar.min.js', array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
-		//wp_enqueue_script('propel-functions', 
-		//	WP_PLUGIN_URL . '/propel/js/functions.js', array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
 								
 		wp_register_style("propel-jquery-ui", get_option('propel_theme'));
 		wp_register_style("genesis-ui", WP_PLUGIN_URL . '/propel/gen/ui.css');
@@ -122,56 +119,6 @@ class Propel {
 			wp_enqueue_style('propel-ui');
 	}
 
- 
-	
-	public static function settingsPage () {
-		require_once('models/misc.php');
-		$helper = new Helper();
-		$themes = $helper->getTemplates();
-		require_once('pages/settingsPage.php');
-	}
-	
-	public static function updateSettingsAction ()
-	{	
-		
-		if($_POST['propel_include_css'] == "on") {
-			update_option('PROPEL_INCLUDE_CSS', true);
-		} else {
-			update_option('PROPEL_INCLUDE_CSS', false);			
-		}
-		
-		update_option('propel_theme', $_POST['propel_theme']);
-		wp_redirect($_SERVER['HTTP_REFERER']);
-	}
-
-	
-	
-	/***************************************************\
-	|                    SHORTCODES                     |
-	\***************************************************/
-	public static function projectsShortcode ($atts)
-	{
-		/*
-		extract(shortcode_atts(array('id' => NULL), $atts));
-		
-		if($id == NULL) { 
-			$projects = $this->projectsModel->getProjects();
-
-			foreach($projects as $project) {
-
-				$tasks[$project->post_name] = $this->tasksModel->getTasksByProject($project->ID);
-			}
-		} else {
-			$projects[] = $this->projectsModel->getProjectById($id);
-			$tasks[$projects[0]->post_name] = $this->tasksModel->getTasksByProject($projects[0]->ID);
-		}
-	
-					
-		ob_start();
-		require_once('frontend/projects_new.php');
-		return ob_get_clean();
-		*/
-	}
 	/***************************************************\
 	|                       MISC                        |
 	\***************************************************/	

@@ -19,9 +19,55 @@ class Post_Type_Project {
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
-		add_action('wp_ajax_add_task', array( __CLASS__, 'wp_ajax_add_task' ) );
-
+		add_action( 'wp_ajax_add_task', array( __CLASS__, 'wp_ajax_add_task' ) );
+		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
+		add_filter( 'request', array( __CLASS__, 'request' ) );
 	}
+
+	/**
+	 *
+	 */
+	 public static function request($vars) {
+		if ( isset( $vars['orderby'] ) && 'priority' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_priority',
+				'orderby' => 'meta_value_num') );
+		}
+
+		if ( isset( $vars['orderby'] ) && 'complete' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_complete',
+				'orderby' => 'meta_value_num') );
+		}
+
+		if ( isset( $vars['orderby'] ) && 'start' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_start_date',
+				'orderby' => 'meta_value_num') );
+		}
+
+		if ( isset( $vars['orderby'] ) && 'end' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_end_date',
+				'orderby' => 'meta_value_num') );
+		}
+		return $vars;
+	 }
+
+	/**
+	 *
+	 */
+	 public static function post() {
+		
+		if( isset($_GET['_wpnonce'], $_GET['action'], $_GET['post'] ) ) {
+			if ( !wp_verify_nonce($_GET['_wpnonce'], 'propel-trash') ) die('Security check');
+
+			wp_delete_post($_GET['post']);
+			wp_redirect( $_SERVER['HTTP_REFERER'] );
+			die();
+		}
+		
+	 }
 
 	/**
 	 * @since 2.0
@@ -225,28 +271,54 @@ class Post_Type_Project {
 		add_meta_box( 'propel_project_meta', __('Project', 'propel' ),
 			array( __CLASS__, 'edit_project_meta'), 'propel_project', 'side' );
 
+
 		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {
+		add_meta_box('propel_completed_tasks', __('Completed Tasks', 'propel'),
+			array( __CLASS__, 'completed_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+
 		add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),
-			array( __CLASS__ , 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+			array( __CLASS__, 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 
 		add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
 		}
 	}
 
 	/**
+	 *
+	 */
+	public static function completed_tasks( $post, $id ) {
+		global $wpdb;
+		$parent = get_the_ID(); 
+		//@todo: profile query
+		$query = "SELECT `post_id`, `meta_value` AS `progress` 
+		    	FROM `{$wpdb->postmeta}`
+		        WHERE `meta_key` = '_propel_complete' 
+		        AND `meta_value` = 100 AND `{$wpdb->postmeta}`.`post_id` 
+		        	IN (SELECT `ID` FROM {$wpdb->posts}
+		        	WHERE `post_parent`={$parent} AND `post_status` = 'publish')
+		        ORDER BY `meta_value` DESC, `post_id` DESC;";
+
+		$posts = $wpdb->get_results($query);
+		require( __DIR__ . '/../metaboxes/tasks.php');
+	}
+
+	/**
 	 * @since 2.0
 	 */
 	public static function project_tasks( $post, $id ) {
-		$args = array(
-			'order'=> 'ASC',
-			'post_parent' => get_the_ID(),
-			'post_status' => 'publish',
-			'post_type' => 'propel_task'
-		);
+		global $wpdb;
+		$parent = get_the_ID(); 
+		//@todo: profile query
+		$query = "SELECT `post_id`, `meta_value` AS `progress` 
+		    	FROM `{$wpdb->postmeta}`
+		        WHERE `meta_key` = '_propel_complete' 
+		        AND `meta_value` < 100 AND `{$wpdb->postmeta}`.`post_id` 
+		        	IN (SELECT `ID` FROM {$wpdb->posts}
+		        	WHERE `post_parent`={$parent} AND `post_status` = 'publish')
+		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
-		$tasks = get_children( $args );
-
-		require_once( __DIR__ . '/../metaboxes/tasks.php' );
+		$posts = $wpdb->get_results($query);
+		require( __DIR__ . '/../metaboxes/tasks.php' );
 	}
 
 	/**

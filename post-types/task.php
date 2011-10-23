@@ -21,7 +21,18 @@ class Post_Type_Task {
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
+		add_action( 'wp_ajax_get_task_description', array( __CLASS__, 'wp_ajax_get_task_description' ) );
+
 	}
+
+	/**
+	 *
+	 */
+	 public static function wp_ajax_get_task_description() {
+		$post = get_post($_POST['id']);
+	 	echo $post->post_content;
+	 	die();
+	 }
 
 	/**
 	 * @since 2.0
@@ -40,6 +51,11 @@ class Post_Type_Task {
 
 		if( $pagenow != "edit.php" && $_GET['post_type'] != self::POST_TYPE )
 			return $query;
+
+		if( isset( $_GET['project'] ) ) {
+			$query->query_vars['post_parent'] = (int)$_GET['project'];
+			return $query;
+		}
 
 		return $query;
 	}
@@ -170,7 +186,7 @@ class Post_Type_Task {
 			case 'project':
 				$id = get_post( $id );
 				$project = get_post( $id->post_parent );
-				echo "<a href='edit.php?post_type=propel_project&project=" . $project->ID . "'>" . $project->post_title . "</a>";
+				echo "<a href='edit.php?post_type=propel_task&project=" . $project->ID . "'>" . $project->post_title . "</a>";
 				break;
 
 			case 'start':

@@ -1,21 +1,6 @@
-/* FIXME - Hard coded paths */
-jQuery(document).ready(function() {
-
-	var nCloneTh = document.createElement( 'th' );
-	var nCloneTd = document.createElement( 'td' );
-	nCloneTd.innerHTML = '<img style="margin-left: 5px; margin-right:5px;" src="../wp-content/plugins/propel/images/details_open.png" />';
-	nCloneTd.className = "center";
-	
-	jQuery('.tasks-table thead tr').each( function () {
-		this.insertBefore( nCloneTh, this.childNodes[0] );
-	} );
-	
-	jQuery('.tasks-table tbody tr').each( function () {
-		this.insertBefore(  nCloneTd.cloneNode( true ), this.childNodes[0] );
-	} );
+jQuery(document).ready(function($) {
 	
 	jQuery.fn.dataTableExt.oSort['percent-asc']  = function(a,b) {
-			console.log("asc");
 		var x = (a == "-") ? 0 : a.replace( /%/, "" );
 		var y = (b == "-") ? 0 : b.replace( /%/, "" );
 		x = parseFloat( x );
@@ -24,7 +9,6 @@ jQuery(document).ready(function() {
 	};
 
 	jQuery.fn.dataTableExt.oSort['percent-desc'] = function(a,b) {
-			console.log("desc");
 		var x = (a == "-") ? 0 : a.replace( /%/, "" );
 		var y = (b == "-") ? 0 : b.replace( /%/, "" );
 		x = parseFloat( x );
@@ -32,59 +16,55 @@ jQuery(document).ready(function() {
 		return ((x < y) ?  1 : ((x > y) ? -1 : 0));
 	};
 	
-	/*
-	jQuery.fn.dataTableExt.oStdClasses.sPaging = "tablenav-pages";
-	jQuery.fn.dataTableExt.oStdClasses.sPageFirst = "first-page";
- 	jQuery.fn.dataTableExt.oStdClasses.sPageLast = "last-page";
-	jQuery.fn.dataTableExt.oStdClasses.sPageButton = "";
-	jQuery.fn.dataTableExt.oStdClasses.sPageButtonActive = "current-page";
-	jQuery.fn.dataTableExt.oStdClasses.sPageButtonStaticDisabled = "disabled";
-	jQuery.fn.dataTableExt.oStdClasses.sPagePrevious = "prev-page";
-	jQuery.fn.dataTableExt.oStdClasses.sPageNext = "next-page";
-	
-	
-	jQuery.fn.dataTableExt.oStdClasses.sStripOdd = "alternate";
-	*/
-	
 	var oTable = jQuery('.tasks-table').dataTable( {
 		"bStateSave": true,
-		"sPaginationType": "full_numbers",
+		//"sPaginationType": "full_numbers",
+		"bFilter": false,
+		"bPaginate": false,
+		"bInfo": false,
 		"aoColumnDefs": [
 			{ "bSortable": false, "aTargets": [ 0 ] }
 		],
 		"aaSorting": [[1, 'asc']],
 				"aoColumns" : [
-			null, null, null, null, null, null, null, null, null, null, null
+			null, null, null, null, null, null, null, null, null
 		]
 	});
-	
 
-	
-	jQuery('.tasks-table tbody td img').live('click', function () {
-		var nTr = this.parentNode.parentNode;
-		if ( this.src.match('details_close') )
-		{
-			/* This row is already open - close it */
-			this.src = "../wp-content/plugins/propel/images/details_open.png";
-			oTable.fnClose( nTr );
+	jQuery('.tasks-table tbody tr').click(function() {
+		if(jQuery('#details-' + jQuery(this).attr('id')).length > 0) {
+			jQuery('#details-' + jQuery(this).attr('id')).remove();
+		} else {
+			id = jQuery(this).attr('id');
+			jQuery(this).after('<tr id="details-'+id+'"><td colspan="9"><p id="detail-'+id+'" style="margin-left: 50px;">&nbsp;</p></td></tr>');	
+			get_details(id);
+			
 		}
-		else
-		{
-			/* Open this row */
-			this.src = "../wp-content/plugins/propel/images/details_close.png";
-			oTable.fnOpen( nTr, '<tr><td><p style="margin-left: 50px;" id="'+jQuery("#" + nTr.id ).attr('data-value')+'">'+get_details(jQuery("#" + nTr.id ).attr('data-value'))+'</p></td></tr>', 'details' );
+	});
+
+	/*
+	$('.tasks-table tbody tr').hover(
+		function() {
+			console.log($(this).children(':first'));
+			$(this).children(':first').toggleClass('toggle-arrow');
+		},
+		function() {
+			$(this).children(':first').toggleClass('toggle-arrow');
 		}
-	} );
+	);
+	*/
 } );
 
 function get_details(id) {
-		var data = {
-			action: 'propel-get-task-details',
-			id: id
-		};
+	var data = {
+		action: 'get_task_description',
+		id: id
+	};
 
-		jQuery.post(ajaxurl, data, function(response) {
-			jQuery("#" + id).html(response);
-		});
-		
+	jQuery.post(ajaxurl, data, function(response) {
+		if(response == "")
+			jQuery('#detail-' + id).html("&nbsp;");
+		else
+			jQuery('#detail-' + id).html(response);
+	});
 }
