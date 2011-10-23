@@ -21,7 +21,18 @@ class Post_Type_Task {
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
+		add_action( 'wp_ajax_get_task_description', array( __CLASS__, 'wp_ajax_get_task_description' ) );
+
 	}
+
+	/**
+	 *
+	 */
+	 public static function wp_ajax_get_task_description() {
+		$post = get_post($_POST['id']);
+	 	echo $post->post_content;
+	 	die();
+	 }
 
 	/**
 	 * @since 2.0

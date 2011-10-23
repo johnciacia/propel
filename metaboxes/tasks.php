@@ -1,4 +1,4 @@
-<table width="100%" class="gen-table tablesorter" id="propel-tasks">
+<table width="100%" class="gen-table tasks-table" id="propel-tasks">
 	<thead>
 		<tr>
 			<th class="sortable"><p>Name</p></th>
@@ -35,21 +35,42 @@
 
 		$x = ($progress == 100) ? "" : "un";
 		$nonce = wp_create_nonce('propel-trash');
-		echo "<tbody onClick='gen_expand(this)' id='{$task->ID}'><tr><td data-value='{$task->post_title}'><p>{$task->post_title}</p></td>";
-		echo "<td data-value='$priority'><p>$priority</p></td>";
-		echo "<td data-value='{$author}'><p>$author</p></td>";
-		echo "<td data-value='{$start}'><p>$start</p></td>";
-		echo "<td data-value='{$end}'><p>$end</p></td>";
-		echo "<td data-value='{$progress}'><p>{$progress}%</p></td>";
-		echo "<td class='gen-icon gen-delete-icon'><a href='post.php?action=delete&post={$task->ID}&_wpnonce=$nonce' title='Delete'>Delete</a></td>";
-		echo "<td class='gen-icon gen-edit-icon'><a href='post.php?post={$task->ID}&action=edit' title='Edit'>Edit</a></td>";
-		echo "<td class='gen-icon gen-{$x}checked-icon'><a href='post.php?action=complete&post={$task->ID}' title='Mark as complete'>Complete</a></td>";
-		echo "</tr><tr class='gen-hidden' id='gen-row-{$task->ID}'><td>&nbsp</td><td colspan='8'><p>{$task->post_content}</p></td></tr></tbody>";
+		?>
+		<tr class="toggle" id="<?php esc_attr_e( $task->ID ); ?>">
+			<td data-value="<?php esc_attr_e($task->post_title); ?>">
+				<p><?php esc_html_e($task->post_title); ?></p></td>
+
+			<td data-value="<?php esc_attr_e( $priority ); ?>">
+				<p><?php esc_html_e($priority); ?></p></td>
+
+			<td data-value="<?php esc_attr_e( $author ); ?>">
+				<p><?php esc_html_e($author); ?></p></td>
+
+			<td data-value="<?php esc_attr_e( $start ); ?>">
+				<p><?php esc_html_e($start); ?></p></td>
+
+			<td data-value="<?php esc_attr_e( $end ); ?>">
+				<p><?php esc_html_e($end); ?></p></td>
+
+			<td data-value="<?php esc_attr_e( $progress ); ?>">
+				<p><?php esc_html_e($progress); ?>%</p></td>
+
+			<td class="gen-icon gen-delete-icon">
+				<a href="post.php?action=delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
+
+			<td class="gen-icon gen-edit-icon">
+				<a href="post.php?post=<?php esc_attr_e( $task->ID ); ?>&action=edit" title="Edit">Edit</a></td>
+
+			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
+				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
+		</tr>
+		<?php
 	}
 
 	?>
 
 </table>
+<div style="clear:both;"></div>
 
 
 <script type="text/JavaScript">
