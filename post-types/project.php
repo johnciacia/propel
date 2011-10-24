@@ -51,6 +51,12 @@ class Post_Type_Project {
 				'meta_key' => '_propel_end_date',
 				'orderby' => 'meta_value_num') );
 		}
+
+		if ( isset( $vars['orderby'] ) && 'client' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_owner',
+				'orderby' => 'meta_value_num') );
+		}
 		return $vars;
 	 }
 
