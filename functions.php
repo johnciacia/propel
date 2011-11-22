@@ -8,7 +8,6 @@ class Propel_Functions {
 	var $action;
 	var $status;
 	var $cb;
-
 	public static function register_post_status( $status, $args ) {
 		register_post_status( $status );
 
@@ -130,6 +129,103 @@ class Propel_Functions {
 		</script>
 		<?php
 	}
+	
 }
 
+
+
+/* DASHBOARD METABOXES */
+/* DASHBOARD METABOXES */
+
+/* YOUR TASKS */
+function dashboard_tasks_assigned_to_you_metabox() {
+
+	function dashboard_tasks_assigned_to_you_content() {
+?>
+		
+		<ol>
+			<?php
+			global $post;
+			$current_user = wp_get_current_user();
+			$args = array( 'post_type' => 'propel_task', 'numberposts' => 5, 'orderby' => 'post_date', 'author' => $current_user->ID );
+			$myposts = get_posts( $args );
+			foreach( $myposts as $post ) :	setup_postdata($post);
+			?>
+				<li>
+					<p style="padding: 0; margin: 0;"><b><a href="post.php?post=<?php echo $post->post_parent; ?>&action=edit"><?php echo get_the_title($post->post_parent) ?></a></b> <a href="post.php?post=<?php echo get_the_ID(); ?>&action=edit"><?php the_title(); ?></a></p>
+					<p style="padding: 0; margin: 0; font-size: 11px; color: #999; font-style: italic;">Contributors: <?php coauthors_nicknames(); ?></p>
+				</li>
+			<?php endforeach; ?>
+		</ol>
+		
+		<p style="text-align: right;"><a href="edit.php?post_type=propel_task" style="color: orange; font-size 16px; font-weight: bold;">View All Tasks >></a></p>
+
+<?php
+	}
+	
+	wp_add_dashboard_widget( 'dashboard_tasks_assigned_to_you_content', __( 'Your Tasks' ), 'dashboard_tasks_assigned_to_you_content' );
+
+}
+
+add_action('wp_dashboard_setup', 'dashboard_tasks_assigned_to_you_metabox');
+
+
+/* YOUR PROJECTS */
+function dashboard_projects_assigned_to_you_metabox() {
+
+	function dashboard_projects_assigned_to_you_content() {
+
+		$current_user = wp_get_current_user();
+?>
+		
+		<ol>
+			<?php
+			global $post;
+			$current_user = wp_get_current_user();
+			$args = array( 'post_type' => 'propel_project', 'numberposts' => 5, 'order' => DESC, 'orderby' => 'post_date', 'author' => $current_user->ID );
+			/* $args = array( 'post_type' => 'propel_project', 'numberposts' => 100, 'order' => DESC, 'orderby' => 'post_date', 'meta_key' => '_coauthor', 'meta_value' => $current_user->ID ); */
+			$myposts = get_posts( $args );
+		    $user_id = WP_CRM_F::get_first_value($object['ID']);
+		    
+			foreach( $myposts as $post ) :	setup_postdata($post);
+			?>
+			
+			<?php
+				$user_id = get_post_meta($post->ID, '_propel_owner', true);
+				$user = get_userdata($user_id);
+			?>
+				<li>
+					<p style="padding: 0; margin: 0;"><b><a href="admin.php?page=wp_crm_add_new&user_id=<?php echo $user_id; ?>"><?php echo $user->user_login; ?></a></b> <a href="post.php?post=<?php echo get_the_ID(); ?>&action=edit"><?php the_title(); ?></a></p>
+					<p style="padding: 0; margin: 0; font-size: 11px; color: #999; font-style: italic;">Contributors: <?php coauthors_nicknames(); ?></p>
+					<p style="padding: 0; margin: 0; font-size: 11px; color: #999; font-style: italic;"><?php if($user_id) { WP_CRM_F::get_user_activity_stream("user_id={$user_id} "); } ?></p>
+				</li>
+			<?php endforeach; ?>
+		</ol>
+		
+		<p style="text-align: right;"><a href="edit.php?post_type=propel_project" style="color: orange; font-size 16px; font-weight: bold;">View All Projects >></a></p>
+
+<?php
+	}
+	
+	wp_add_dashboard_widget( 'dashboard_projects_assigned_to_you_content', __( 'Your Projects' ), 'dashboard_projects_assigned_to_you_content' );
+
+}
+add_action('wp_dashboard_setup', 'dashboard_projects_assigned_to_you_metabox');
+
+
+/* ADD TASK */
+function dashboard_add_tasks_metabox() {
+
+	function dashboard_add_tasks_content() {
+
+		require_once( __DIR__ . '/metaboxes/add-task.php' );
+	}
+	
+	wp_add_dashboard_widget( 'dashboard_add_tasks_content', __( 'Add A New Task' ), 'dashboard_add_tasks_content' );
+
+}
+add_action('wp_dashboard_setup', 'dashboard_add_tasks_metabox');
+
+/* ADDS DRAG AND DROP SORTING TO PROPEL */
+wp_enqueue_script( 'simple-page-ordering', plugin_dir_url( __FILE__ ) . '/js/simple-page-ordering-for-propel.js', array('jquery-ui-sortable'), '0.9.7', true );
 ?>

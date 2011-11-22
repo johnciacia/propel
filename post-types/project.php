@@ -51,6 +51,12 @@ class Post_Type_Project {
 				'meta_key' => '_propel_end_date',
 				'orderby' => 'meta_value_num') );
 		}
+
+		if ( isset( $vars['orderby'] ) && 'client' == $vars['orderby'] ) {
+			$vars = array_merge( $vars, array(
+				'meta_key' => '_propel_owner',
+				'orderby' => 'meta_value_num') );
+		}
 		return $vars;
 	 }
 
@@ -59,7 +65,7 @@ class Post_Type_Project {
 	 */
 	 public static function post() {
 		
-		if( isset($_GET['_wpnonce'], $_GET['action'], $_GET['post'] ) ) {
+		if( isset($_GET['_wpnonce'], $_GET['action'], $_GET['post'] ) && $_GET['action'] == "delete" ) {
 			if ( !wp_verify_nonce($_GET['_wpnonce'], 'propel-trash') ) die('Security check');
 
 			wp_delete_post($_GET['post']);
@@ -147,9 +153,9 @@ class Post_Type_Project {
 			'rewrite' => true,
 			'capability_type' => 'post',
 			'has_archive' => true, 
-			'hierarchical' => false,
+			'hierarchical' => true,
 			'menu_position' => null,
-			'supports' => array( 'title','editor','comments', 'author', 'custom-fields', 'revisions' )
+			'supports' => array( 'title','page-attributes','editor','comments', 'author', 'custom-fields', 'revisions' )
 		);
 		
 		register_post_type( self::POST_TYPE, $args );
@@ -189,10 +195,12 @@ class Post_Type_Project {
 		$new_columns['title'] = _x( 'Project Name', 'column name' );
 		$new_columns['client'] = __( 'Client', 'propel' );
 		$new_columns['author'] = __( 'Manager', 'propel' );
+		$new_columns['propel_categories'] = __( 'Categories', 'propel' );
 		$new_columns['start'] = __( 'Start Date', 'propel' );
-		$new_columns['end'] = __( 'End Date', 'propel' );
+		$new_columns['end'] = __( 'Due Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
 		$new_columns['complete'] = __( 'Progress', 'propel' );
+		$new_columns['contributors'] = __( 'Contributors', 'propel' );
 		$new_columns['comments'] = $columns['comments'];
 		return $new_columns;
 	}
@@ -201,12 +209,12 @@ class Post_Type_Project {
 	 * @since 2.0
 	 */
 	public static function register_sortable_columns( $x ) {
-		$columns['client'] = 'client';
+		/* $columns['client'] = 'client'; */
 		$columns['start'] = 'start';
 		$columns['end'] = 'end';
 		$columns['priority'] = 'priority';
 		$columns['complete'] = 'complete';
-		$columns['author'] = 'author';
+		/* $columns['author'] = 'author'; */
 		return $columns;
 	}
 
@@ -248,6 +256,33 @@ class Post_Type_Project {
 				$date = get_post_meta( $id, '_propel_end_date', true );
 				if($date) {
 					echo date( "M. jS, Y" , $date );
+					
+					$day   = date('d', $date);     // Day of the countdown
+					$month = date('m', $date);      // Month of the countdown
+					$year  = date('Y', $date);   // Year of the countdown
+					$hour  = date('h', $date);     // Hour of the day (east coast time)
+					
+					$calculation = ( $date - time())/3600;
+					$hours = (int)$calculation;
+					$days  = (int)($hours/24);
+					/*
+					mktime() http://www.php.net/manual/en/function.mktime.php
+					time()   http://www.php.net/manual/en/function.time.php
+					(int)    http://www.php.net/manual/en/language.types.integer.php
+					*/
+					
+					if ( $hours >= 24 ) {
+						echo "<br /><span style='color: green;'>Due in " . $days . " days</span>";
+					} elseif ( $hours > 0 ) {
+						echo "<br /><span style='color: orange;'>Due in " . $hours . " hours</span>";
+					} elseif ( $hours < -24 ) {
+						echo "<br /><span style='color: red; font-weight: bold;'>" . str_replace( '-', '', $days) . " days past due.</span>";
+					} elseif ( $days == 0 ) {
+						echo "<br /><span style='color: red;'>" . str_replace( '-', '', $hours) . " hours past due.</span>";
+					}
+					
+				} else {
+					echo "<span>Recurring Project</span>";
 				}
 				break;
 
@@ -258,6 +293,18 @@ class Post_Type_Project {
 			case 'complete':
 				echo "" . get_post_meta( $id, '_propel_complete', true ) . "%";
 				break;
+			
+			case 'propel_categories':
+				$categories = get_the_terms(0, "propel_category");
+				$categories_html = array();
+				if(is_array($categories)) {
+					foreach ($categories as $category) {
+						array_push($categories_html, '<a href=edit.php?post_type=post&category_name=' . str_replace( ' ', '-', $category->name) . '>' . $category->name . '</a>');
+					}
+					echo implode($categories_html, ", ");
+        		}
+        		break;
+
 
 			default:
 				break;
@@ -273,13 +320,18 @@ class Post_Type_Project {
 
 
 		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {
-		add_meta_box('propel_completed_tasks', __('Completed Tasks', 'propel'),
-			array( __CLASS__, 'completed_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+	
+			add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),
+				array( __CLASS__, 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 
-		add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),
-			array( __CLASS__, 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+			add_meta_box('propel_completed_tasks', __('Completed Tasks', 'propel'),
+				array( __CLASS__, 'completed_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 
-		add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
+			add_meta_box('propel_archived_tasks', __('Archived Tasks', 'propel'),
+				array( __CLASS__, 'archived_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+	
+			add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
+
 		}
 	}
 

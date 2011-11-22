@@ -26,6 +26,7 @@
 		if( $end )
 			$end = date( get_option( 'date_format' ), $end);
 
+
 		if( $task->post_author ) {
 			$userdata = get_userdata( $task->post_author );
 			$author = $userdata->user_nicename;

@@ -1,0 +1,40 @@
+#dashboard_projects_assigned_to_you_content .wp_crm_entry_content, #dashboard_projects_assigned_to_you_content .wp_crm_entry_content p, #dashboard_projects_assigned_to_you_content .wp_crm_entry_content li {
+	text-shadow: 1px 1px 2px #fff;
+}
+#dashboard_projects_assigned_to_you_content .wp_crm_entry_content {
+	background: #EFEFEF;
+	border-radius: 5px;
+	border: 1px solid #ddd;
+	padding: 3px 5px 3px 5px !important;
+	color: #888;
+	float: left;
+	width: 320px;
+	clear: left;
+}
+#dashboard_projects_assigned_to_you_content .message_meta {
+	margin: 25px 3px 0 0;
+	text-align: right;
+	float: right;
+	clear: right;
+	width: 130px;
+}
+#dashboard_projects_assigned_to_you_content .inside ol li {
+	float: left;
+	width: 100%;
+	height: 100px;
+	list-style: decimal !important;
+	overflow-y: scroll;
+	clear: both;
+}
+#dashboard_projects_assigned_to_you_content .inside ol li li {
+	height: auto;
+}
+#dashboard_projects_assigned_to_you_content .message_meta li {
+	margin: 0;
+	padding: 0;
+	font-size: 9px;
+	color: #999;
+}
+#dashboard_projects_assigned_to_you_content .wp_crm_log_actions {
+	display: none;
+}

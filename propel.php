@@ -46,7 +46,22 @@ function propel_add_notice () {
 
 Propel::initialize();
 	
-
+	add_action('admin_head', 'hide_menus');
+	 
+	function hide_menus() {
+	    global $current_user;
+	    get_currentuserinfo();
+	 
+	    If($current_user->user_login != 'admin') {
+	        ?>
+	        <style>
+	           #postcustom {
+	                display:none;
+	           }
+	        </style>
+	        <?php
+	    }
+	}
 
 class Propel {	
 	

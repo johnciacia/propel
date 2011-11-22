@@ -198,8 +198,10 @@ class Post_Type_Task {
 
 			case 'end':
 				$date = get_post_meta( $id, '_propel_end_date', true );
+
 				if($date) {
 					echo date( "M. jS, Y" , $date );
+
 				}
 				break;
 

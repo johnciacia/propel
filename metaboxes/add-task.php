@@ -1,4 +1,4 @@
-<table width="100%">
+	<table width="100%">
 	<tr>
 		<td><p>Title</p></td>
 		<td><input type="text" name="task_title" class="widefat" /></td>
@@ -13,17 +13,17 @@
 	</tr>
 
 	<tr>
-		<td><p>End Date</p> </td>
+		<td><p>End Date</p></td>
 		<td><input type="text" name="task_end_date" class="widefat date" /></td>
 	</tr>
 
 	<tr>
-		<td><p>Priority</p> </td>
+		<td><p>Priority</p></td>
 		<td>
 			<select name="task_priority">
-			<?php for( $i = 0; $i <= 10; $i++ ) : ?>
-			<option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-			<?php endfor; ?>
+				<?php for( $i = 0; $i <= 10; $i++ ) : ?>
+				<option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+				<?php endfor; ?>
 			</select>
 		</td>
 	</tr>
