@@ -142,7 +142,7 @@ class Post_Type_Project {
     		'parent_item_colon' => '',
     		'menu_name' => 'Propel'
     	);
-    	
+
 		$args = array(
 			'labels' => $labels,
 			'public' => true,
@@ -155,6 +155,7 @@ class Post_Type_Project {
 			'has_archive' => true, 
 			'hierarchical' => false,
 			'menu_position' => null,
+    		'menu_icon' => WP_PLUGIN_URL . '/propel/images/icon.png',
 			'supports' => array( 'title','editor','comments', 'author', 'custom-fields', 'revisions' )
 		);
 		
