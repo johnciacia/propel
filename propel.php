@@ -44,21 +44,25 @@ function propel_add_notice () {
 }
  
 
+Propel_Options::initialize();
 Propel::initialize();
-	
+
 
 
 class Propel {	
 	
 	public static function initialize() {
-		add_action('admin_init', array(__CLASS__, 'admin_init'));
-		add_action('init', array(__CLASS__, 'init'));
-		add_action('admin_menu', array(__CLASS__, 'admin_menu'));
-		register_activation_hook(__FILE__, array(__CLASS__, 'install'));
+		add_action( 'admin_init', array(__CLASS__, 'admin_init' ) );
+		add_action( 'init', array( __CLASS__, 'init'));
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+		register_activation_hook( __FILE__, array( __CLASS__, 'install' ) );
 		require_once( __DIR__ . '/functions.php' );
 		require_once( __DIR__ . '/post-types/project.php' );
 		require_once( __DIR__ . '/post-types/task.php' );
-		require_once( __DIR__ . '/post-types/time.php' );
+		if( Propel_Options::get_option('time_tracking') ) 
+			require_once( __DIR__ . '/post-types/time.php' );
+		if( Propel_Options::get_option('user_restrictions') ) 
+			require_once( __DIR__ . '/plugins/users.php' );
 	}
 		
 	/**
@@ -71,7 +75,9 @@ class Propel {
 			//add_menu_page(null, 'Propel', 'activate_plugins', 
 			//	'propel_migrate_tool', array(__CLASS__ , 'migrateTool'));			
 			//return;
-		}			
+		}
+		
+
 	}
 
 	/**
@@ -79,9 +85,6 @@ class Propel {
 	*/
 	public static function admin_init () {
 		
-		//wp_enqueue_script('wp-lists');
-		//wp_enqueue_script('common');
-		//wp_enqueue_script('postbox');	
 		wp_enqueue_script('jquery-datatables', 
 			WP_PLUGIN_URL . '/propel/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('propel-functions', 
@@ -152,4 +155,65 @@ class Propel {
 	
 }
 
-?>
+class Propel_Options {
+	
+	public static function get_option($option) {
+		$options = get_option('propel_options');
+
+		if( isset( $options[$option] ) ) 
+			return $options[$option];
+
+		return 0;
+	}
+
+	public static function initialize() {
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
+
+	}
+
+	public static function admin_menu() {
+		add_options_page( 'Propel', 'Propel', 'manage_options', 'propel-options', array( __CLASS__, 'options' ) );			
+	}
+
+	public static function options() { 
+	?>
+	<div class="wrap">
+		<h2>Propel Options</h2>
+		Options relating to the Custom Plugin.
+		<form action="options.php" method="post">
+			<?php settings_fields( 'propel_options' ); ?>
+			<?php do_settings_sections( 'propel' ); ?>
+
+			<input name="Submit" type="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes' ); ?>" />
+		</form>
+	</div>
+
+	<?php
+	}
+
+	public static function admin_init(){
+		register_setting( 'propel_options', 'propel_options', array( __CLASS__, 'options_validate' ) );
+		add_settings_section('propel_main', 'Main Settings', array( __CLASS__, 'plugin_section_text' ), 'propel');
+		add_settings_field('propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
+	}
+
+	public static function plugin_section_text() {
+		echo '<p>These options are currently in beta and should not be relied upon.</p>';
+	}
+
+	public static function propel_beta_options() {
+		$options = get_option('propel_options');
+
+		echo '<input name="propel_options[dnd]" id="propel_dnd" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['dnd']), false ) . ' /> Enable Drag and Drop Ordering';
+		echo "<br />";
+		echo '<input name="propel_options[user_restrictions]" id="propel_user_restrictions" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['user_restrictions']), false ) . ' /> Enable User Restrictions';
+		echo "<br />";
+		echo '<input name="propel_options[time_tracking]" id="propel_time_tracking" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['time_tracking']), false ) . ' /> Enable Time Tracking';
+	}
+
+	public static function options_validate($input) {
+		return $input;
+	}
+
+}
