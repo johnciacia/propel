@@ -85,6 +85,16 @@ class Propel {
 	*/
 	public static function admin_init () {
 		
+echo "Query 1:";
+$the_query = new WP_Query( 'coauthor=admin' );
+while ( $the_query->have_posts() ) : $the_query->the_post();
+	echo '<li>';
+	the_title();
+	echo '</li>';
+endwhile;
+echo "<br /><br /><br /><br /><hr />";
+
+
 		wp_enqueue_script('jquery-datatables', 
 			WP_PLUGIN_URL . '/propel/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('propel-functions', 
