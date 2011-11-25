@@ -1,4 +1,4 @@
-=== Plugin Name ===
+=== Propel ===
 Contributors: sidewindernet
 Tags: project, management, collaboration, tasks, project management, task management, basecamp
 Requires at least: 2.8
