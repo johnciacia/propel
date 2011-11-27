@@ -1,5 +1,5 @@
 === Propel ===
-Contributors: sidewindernet
+Contributors: johnciacia, sidewindernet
 Tags: project, management, collaboration, tasks, project management, task management, basecamp
 Requires at least: 2.8
 Tested up to: 3.1.3
