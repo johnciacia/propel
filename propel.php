@@ -1,9 +1,4 @@
 <?php
-/**
-* @todo: create import tool
-* @todo: remove unnecessary code
-*/
-
 /*
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
