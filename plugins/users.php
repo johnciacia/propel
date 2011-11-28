@@ -1,12 +1,12 @@
 <?php
 
-function asdf34_parse_query($query) {
-	$query->query_vars['coauthor'] = 'admin';
-	$query->query['coauthor'] = 'admin';
-	echo "<pre>" . print_r($query, true) . "</pre>";
-}
+// function asdf34_parse_query($query) {
+// 	$query->query_vars['coauthor'] = 'admin';
+// 	$query->query['coauthor'] = 'admin';
+// 	echo "<pre>" . print_r($query, true) . "</pre>";
+// }
 
-add_filter('parse_query', 'asdf34_parse_query');
+// add_filter('parse_query', 'asdf34_parse_query');
 // WP_Post_Contributors::initialize();
 
 class WP_Post_Contributors {
