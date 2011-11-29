@@ -1,10 +1,24 @@
 <?php
 
-function asdf34_parse_query($query) {
-	$query->query_vars['author'] = get_current_user_id();
+// function asdf34_parse_query($query) {
+// 	$query->query_vars['author'] = get_current_user_id();
+// }
+
+// add_filter('parse_query', 'asdf34_parse_query');
+
+
+function asdf34_pre_get_posts($query) {
+	if($query->query_vars['post_type'] != 'propel_task') return $query;
+	global $user_ID;
+	$user = get_userdata($user_ID);
+	$query->set('taxonomy', 'author');
+	$query->set('term', $user->user_login);
+	return $query;
 }
 
-add_filter('parse_query', 'asdf34_parse_query');
+add_filter('pre_get_posts', 'asdf34_pre_get_posts');
+
+
 // WP_Post_Contributors::initialize();
 
 class WP_Post_Contributors {
