@@ -1,6 +1,5 @@
 <?php 
 $users = get_users();
-$contributors = get_post_meta( get_the_ID(), '_propel_contributors');
 ?>
 <div id="propel_list_users" class="categorydiv">
 	<ul id="propel_list_users-tabs" class="category-tabs">
@@ -15,8 +14,8 @@ $contributors = get_post_meta( get_the_ID(), '_propel_contributors');
 		<?php foreach($users as $user) : ?>
 		<li id="propel_user-<?php esc_attr_e($user->ID); ?>" class="popular-category">
 			<label class="selectit">
-				<input value="<?php  esc_attr_e($user->ID); ?>" type="checkbox" name="propel_user[]" id="in-propel_user-<?php echo $user->ID; ?>" <?php 
-				if( isset($contributors[0]) && in_array( $user->ID, $contributors[0] ) ) { echo "checked"; }
+				<input value="<?php  esc_attr_e($user->user_login); ?>" type="checkbox" name="coauthors[]" id="in-propel_user-<?php echo $user->ID; ?>" <?php 
+				if( propel_is_coauthor($user->ID) ) { echo "checked"; }
 				?>> <?php esc_html_e($user->display_name); ?>
 			</label>
 		</li>
@@ -24,3 +23,12 @@ $contributors = get_post_meta( get_the_ID(), '_propel_contributors');
 		</ul>
 	</div>
 </div>
+<?php
+wp_nonce_field( 'coauthors-edit', 'coauthors-nonce' );
+function propel_is_coauthor($user_id) {
+	$coauthors = WP_Post_Contributors::get_coauthors();
+	foreach($coauthors as $coauthor) {
+		if($coauthor->ID == $user_id) return true;
+	}
+	return false;
+}

@@ -152,7 +152,6 @@ class Post_Type_Task {
 		$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
 		$new_columns['complete'] = __( 'Progress', 'propel' );
-		$new_columns['contributors'] = __( 'Contributors', 'propel' );
 		$new_columns['propel_categories'] = __( 'Categories', 'propel' );
 		$new_columns['tags'] = $columns['tags'];
 		$new_columns['comments'] = $columns['comments'];
@@ -210,17 +209,6 @@ class Post_Type_Task {
 			case 'complete':
 				echo "" . get_post_meta( $id, '_propel_complete', true ) . "%";
 				break;
-
-			case 'contributors':
-				$contributors = get_post_meta( $id, '_propel_contributors' );
-				if( !$contributors ) break;
-				if( !is_array( $contributors[0] ) ) break;
-
-				foreach($contributors[0] as $contributor) {
-					$user = get_userdata($contributor);
-					echo $user->display_name . "<br />";
-				}
-				break;
 			
 			case 'propel_categories':
 				$categories = get_the_terms(0, "propel_category");
@@ -242,23 +230,11 @@ class Post_Type_Task {
 	 * @since 2.0
 	 */
 	public static function add_meta_boxes() {
-
 		add_meta_box('custom-fields', __('Custom Fields'),
 			'post_custom_meta_box', self::POST_TYPE, 'normal', 'low');
 
-
 		add_meta_box( 'propel_task_meta', __( 'Task', 'propel' ),
 			array( __CLASS__, 'edit_task_meta'), self::POST_TYPE, 'side' );
-
-		add_meta_box( 'propel_list_authors', __( 'Contributors', 'propel' ),
-			array( __CLASS__, 'list_authors'), self::POST_TYPE, 'side' );
-	}
-
-	/**
-	 * @since 2.0
-	 */
-	public static function list_authors() {
-		require_once( __DIR__ . '/../metaboxes/list-authors.php')	;
 	}
 
 	/**
