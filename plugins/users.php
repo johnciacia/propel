@@ -110,6 +110,7 @@ class WP_Post_Contributors {
 	 */
 	public static function pre_get_posts($query) {
 		$types = array('propel_task', 'propel_project');
+		if( !isset($query->query_vars['post_type']) ) return $query;
 		if( !in_array($query->query_vars['post_type'], $types))  return $query;
 
 		global $user_ID;
@@ -167,8 +168,9 @@ class WP_Post_Contributors {
 	}
 
 	public static function add_coauthors( $post_id, $coauthors, $append = false ) {
-		global $current_user;
+		global $current_user, $post;
 
+		$notify = array();
 		$post_id = (int) $post_id;
 		$insert = false;
 
@@ -176,17 +178,24 @@ class WP_Post_Contributors {
 			$coauthors = array( $current_user->user_login );
 		}
 
+		$terms = wp_get_post_terms( $post_id, self::COAUTHOR_TAXONOMY );
+
 		foreach( array_unique( $coauthors ) as $author ) {
 			$name = $author;
 			if( !term_exists( $name, self::COAUTHOR_TAXONOMY ) ) {
 				$args = array( 'slug' => sanitize_title( $name ) );
 				$insert = wp_insert_term( $name, self::COAUTHOR_TAXONOMY, $args );
 			}
+
+			if( !has_term( $name, self::COAUTHOR_TAXONOMY, $post->ID ) ){
+				$notify[] = $name;
+			}
 		}
 
 		if( !is_wp_error( $insert ) ) {
 			$set = wp_set_post_terms( $post_id, $coauthors, self::COAUTHOR_TAXONOMY, $append );
 		}
+		self::notify_coauthors($notify);
 	}
 
 
@@ -211,6 +220,25 @@ class WP_Post_Contributors {
 		$delete_user = get_profile_by_id( 'user_login', $delete_id );
 		if( $delete_user ) {
 			wp_delete_term( $delete_user, self::COAUTHOR_TAXONOMY );
+		}
+	}
+
+	//email when
+	//- assigned to a task
+	//- unassigned a task
+	//- task was updated (exclude users from the aforementioned two)
+	//- comment made
+	public static function notify_coauthors($to) {
+		global $post;
+
+		$parent = get_post( $post->post_parent );
+		$subject = "ASSIGNMENT ($parent->post_title): $post->post_title";
+		foreach( $to as $login ) {
+			$user = get_user_by( 'login', $login );
+			$message = "Hello $user->user_nicename,\n\n";
+			$message .= "The task '$post->post_title' is now assigned to you.\n";
+			$message .= "$post->guid";
+			wp_mail($user->user_email, $subject, $message);
 		}
 	}
 }
