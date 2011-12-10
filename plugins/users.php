@@ -30,9 +30,29 @@ class WP_Post_Contributors {
 		add_filter( 'manage_edit-propel_task_columns', array( __CLASS__, 'register_columns' ) );
 		add_action( 'manage_propel_project_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'manage_propel_task_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
+		add_action( 'comment_post', array( __CLASS__, 'comment_post' ) );
 	}
 
-	public static function register_columns($columns) {
+	public static function comment_post( $comment_ID ) {
+		$comment = get_comment( $comment_ID );
+		$post = get_post( $comment->comment_post_ID );
+		$parent = get_post( $post->post_parent );
+		if( $post->post_type == "propel_task" ) {
+			$subject = "NEW COMMENT ($parent->post_title): $post->post_title";
+			$message = "Hello,\n\n";
+			$message .= "$comment->comment_author commented on the task '$post->post_title':\n";
+			$message .= "$comment->comment_content\n";
+			$coauthors = wp_get_post_terms( $post->ID, self::COAUTHOR_TAXONOMY );
+			foreach($coauthors as $login) {
+				//@todo - do we use ->name or ->slug?
+				$user = get_user_by( 'login', $login->name );
+				wp_mail($user->user_email, $subject, $message);
+			}
+		}
+		
+	}
+
+	public static function register_columns( $columns ) {
 		$columns['contributor'] = __( 'Contributors', 'propel' );
 		return $columns;
 	}
