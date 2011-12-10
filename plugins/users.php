@@ -44,8 +44,7 @@ class WP_Post_Contributors {
 			$message .= "$comment->comment_content\n";
 			$coauthors = wp_get_post_terms( $post->ID, self::COAUTHOR_TAXONOMY );
 			foreach($coauthors as $login) {
-				//@todo - do we use ->name or ->slug?
-				$user = get_user_by( 'login', $login->name );
+				$user = get_user_by( 'login', $login->slug );
 				wp_mail($user->user_email, $subject, $message);
 			}
 		}
