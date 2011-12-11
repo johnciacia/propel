@@ -6,6 +6,7 @@
  * @todo implement filtering for project, priority, and contributor
  */
 
+
 Post_Type_Task::init();
 
 class Post_Type_Task {
@@ -14,6 +15,7 @@ class Post_Type_Task {
 
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
+		add_action( 'init', array( __CLASS__, 'register_status' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
@@ -88,10 +90,43 @@ class Post_Type_Task {
 		update_post_meta( $post_id, '_propel_contributors', $_POST['propel_user'] );
 	}
 
+	public static function register_status() {
+
+		$labels = array(
+			'name' => _x( 'States', 'taxonomy general name' ),
+			'singular_name' => _x( 'States', 'taxonomy singular name' ),
+			'search_items' =>  __( 'Search states' ),
+			'all_items' => __( 'All States' ),
+			'parent_item' => __( 'Parent State' ),
+			'parent_item_colon' => __( 'Parent State:' ),
+			'edit_item' => __( 'Edit State' ), 
+			'update_item' => __( 'Update State' ),
+			'add_new_item' => __( 'Add New State' ),
+			'new_item_name' => __( 'New State Name' ),
+			'menu_name' => __( 'States' )); 	
+
+		register_taxonomy( 'propel_status', 'propel_project', array(
+			'public' => false,
+			'labels' => $labels,
+			// 'show_ui' => true,
+			// 'query_var' => true,
+		) );
+
+		$state = array( 'Not Yet Started', 'Started', 'Finished', 'Delievered', 'Accepted', 'Rejected' );
+
+		foreach($state as $status) {
+			if( !term_exists($status, 'propel_status')) {
+				wp_insert_term($status, 'propel_status');
+			}
+		}
+	}
+
 	/**
 	 * @since 2.0
 	 */
 	public static function register_post_type()  {
+		if( !wp_count_posts('propel_project')->publish ) return;
+
  		$labels = array(
 			'name' => _x('Tasks', 'post type general name'),
     		'singular_name' => _x('Tasks', 'post type singular name'),
@@ -123,16 +158,6 @@ class Post_Type_Task {
 			'supports' => array('title','editor','comments', 'author', 'custom-fields', 'revisions')); 
 		
 		register_post_type(self::POST_TYPE, $args);
-
-		$argv = array(
-			'label' => "Archive",
-			'public' => true,
-			'exclude_from_search' => false,
-			'show_in_admin_all_list' => true,
-			'show_in_admin_status_list' => true,
-			'post_type' => 'propel_task' );
-
-		Propel_Functions::register_post_status( 'archive', $argv );
 
 		$argz = array(
 			'post_type' => 'propel_task',
