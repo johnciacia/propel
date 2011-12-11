@@ -24,6 +24,7 @@ class Post_Type_Task {
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 		add_action( 'wp_ajax_get_task_description', array( __CLASS__, 'wp_ajax_get_task_description' ) );
+		add_filter( 'default_hidden_meta_boxes', array( __CLASS__, 'default_hidden_meta_boxes' ), 10, 2 );
 
 	}
 
@@ -164,6 +165,18 @@ class Post_Type_Task {
 			'action' => 'complete',
 			'label' => 'Complete' );
 		Propel_Functions::add_post_action( $argz, array( __CLASS__, 'action_complete' ) );
+	}
+
+	public static function default_hidden_meta_boxes( $hidden, $screen ) {
+		if($screen->id == 'propel_project') {
+			$hidden[] = 'postcustom';
+		}
+
+		if( $screen->id == 'propel_task') {
+			$hidden[] = 'custom-fields';
+		}
+
+		return $hidden;
 	}
 
 	/**
