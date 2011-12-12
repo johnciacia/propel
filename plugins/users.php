@@ -31,6 +31,8 @@ class WP_Post_Contributors {
 		add_action( 'manage_propel_project_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'manage_propel_task_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'comment_post', array( __CLASS__, 'comment_post' ) );
+		add_filter( 'views_edit-propel_task', array( __CLASS__, 'views_edit_post' ) );
+		add_filter( 'views_edit-propel_project', array( __CLASS__, 'views_edit_post' ) );
 	}
 
 	public static function comment_post( $comment_ID ) {
@@ -127,15 +129,15 @@ class WP_Post_Contributors {
 	/**
 	 *
 	 */
-	public static function pre_get_posts($query) {
-		$types = array('propel_task', 'propel_project');
-		if( !isset($query->query_vars['post_type']) ) return $query;
-		if( !in_array($query->query_vars['post_type'], $types))  return $query;
+	public static function pre_get_posts( $query ) {
+		$types = array( 'propel_task', 'propel_project' );
+		if( !isset( $query->query_vars['post_type']) ) return $query;
+		if( !in_array( $query->query_vars['post_type'], $types ) )  return $query;
 
 		global $user_ID;
-		$user = get_userdata($user_ID);
-		$query->set('taxonomy', 'author');
-		$query->set('term', $user->user_login);
+		$user = get_userdata( $user_ID );
+		$query->set( 'taxonomy', 'author' );
+		$query->set( 'term', $user->user_login );
 		return $query;
 	 }
 
@@ -247,7 +249,7 @@ class WP_Post_Contributors {
 	//- unassigned a task
 	//- task was updated (exclude users from the aforementioned two)
 	//- comment made
-	public static function notify_coauthors($to) {
+	public static function notify_coauthors( $to ) {
 		global $post;
 
 		$parent = get_post( $post->post_parent );
@@ -259,6 +261,69 @@ class WP_Post_Contributors {
 			$message .= "$post->guid";
 			wp_mail($user->user_email, $subject, $message);
 		}
+	}
+
+
+	public static function views_edit_post( $views ) {
+		global $wpdb, $avail_post_stati, $typenow;
+		if( $typenow != 'propel_project' && $typenow != 'propel_task' ) return $views;
+
+		$user = wp_get_current_user();
+
+		$query = "SELECT P.post_status, COUNT(*) AS num_posts FROM {$wpdb->terms} AS T 
+			LEFT JOIN {$wpdb->term_taxonomy} AS TT ON T.term_id = TT.term_id 
+			LEFT JOIN {$wpdb->term_relationships} AS TR ON TT.term_taxonomy_id = TR.term_taxonomy_id
+			LEFT JOIN {$wpdb->posts} AS P ON TR.object_id = P.id
+			WHERE T.name = (SELECT U.user_login FROM {$wpdb->users} AS U WHERE U.ID = {$user->ID}) 
+			AND TT.taxonomy = 'author'
+			AND P.post_type = '{$typenow}'
+			GROUP BY P.post_status";
+
+		//@todo cache $count
+		$count = $wpdb->get_results( $query, ARRAY_A );
+
+		$stats = array();
+		foreach ( get_post_stati() as $state )
+			$stats[$state] = 0;
+
+		foreach ( (array) $count as $row )
+			$stats[$row['post_status']] = $row['num_posts'];
+
+
+		$num_posts = (object)$stats;
+
+
+		$class = '';
+		$allposts = '';
+
+		$current_user_id = get_current_user_id();
+
+
+
+		$total_posts = array_sum( (array) $num_posts );
+
+
+		$class = empty( $class ) && empty( $_REQUEST['post_status'] ) && empty( $_REQUEST['show_sticky'] ) ? ' class="current"' : '';
+		$status_links['all'] = "<a href='edit.php?post_type=$typenow{$allposts}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
+
+		foreach ( get_post_stati(array('show_in_admin_status_list' => true), 'objects') as $status ) {
+			$class = '';
+
+			$status_name = $status->name;
+
+			if ( !in_array( $status_name, $avail_post_stati ) )
+				continue;
+
+			if ( empty( $num_posts->$status_name ) )
+				continue;
+
+			if ( isset($_REQUEST['post_status']) && $status_name == $_REQUEST['post_status'] )
+				$class = ' class="current"';
+
+			$status_links[$status_name] = "<a href='edit.php?post_status=$status_name&amp;post_type=$typenow'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
+		}
+
+		return $status_links;
 	}
 }
 
