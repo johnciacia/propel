@@ -4,7 +4,6 @@
  * A large portion of this code has been borrowed from the Co-Authors Plus plugin
  * (http://wordpress.org/extend/plugins/co-authors-plus/)
  *
- * @todo: change the location of the Contributors column
  * @todo: add option to enable / disable pre_get_posts
  * @todo: move list-authors.php into this file
  * @todo: adding a coauthor to a task makes them a coauthor of the project?
@@ -53,7 +52,9 @@ class WP_Post_Contributors {
 	}
 
 	public static function register_columns( $columns ) {
-		$columns['contributor'] = __( 'Contributors', 'propel' );
+		$columns = array_slice($columns, 0, 4, true) +
+    		array('contributor' => __( 'Contributors', 'propel' )) +
+    		array_slice($columns, 4, count($columns) - 1, true) ;
 		return $columns;
 	}
 
