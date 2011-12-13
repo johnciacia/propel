@@ -6,7 +6,6 @@
  *
  * @todo: change the location of the Contributors column
  * @todo: add option to enable / disable pre_get_posts
- * @todo: when using pre_get_posts update the numbers at the top of the page
  * @todo: move list-authors.php into this file
  * @todo: adding a coauthor to a task makes them a coauthor of the project?
  */
@@ -74,7 +73,7 @@ class WP_Post_Contributors {
 
 			if(is_array($coauthor_terms) && !empty($coauthor_terms)) {
 				foreach($coauthor_terms as $coauthor) {
-					$post_author =  get_userdatabylogin($coauthor->name);
+					$post_author =  get_user_by( 'login', $coauthor->name );
 					// In case the user has been deleted while plugin was deactivated
 					if(!empty($post_author)) $coauthors[] = $post_author;
 				}
@@ -91,7 +90,7 @@ class WP_Post_Contributors {
 	}
 
 	public static function manage_columns($column_name, $id) {
-		if( $column_name == 'contributor')	{
+		if( $column_name == 'contributor' )	{
 			$authors = self::get_coauthors( $id );
 			$count = 1;
 			foreach( $authors as $author ) :
