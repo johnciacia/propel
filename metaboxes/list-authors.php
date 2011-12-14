@@ -26,7 +26,7 @@ $users = get_users();
 <?php
 wp_nonce_field( 'coauthors-edit', 'coauthors-nonce' );
 function propel_is_coauthor($user_id) {
-	$coauthors = WP_Post_Contributors::get_coauthors();
+	$coauthors = Propel_Authors::get_coauthors();
 	foreach($coauthors as $coauthor) {
 		if($coauthor->ID == $user_id) return true;
 	}
