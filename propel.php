@@ -214,7 +214,11 @@ class Propel_Options {
 		echo '<br />';
 
 		echo '<input name="propel_options[show_end_date]" id="show_end_date" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_end_date']), false ) . ' /> Show End Date';
-		echo "<br /><br /><br />";
+		echo '<br />';
+		
+		echo '<input name="propel_options[show_client]" id="show_client" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_client']), false ) . ' /> Show Client';
+		echo '<br />';
+		echo "<br /><br />";
 
 	}
 

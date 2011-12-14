@@ -41,6 +41,7 @@
 		</td>
 	</tr>
 	
+	<?php if( Propel_Options::option('show_client' ) ) : ?>
 	<tr>
 		<td><p>Client</p></td>
 		<td>
@@ -55,5 +56,6 @@
 			</select>
 		</td>
 	</tr>
+	<?php endif; ?>
 	
 </table>

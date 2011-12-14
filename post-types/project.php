@@ -194,7 +194,8 @@ class Post_Type_Project {
 	public static function register_columns($columns) {
 		$new_columns['cb'] = '<input type="checkbox" />';
 		$new_columns['title'] = _x( 'Project Name', 'column name' );
-		$new_columns['client'] = __( 'Client', 'propel' );
+		if( Propel_Options::option('show_client' ) )
+			$new_columns['client'] = __( 'Client', 'propel' );
 		$new_columns['author'] = __( 'Manager', 'propel' );
 		if( Propel_Options::option('show_start_date' ) )
 			$new_columns['start'] = __( 'Start Date', 'propel' );
