@@ -41,7 +41,10 @@
 				<p><?php esc_html_e($task->post_title); ?></p></td>
 
 			<td data-value="<?php esc_attr_e( $priority ); ?>">
-				<p><?php esc_html_e($priority); ?></p></td>
+				<p><?php 
+					$priorities = propel_get_priorities();
+					esc_html_e($priorities[$priority]); 
+					?></p></td>
 
 			<td data-value="<?php esc_attr_e( $author ); ?>">
 				<p><?php esc_html_e($author); ?></p></td>

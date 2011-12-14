@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
 
-//@todo - update tasks metabox and "Priority" column to reflect the priority name not the status. Make sure the priorities sort properly
+//@todo - sort priority correctly in tasks metabox
 //@todo - integrate task status' tags / taxonomy
 //@todo - create status feed widget
 
