@@ -383,7 +383,8 @@ class Post_Type_Project {
 				return;
 		}
 		
-		update_post_meta( $post_id, '_propel_start_date', strtotime( $_POST['start_date'] ) );
+		$start = !empty( $_POST['start_date'] ) ? strtotime( $_POST['start_date'] ) : time();
+		update_post_meta( $post_id, '_propel_start_date', $start );
 		update_post_meta( $post_id, '_propel_end_date', strtotime( $_POST['end_date'] ) );
 		update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
 		update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
