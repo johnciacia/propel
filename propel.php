@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
 
-//@todo - move priority to use high / medium / low
+//@todo - update tasks metabox and "Priority" column to reflect the priority name not the status. Make sure the priorities sort properly
 //@todo - integrate task status' tags / taxonomy
 //@todo - create status feed widget
 
@@ -213,5 +213,8 @@ class Propel_Options {
 	public static function options_validate($input) {
 		return $input;
 	}
+}
 
+function propel_get_priorities() {
+	return array( 'Low', 'Medium', 'High' );
 }

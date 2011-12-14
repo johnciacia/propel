@@ -21,9 +21,12 @@
 		<td><p>Priority</p> </td>
 		<td>
 			<select name="task_priority">
-			<?php for( $i = 0; $i <= 10; $i++ ) : ?>
-			<option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-			<?php endfor; ?>
+			<?php
+			$priorities = propel_get_priorities();
+			for($i = 0; $i < count($priorities); $i++) :
+				echo "<option value='$i'>$priorities[$i]</option>";
+			endfor;
+			?>
 			</select>
 		</td>
 	</tr>

@@ -14,13 +14,12 @@
 		<td><p>Priority</p></td>
 		<td>
 			<select name="priority">
-				<option value="1">Low</option>
-	                <?php
-	                for ($i = 1; $i <= 10; $i++) {	
-	                    echo "<option value='$i'".selected($priority, $i).">$i</option>";
-					}
-	                ?>
-                <option value="10">High</option>
+				<?php
+				$priorities = propel_get_priorities();
+				for($i = 0; $i < count($priorities); $i++) :
+					echo "<option value='$i'".selected($priority, $i).">$priorities[$i]</option>";
+				endfor;
+				?>
             </select>
         </td>
     </tr>
@@ -30,9 +29,9 @@
 		<td>
 			<select name="complete">
 				<?php
-				for ($i = 0; $i <= 100; $i=$i+5) {
+				for ($i = 0; $i <= 100; $i = $i+5) :
 					echo "<option value='$i'".selected($complete, $i).">$i</option>";
-				}
+				endfor;
 				?> 
 			</select>	
 		</td>
