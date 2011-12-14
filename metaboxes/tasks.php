@@ -4,7 +4,9 @@
 			<th class="sortable"><p>Name</p></th>
 			<th class="sortable"><p>Priority</p></th>
 			<th class="sortable"><p>Owner</p></th>
+			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 			<th class="sortable"><p>Start</p></th>
+			<?php endif; ?>
 			<th class="sortable"><p>Due</p></th>
 			<th class="sortable"><p>Progress</p></th>
 			<th></th>
@@ -49,9 +51,11 @@
 			<td data-value="<?php esc_attr_e( $author ); ?>">
 				<p><?php esc_html_e($author); ?></p></td>
 
+			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 			<td data-value="<?php esc_attr_e( $start ); ?>">
 				<p><?php esc_html_e($start); ?></p></td>
-
+			<?php endif; ?>
+			
 			<td data-value="<?php esc_attr_e( $end ); ?>">
 				<p><?php esc_html_e($end); ?></p></td>
 

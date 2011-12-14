@@ -1,6 +1,5 @@
 <?php
 /**
- * @todo add bulk action to archive tasks
  * @todo create completed category / meta information - log when the task is marked complete
  * @todo add a clear button for dates - http://bugs.jqueryui.com/ticket/3999
  * @todo implement filtering for project, priority, and contributor
@@ -25,7 +24,6 @@ class Post_Type_Task {
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 		add_action( 'wp_ajax_get_task_description', array( __CLASS__, 'wp_ajax_get_task_description' ) );
 		add_filter( 'default_hidden_meta_boxes', array( __CLASS__, 'default_hidden_meta_boxes' ), 10, 2 );
-
 	}
 
 	/**
@@ -186,7 +184,8 @@ class Post_Type_Task {
 		$new_columns['cb'] = '<input type="checkbox" />';
 		$new_columns['title'] = _x( 'Task Name', 'column name' );
 		$new_columns['project'] = __( 'Project', 'propel' );
-		$new_columns['start'] = __( 'Start Date', 'propel' );
+		if( Propel_Options::option('show_start_date' ) )
+			$new_columns['start'] = __( 'Start Date', 'propel' );
 		$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
 		$new_columns['complete'] = __( 'Progress', 'propel' );

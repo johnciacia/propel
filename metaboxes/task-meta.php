@@ -23,10 +23,12 @@
 		</td>
 	</tr>
 	
+	<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 	<tr>
 		<td><p>Start Date</p></td>
 		<td><input type="text" name="start_date" class="date" value="<?php echo $start; ?>" /></td>
 	</tr>
+	<?php endif; ?>
 
 	<tr>
 		<td><p>End Date</p></td>

@@ -196,7 +196,8 @@ class Post_Type_Project {
 		$new_columns['title'] = _x( 'Project Name', 'column name' );
 		$new_columns['client'] = __( 'Client', 'propel' );
 		$new_columns['author'] = __( 'Manager', 'propel' );
-		$new_columns['start'] = __( 'Start Date', 'propel' );
+		if( Propel_Options::option('show_start_date' ) )
+			$new_columns['start'] = __( 'Start Date', 'propel' );
 		$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
 		$new_columns['complete'] = __( 'Progress', 'propel' );
@@ -296,7 +297,7 @@ class Post_Type_Project {
 	public static function completed_tasks( $post, $id ) {
 		global $wpdb;
 		$parent = get_the_ID(); 
-		//@todo: profile query
+		//@todo: profile query / use WP_Query
 		$query = "SELECT `post_id`, `meta_value` AS `progress` 
 		    	FROM `{$wpdb->postmeta}`
 		        WHERE `meta_key` = '_propel_complete' 
@@ -315,7 +316,7 @@ class Post_Type_Project {
 	public static function project_tasks( $post, $id ) {
 		global $wpdb;
 		$parent = get_the_ID(); 
-		//@todo: profile query
+		//@todo: profile query / use WP_Query?
 		$query = "SELECT `post_id`, `meta_value` AS `progress` 
 		    	FROM `{$wpdb->postmeta}`
 		        WHERE `meta_key` = '_propel_complete' 

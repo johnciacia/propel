@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
 
-//@todo - sort priority correctly in tasks metabox
-//@todo - integrate task status' tags / taxonomy
-//@todo - create status feed widget
-
 /**
  * @since 1.7.0
 */
@@ -194,6 +190,7 @@ class Propel_Options {
 		register_setting( 'propel_options', 'propel_options', array( __CLASS__, 'options_validate' ) );
 		add_settings_section('propel_main', 'Main Settings', array( __CLASS__, 'plugin_section_text' ), 'propel');
 		add_settings_field('propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
+		add_settings_field('propel_ui_options', 'UI Options', array( __CLASS__, 'propel_ui_options' ), 'propel', 'propel_main' );
 	}
 
 	public static function plugin_section_text() {
@@ -210,8 +207,21 @@ class Propel_Options {
 		echo '<input name="propel_options[time_tracking]" id="propel_time_tracking" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['time_tracking']), false ) . ' /> Enable Time Tracking';
 	}
 
+	public static function propel_ui_options() {
+		$options = get_option('propel_options');
+
+		echo '<input name="propel_options[show_start_date]" id="show_start_date" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_start_date']), false ) . ' /> Show Start Date';
+		echo "<br /><br /><br />";
+
+	}
+
 	public static function options_validate($input) {
 		return $input;
+	}
+
+	public static function option( $option ) {
+		$options = get_option('propel_options');
+		return (isset($options[$option])) ? (bool)$options[$option] : false;
 	}
 }
 
