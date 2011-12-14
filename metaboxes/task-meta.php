@@ -22,7 +22,7 @@
 		?>
 		</td>
 	</tr>
-	
+
 	<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 	<tr>
 		<td><p>Start Date</p></td>
@@ -30,10 +30,12 @@
 	</tr>
 	<?php endif; ?>
 
+	<?php if( Propel_Options::option('show_end_date' ) ) : ?>
 	<tr>
 		<td><p>End Date</p></td>
 		<td><input type="text" name="end_date" class="date" value="<?php echo $end; ?>" /></td>
 	</tr>
+	<?php endif; ?>
 	
 	<tr>
 		<td><p>Priority</p></td>

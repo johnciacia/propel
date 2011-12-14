@@ -7,7 +7,9 @@
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 			<th class="sortable"><p>Start</p></th>
 			<?php endif; ?>
+			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
 			<th class="sortable"><p>Due</p></th>
+			<?php endif; ?>
 			<th class="sortable"><p>Progress</p></th>
 			<th></th>
 			<th></th>
@@ -55,9 +57,11 @@
 			<td data-value="<?php esc_attr_e( $start ); ?>">
 				<p><?php esc_html_e($start); ?></p></td>
 			<?php endif; ?>
-			
+
+			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
 			<td data-value="<?php esc_attr_e( $end ); ?>">
 				<p><?php esc_html_e($end); ?></p></td>
+			<?php endif; ?>
 
 			<td data-value="<?php esc_attr_e( $progress ); ?>">
 				<p><?php esc_html_e($progress); ?>%</p></td>

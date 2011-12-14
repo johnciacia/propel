@@ -201,9 +201,9 @@ class Propel_Options {
 		$options = get_option('propel_options');
 
 		echo '<input name="propel_options[dnd]" id="propel_dnd" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['dnd']), false ) . ' /> Enable Drag and Drop Ordering';
-		echo "<br />";
+		echo '<br />';
 		echo '<input name="propel_options[user_restrictions]" id="propel_user_restrictions" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['user_restrictions']), false ) . ' /> Enable User Restrictions';
-		echo "<br />";
+		echo '<br />';
 		echo '<input name="propel_options[time_tracking]" id="propel_time_tracking" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['time_tracking']), false ) . ' /> Enable Time Tracking';
 	}
 
@@ -211,6 +211,9 @@ class Propel_Options {
 		$options = get_option('propel_options');
 
 		echo '<input name="propel_options[show_start_date]" id="show_start_date" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_start_date']), false ) . ' /> Show Start Date';
+		echo '<br />';
+
+		echo '<input name="propel_options[show_end_date]" id="show_end_date" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_end_date']), false ) . ' /> Show End Date';
 		echo "<br /><br /><br />";
 
 	}

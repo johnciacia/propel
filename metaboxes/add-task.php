@@ -12,10 +12,12 @@
 		<td colspan="2"><textarea name="task_description" class="widefat"></textarea></td>
 	</tr>
 
+	<?php if( Propel_Options::option('show_end_date' ) ) : ?>
 	<tr>
 		<td><p>End Date</p> </td>
 		<td><input type="text" name="task_end_date" class="widefat date" /></td>
 	</tr>
+	<?php endif; ?>
 
 	<tr>
 		<td><p>Priority</p> </td>

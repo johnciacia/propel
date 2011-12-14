@@ -186,7 +186,8 @@ class Post_Type_Task {
 		$new_columns['project'] = __( 'Project', 'propel' );
 		if( Propel_Options::option('show_start_date' ) )
 			$new_columns['start'] = __( 'Start Date', 'propel' );
-		$new_columns['end'] = __( 'End Date', 'propel' );
+		if( Propel_Options::option('show_end_date' ) ) 
+			$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
 		$new_columns['complete'] = __( 'Progress', 'propel' );
 		$new_columns['propel_categories'] = __( 'Categories', 'propel' );
