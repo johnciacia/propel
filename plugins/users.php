@@ -8,9 +8,9 @@
  * @todo: move list-authors.php into this file
  * @todo: adding a coauthor to a task makes them a coauthor of the project?
  */
-WP_Post_Contributors::initialize();
+Propel_Authors::initialize();
 
-class WP_Post_Contributors {
+class Propel_Authors {
 
 	const COAUTHOR_TAXONOMY = 'author';
 
