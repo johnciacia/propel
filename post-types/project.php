@@ -173,9 +173,18 @@ class Post_Type_Project {
 	 * @since 2.0
 	 */
 	public static function action_complete( $post_id ) {
+		$end = get_post_meta( $post_id, '_propel_end_date', true);
+		if( !$end && empty( $_POST['end_date'] ) ) {
+			update_post_meta( $post_id, '_propel_end_date', time() );	
+		}
 		update_post_meta( $post_id, '_propel_complete', 100 );
+
 		$tasks = get_children( "post_parent=$post_id" );
 		foreach( $tasks as $task ) {
+			$end = get_post_meta( $task->ID, '_propel_end_date', true);
+			if( !$end && empty( $_POST['end_date'] ) ) {
+				update_post_meta( $task->ID, '_propel_end_date', time() );	
+			}
 			update_post_meta( $task->ID, '_propel_complete', 100 );
 		}
 	}
@@ -385,7 +394,12 @@ class Post_Type_Project {
 		
 		$start = !empty( $_POST['start_date'] ) ? strtotime( $_POST['start_date'] ) : time();
 		update_post_meta( $post_id, '_propel_start_date', $start );
-		update_post_meta( $post_id, '_propel_end_date', strtotime( $_POST['end_date'] ) );
+
+		$end = strtotime($_POST['end_date']);
+		if( empty( $_POST['end_date'] ) && $_POST['complete'] == 100  ) {
+			$end = time();
+		}
+		update_post_meta( $post_id, '_propel_end_date', $end );
 		update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
 		update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
 		update_post_meta( $post_id, '_propel_owner', (int)$_POST['owner'] );
