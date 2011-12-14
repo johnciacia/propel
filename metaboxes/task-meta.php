@@ -39,7 +39,7 @@
 			<select name="priority">
 				<option value="1">Low</option>
 	                <?php
-	                for ($i = 1; $i <= 10; $i ++) {
+	                for ($i = 1; $i <= 10; $i++) {
 						if($i == $priority) {
 	                    	echo '<option value="' . $i . '" selected>' . $i . '</option>';
 						} else {
@@ -53,18 +53,15 @@
     </tr>
 
 	<tr>
-		<td><p>Completed</p></td>
+		<td><p>Progress</p></td>
 		<td>
-            <select name="complete">
-	            <?php
-	            for ($i = 0; $i <= 100; $i++) {
-					if($i == $complete)
-						echo '<option value="' . $i . '" selected>' . $i . '%</option>';
-	                else 
-	                	echo '<option value="' . $i . '">' . $i . '%</option>';
-	            }
-	            ?> 
-            </select>		
+			<select name="complete">
+				<?php
+				for ($i = 0; $i <= 100; $i = $i+5) {
+					echo "<option value='$i'".selected($complete, $i).">$i</option>";
+				}
+				?> 
+			</select>		
 		</td>
 	</tr>
 	

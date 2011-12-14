@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
 
-//@todo - move all progress counters to use intervals of 5
 //@todo - move priority to use high / medium / low
 //@todo - integrate task status' tags / taxonomy
 //@todo - create status feed widget

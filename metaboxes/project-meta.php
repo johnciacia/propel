@@ -26,15 +26,15 @@
     </tr>
 
 	<tr>
-		<td><p>Completed</p></td>
+		<td><p>Progress</p></td>
 		<td>
-            <select name="complete">
-	            <?php
-	            for ($i = 0; $i <= 100; $i++) {
+			<select name="complete">
+				<?php
+				for ($i = 0; $i <= 100; $i=$i+5) {
 					echo "<option value='$i'".selected($complete, $i).">$i</option>";
-	            }
-	            ?> 
-            </select>		
+				}
+				?> 
+			</select>	
 		</td>
 	</tr>
 	
