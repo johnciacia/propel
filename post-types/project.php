@@ -271,11 +271,12 @@ class Post_Type_Project {
 				break;
 
 			case 'priority':
-				echo get_post_meta( $id, '_propel_priority', true );
+				$priorities = propel_get_priorities();
+				echo $priorities[get_post_meta( $id, '_propel_priority', true )];
 				break;
 
 			case 'complete':
-				echo "" . get_post_meta( $id, '_propel_complete', true ) . "%";
+				echo get_post_meta( $id, '_propel_complete', true ) . "%";
 				break;
 
 			default:
