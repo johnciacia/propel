@@ -291,15 +291,10 @@ class Post_Type_Project {
 		add_meta_box( 'propel_project_meta', __('Project', 'propel' ),
 			array( __CLASS__, 'edit_project_meta'), 'propel_project', 'side' );
 
-
 		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {
-		add_meta_box('propel_completed_tasks', __('Completed Tasks', 'propel'),
-			array( __CLASS__, 'completed_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
-
-		add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),
-			array( __CLASS__, 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
-
-		add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
+			add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),	array( __CLASS__, 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+			add_meta_box('propel_completed_tasks', __('Completed Tasks', 'propel'), array( __CLASS__, 'completed_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+			add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
 		}
 	}
 
