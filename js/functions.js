@@ -16,7 +16,14 @@ jQuery(document).ready(function($) {
 		return ((x < y) ?  1 : ((x > y) ? -1 : 0));
 	};
 	
-	var oTable = jQuery('.tasks-table').dataTable( {
+	cols = jQuery(".tasks-table:first th").size()
+	var asdf = []
+	for(i = 0; i < cols; i++) {
+		asdf.push(null)
+	}
+
+	var oTable = jQuery('.tasks-table').dataTable( 
+		{
 		"bStateSave": true,
 		//"sPaginationType": "full_numbers",
 		"bFilter": false,
@@ -26,9 +33,7 @@ jQuery(document).ready(function($) {
 			{ "bSortable": false, "aTargets": [ 0 ] }
 		],
 		"aaSorting": [[1, 'asc']],
-				"aoColumns" : [
-			null, null, null, null, null, null, null, null, null
-		]
+				"aoColumns" : asdf
 	});
 
 	jQuery('.tasks-table tbody tr').click(function() {
