@@ -24,7 +24,81 @@ class Post_Type_Task {
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 		add_action( 'wp_ajax_get_task_description', array( __CLASS__, 'wp_ajax_get_task_description' ) );
 		add_filter( 'default_hidden_meta_boxes', array( __CLASS__, 'default_hidden_meta_boxes' ), 10, 2 );
+		add_action( 'quick_edit_custom_box',  array( __CLASS__, 'quick_edit_custom_box' ), 10, 2 );
+		add_filter( 'post_row_actions', array( __CLASS__, 'post_row_actions' ), 10, 2 );
+		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
 	}
+ 
+	public static function admin_footer() {
+		global $current_screen;
+
+		?>
+		<script type="text/javascript">
+		<!--
+		function propel_set_inline_values(complete, priority, nonce) {
+			inlineEditPost.revert();
+			var widgetInput = document.getElementById('post_complete');
+			var nonceInput = document.getElementById('propel_nonce');
+			nonceInput.value = nonce;
+			for (i = 0; i < widgetInput.options.length; i++) {
+				if (widgetInput.options[i].value == complete) { 
+					widgetInput.options[i].setAttribute("selected", "selected"); 
+				} else { widgetInput.options[i].removeAttribute("selected"); }
+			}
+			widgetInput = document.getElementById('post_priority');
+			for (i = 0; i < widgetInput.options.length; i++) {
+				if (widgetInput.options[i].value == priority) { 
+					widgetInput.options[i].setAttribute("selected", "selected"); 
+				} else { widgetInput.options[i].removeAttribute("selected"); }
+			}
+		}
+		//-->
+		</script>
+		<?php
+	}
+ 
+	public static function post_row_actions($actions, $post) {
+		global $current_screen;
+	 
+		$nonce = wp_create_nonce( plugin_basename( __FILE__ ) );
+		$complete = get_post_meta( $post->ID, '_propel_complete', true );
+		$priority = get_post_meta( $post->ID, '_propel_priority', true );
+		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline" title="';
+		$actions['inline hide-if-no-js'] .= esc_attr( __( 'Edit this item inline' ) ) . '" ';
+		$actions['inline hide-if-no-js'] .= " onclick=\"propel_set_inline_values('{$complete}', '{$priority}', '{$nonce}')\">"; 
+		$actions['inline hide-if-no-js'] .= __( 'Quick&nbsp;Edit' );
+		$actions['inline hide-if-no-js'] .= '</a>';
+
+		return $actions;	
+	}
+
+	public static function quick_edit_custom_box($column_name, $post_type) {
+		if ($column_name != 'complete') return;
+		?>
+		<fieldset class="inline-edit-col-left">
+			<div class="inline-edit-col">
+				<span class="title">Progress</span>
+				<select name='complete' id='post_complete'>
+				<?php 
+				for ($i = 0; $i <= 100; $i = $i+5) {
+					echo "<option class='complete' value='$i'>$i%</option>";
+				}
+				?>
+				</select>
+			</div>
+			<div class="inline-edit-col">
+				<span class="title">Priority</span>
+				<select name='priority' id='post_priority'>
+					<option value="0">Low</option>
+					<option value="1">Medium</option>
+					<option value="2">High</option>
+				</select>
+			</div>
+			<input type="hidden" name="propel_nonce" id="propel_nonce" value="" />
+    	</fieldset>
+	<?php
+	}
+
 
 	/**
 	 *
@@ -330,5 +404,3 @@ class Post_Type_Task {
 	}
 
 }
-
-?>
