@@ -32,6 +32,12 @@ class Propel_Authors {
 		add_filter( 'views_edit-propel_task', array( __CLASS__, 'views_edit_post' ) );
 		add_filter( 'views_edit-propel_project', array( __CLASS__, 'views_edit_post' ) );
 		add_action( 'post_wp_ajax_add_task', array( __CLASS__, 'post_wp_ajax_add_task' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+	}
+
+	public static function admin_menu() {
+		remove_meta_box( 'authordiv', 'propel_project', 'normal' );
+		remove_meta_box( 'authordiv', 'propel_task', 'normal' );
 	}
 
 	public static function post_wp_ajax_add_task( $post_id ) {
