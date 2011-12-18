@@ -32,7 +32,7 @@
 
 		if( $task->post_author ) {
 			$userdata = get_userdata( $task->post_author );
-			$author = $userdata->user_nicename;
+			$author = $userdata->display_name;
 		} else {
 			$author = "Unassigned";
 		}
