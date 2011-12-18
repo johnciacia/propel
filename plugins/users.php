@@ -31,6 +31,13 @@ class Propel_Authors {
 		add_action( 'comment_post', array( __CLASS__, 'comment_post' ) );
 		add_filter( 'views_edit-propel_task', array( __CLASS__, 'views_edit_post' ) );
 		add_filter( 'views_edit-propel_project', array( __CLASS__, 'views_edit_post' ) );
+		add_action( 'post_wp_ajax_add_task', array( __CLASS__, 'post_wp_ajax_add_task' ) );
+	}
+
+	public static function post_wp_ajax_add_task( $post_id ) {
+		$post = get_post( $post_id );
+		$user = get_userdata( $post->post_author );
+		self::add_coauthors( $post_id, array( $user->user_login) );
 	}
 
 	public static function comment_post( $comment_ID ) {
@@ -188,6 +195,10 @@ class Propel_Authors {
 		}
 	}
 
+	/**
+	 *
+	 * $coauthors array 
+	 */
 	public static function add_coauthors( $post_id, $coauthors, $append = false ) {
 		global $current_user, $post;
 

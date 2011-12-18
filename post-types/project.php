@@ -413,6 +413,7 @@ class Post_Type_Project {
 	 * @since 2.0
 	 */
 	public static function wp_ajax_add_task() {
+
 		check_ajax_referer( 'add-task', 'security' );
 		$post = array(
 			'post_title' => $_POST['title'],
@@ -430,7 +431,7 @@ class Post_Type_Project {
 		update_post_meta( $id, '_propel_end_date', strtotime( $_POST['end_date'] ) );
 		update_post_meta( $id, '_propel_complete', 0 );
 		update_post_meta( $id, '_propel_priority', $_POST['priority'] );
-
+		do_action( 'post_wp_ajax_add_task', $id );
 		die($id);
 	}
 
