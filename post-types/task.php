@@ -205,7 +205,6 @@ class Post_Type_Task {
 	 * @since 2.0
 	 */
 	public static function register_post_type()  {
-		if( !wp_count_posts('propel_project')->publish ) return;
 
  		$labels = array(
 			'name' => _x('Tasks', 'post type general name'),
@@ -226,7 +225,7 @@ class Post_Type_Task {
 			'labels' => $labels,
 			'public' => true,
 			'publicly_queryable' => true,
-			'show_ui' => true, 
+			'show_ui' => (wp_count_posts('propel_project')->publish > 0) ? true : false, 
 			'show_in_menu' => 'edit.php?post_type=propel_project', 
 			'query_var' => true,
 			'rewrite' => true,
