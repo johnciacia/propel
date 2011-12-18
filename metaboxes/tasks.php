@@ -67,7 +67,7 @@
 				<p><?php esc_html_e($progress); ?>%</p></td>
 
 			<td class="gen-icon gen-delete-icon">
-				<a href="post.php?action=delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
+				<a href="post.php?action=propel-delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
 
 			<td class="gen-icon gen-edit-icon">
 				<a href="post.php?post=<?php esc_attr_e( $task->ID ); ?>&action=edit" title="Edit">Edit</a></td>

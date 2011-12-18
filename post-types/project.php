@@ -65,7 +65,7 @@ class Post_Type_Project {
 	 */
 	 public static function post() {
 		
-		if( isset($_GET['_wpnonce'], $_GET['action'], $_GET['post'] ) && $_GET['action'] == "delete" ) {
+		if( isset($_GET['_wpnonce'], $_GET['action'], $_GET['post'] ) && $_GET['action'] == "propel-delete" ) {
 			if ( !wp_verify_nonce($_GET['_wpnonce'], 'propel-trash') ) die('Security check');
 
 			wp_delete_post($_GET['post']);
