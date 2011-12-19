@@ -47,9 +47,23 @@
 				echo "<option value='$i'".selected($priority, $i).">$priorities[$i]</option>";
 			endfor;
 			?>
-            </select>
-        </td>
-    </tr>
+			</select>
+		</td>
+	</tr>
+
+	<tr>
+		<td><p>Type</p></td>
+		<td>
+			<select name="tax_input[propel_type]">
+			<?php 
+			$terms = get_terms( 'propel_type', array( 'hide_empty' => 0 ) );
+			foreach( $terms as $term) :
+				echo "<option value='$term->name'".selected($type, $term->term_id).">$term->name</option>";
+			endforeach;
+			?>
+			</select>
+		</td>
+	</tr>
 
 	<tr>
 		<td><p>Progress</p></td>

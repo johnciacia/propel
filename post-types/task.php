@@ -14,7 +14,7 @@ class Post_Type_Task {
 
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
-		add_action( 'init', array( __CLASS__, 'register_status' ) );
+		add_action( 'init', array( __CLASS__, 'register_taxonomy' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
@@ -170,7 +170,7 @@ class Post_Type_Task {
 		update_post_meta( $post_id, '_propel_contributors', $_POST['propel_user'] );
 	}
 
-	public static function register_status() {
+	public static function register_taxonomy() {
 
 		$labels = array(
 			'name' => _x( 'States', 'taxonomy general name' ),
@@ -197,6 +197,36 @@ class Post_Type_Task {
 		foreach($state as $status) {
 			if( !term_exists($status, 'propel_status')) {
 				wp_insert_term($status, 'propel_status');
+			}
+		}
+
+		$labels = array(
+			'name' => _x( 'Type', 'taxonomy general name' ),
+			'singular_name' => _x( 'Types', 'taxonomy singular name' ),
+			'search_items' =>  __( 'Search types' ),
+			'all_items' => __( 'All Types' ),
+			'parent_item' => __( 'Parent Type' ),
+			'parent_item_colon' => __( 'Parent Type:' ),
+			'edit_item' => __( 'Edit Type' ), 
+			'update_item' => __( 'Update Type' ),
+			'add_new_item' => __( 'Add New Type' ),
+			'new_item_name' => __( 'New Type Name' ),
+			'menu_name' => __( 'Types' )); 	
+
+		register_taxonomy( 'propel_type', 'propel_task', array(
+			'public' => false,
+			'labels' => $labels,
+			// 'show_ui' => true,
+			// 'query_var' => true,
+			// 'show_in_nav_menus' => true,
+
+		) );
+
+		$type = array( 'Feature', 'Bug' );
+
+		foreach($type as $t) {
+			if( !term_exists($t, 'propel_type')) {
+				wp_insert_term($t, 'propel_type');
 			}
 		}
 	}
@@ -269,6 +299,7 @@ class Post_Type_Task {
 		if( Propel_Options::option('show_end_date' ) ) 
 			$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
+		$new_columns['type'] = __( 'Type', 'propel' );
 		$new_columns['complete'] = __( 'Progress', 'propel' );
 		$new_columns['propel_categories'] = __( 'Categories', 'propel' );
 		$new_columns['tags'] = $columns['tags'];
@@ -304,6 +335,12 @@ class Post_Type_Task {
 				$id = get_post( $id );
 				$project = get_post( $id->post_parent );
 				echo "<a href='edit.php?post_type=propel_task&project=" . $project->ID . "'>" . $project->post_title . "</a>";
+				break;
+
+			case 'type':
+				$terms = wp_get_post_terms( $id, 'propel_type' );
+				if( is_array( $terms ) )
+					echo $terms[0]->name;
 				break;
 
 			case 'start':
@@ -387,6 +424,14 @@ class Post_Type_Task {
 
 		$post = get_post( get_the_ID() );
 		$parent = $post->post_parent;
+
+		$types = wp_get_post_terms( get_the_ID(), 'propel_type' );
+		if( is_array( $types ) ) {
+			$type = $types[0]->term_id;
+		} else {
+			$type = 0;
+		}
+
 
 		require_once( __DIR__ . '/../metaboxes/task-meta.php' );
 	}
