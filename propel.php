@@ -25,14 +25,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
 
+define('PROPEL_CURRENT_DBVERSION', 1.6);
 /**
  * @since 1.7.0
 */
-if(get_option('PROPEL_DBVERSION') == 1.4)
+if(get_option('PROPEL_DBVERSION') < PROPEL_CURRENT_DBVERSION)
 	add_action('admin_notices', 'propel_add_notice');
 
-if(get_option('PROPEL_DBVERSION') == 1.5)
-	add_action('admin_notices', 'propel_add_notice');	
 	
 function propel_add_notice () {
 	echo "<div id='my_admin_notice' class='updated fade'><p><strong>Propel has changed its database structure. To continue using this plugin, you must first use our <a href='?page=propel_migrate_tool'>migration tool</a></strong></p></div>";
@@ -47,9 +46,14 @@ Propel::initialize();
 class Propel {	
 	
 	public static function initialize() {
+		if(get_option('PROPEL_DBVERSION') < PROPEL_CURRENT_DBVERSION) {
+			add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+			return;
+		}
+
 		add_action( 'admin_init', array(__CLASS__, 'admin_init' ) );
 		add_action( 'init', array( __CLASS__, 'init'));
-		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+		
 		register_activation_hook( __FILE__, array( __CLASS__, 'install' ) );
 		require_once( __DIR__ . '/functions.php' );
 		require_once( __DIR__ . '/post-types/project.php' );
@@ -63,16 +67,17 @@ class Propel {
 	/**
 	* @since 1.0
 	*/
-	public static function admin_menu ()
-	{
-		if( get_option('PROPEL_DBVERSION') == 1.4 ||
-			get_option('PROPEL_DBVERSION') == 1.5 ) {
-			//add_menu_page(null, 'Propel', 'activate_plugins', 
-			//	'propel_migrate_tool', array(__CLASS__ , 'migrateTool'));			
-			//return;
+	public static function admin_menu() {
+		if( get_option( 'PROPEL_DBVERSION' ) < PROPEL_CURRENT_DBVERSION ) {
+			add_menu_page( null, 'Propel', 'activate_plugins', 'propel_migrate_tool', array( __CLASS__ , 'migration_tool' ) );
+			return;
 		}
-		
+	}
 
+	public static function migration_tool() {
+		global $wpdb;
+		define( 'PROPEL_MIGRATE_DB', 1 );
+		require_once( 'migrate.php' );
 	}
 
 	/**
@@ -114,16 +119,6 @@ class Propel {
 		wp_enqueue_style('propel-jquery-ui');
 		if(get_option('PROPEL_INCLUDE_CSS') == true)
 			wp_enqueue_style('propel-ui');
-	}
-
-	/***************************************************\
-	|                       MISC                        |
-	\***************************************************/	
-	public static function migrateTool ()
-	{
-		global $wpdb;
-		define('PROPEL_MIGRATE_DB', 1);
-		require_once('migrate.php');
 	}	
 	
 	
@@ -144,7 +139,7 @@ class Propel {
 		/*
 		* @since 1.2
 		*/
-		add_option( 'PROPEL_DBVERSION', 1.6 );
+		add_option( 'PROPEL_DBVERSION', PROPEL_CURRENT_DBVERSION );
 	}
 	
 }
@@ -174,7 +169,6 @@ class Propel_Options {
 	?>
 	<div class="wrap">
 		<h2>Propel Options</h2>
-		Options relating to the Custom Plugin.
 		<form action="options.php" method="post">
 			<?php settings_fields( 'propel_options' ); ?>
 			<?php do_settings_sections( 'propel' ); ?>
@@ -189,12 +183,12 @@ class Propel_Options {
 	public static function admin_init(){
 		register_setting( 'propel_options', 'propel_options', array( __CLASS__, 'options_validate' ) );
 		add_settings_section('propel_main', 'Main Settings', array( __CLASS__, 'plugin_section_text' ), 'propel');
-		add_settings_field('propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
+		//add_settings_field('propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
 		add_settings_field('propel_ui_options', 'UI Options', array( __CLASS__, 'propel_ui_options' ), 'propel', 'propel_main' );
 	}
 
 	public static function plugin_section_text() {
-		echo '<p>These options are currently in beta and should not be relied upon.</p>';
+		echo '<p>These options allow you to customize Propel.</p>';
 	}
 
 	public static function propel_beta_options() {

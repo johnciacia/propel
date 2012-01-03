@@ -34,7 +34,7 @@
 	</tr>
 
 	<tr>
-		<td><p>Author</p></td>
+		<td><p>Owner</p></td>
 		<td>
 			<?php  
 			$current_user = wp_get_current_user();

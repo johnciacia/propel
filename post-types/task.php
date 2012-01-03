@@ -294,6 +294,7 @@ class Post_Type_Task {
 		$new_columns['cb'] = '<input type="checkbox" />';
 		$new_columns['title'] = _x( 'Task Name', 'column name' );
 		$new_columns['project'] = __( 'Project', 'propel' );
+		$new_columns['author'] = __( 'Owner', 'propel' );
 		if( Propel_Options::option('show_start_date' ) )
 			$new_columns['start'] = __( 'Start Date', 'propel' );
 		if( Propel_Options::option('show_end_date' ) ) 
