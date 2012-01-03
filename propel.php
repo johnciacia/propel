@@ -3,7 +3,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 2.0
+Version: 2.0.1
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -54,7 +54,6 @@ class Propel {
 		add_action( 'admin_init', array(__CLASS__, 'admin_init' ) );
 		add_action( 'init', array( __CLASS__, 'init'));
 		
-		register_activation_hook( __FILE__, array( __CLASS__, 'install' ) );
 		require_once( __DIR__ . '/functions.php' );
 		require_once( __DIR__ . '/post-types/project.php' );
 		require_once( __DIR__ . '/post-types/task.php' );
@@ -120,27 +119,7 @@ class Propel {
 		if(get_option('PROPEL_INCLUDE_CSS') == true)
 			wp_enqueue_style('propel-ui');
 	}	
-	
-	
-	/**
-	* @since 1.0
-	*/
-	public static function install ()
-	{
-		add_option( 'propel_theme', WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css' );
-		/*
-		* @since 1.6
-		*/
-		add_option( 'PROPEL_ERROR', '' );
-		/*
-		* @since 1.7
-		*/
-		add_option( 'PROPEL_INCLUDE_CSS', true );
-		/*
-		* @since 1.2
-		*/
-		add_option( 'PROPEL_DBVERSION', PROPEL_CURRENT_DBVERSION );
-	}
+
 	
 }
 
@@ -231,3 +210,22 @@ class Propel_Options {
 function propel_get_priorities() {
 	return array( 'Low', 'Medium', 'High' );
 }
+
+
+
+register_activation_hook( __FILE__, 'propel_install' );
+function propel_install () {
+		add_option( 'propel_theme', WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css' );
+		/*
+		* @since 1.6
+		*/
+		add_option( 'PROPEL_ERROR', '' );
+		/*
+		* @since 1.7
+		*/
+		add_option( 'PROPEL_INCLUDE_CSS', true );
+		/*
+		* @since 1.2
+		*/
+		add_option( 'PROPEL_DBVERSION', PROPEL_CURRENT_DBVERSION );
+	}

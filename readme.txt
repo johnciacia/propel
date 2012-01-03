@@ -1,9 +1,9 @@
 === Propel ===
 Contributors: johnciacia, sidewindernet
 Tags: project, management, collaboration, tasks, project management, task management, basecamp
-Requires at least: 2.8
-Tested up to: 3.1.3
-Stable tag: 1.8
+Requires at least: 3.0
+Tested up to: 3.3
+Stable tag: 2.0.1
 
 This plugin allows users to manage projects and tasks.
 
