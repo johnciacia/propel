@@ -426,7 +426,7 @@ class Post_Type_Task {
 		$parent = $post->post_parent;
 
 		$types = wp_get_post_terms( get_the_ID(), 'propel_type' );
-		if( is_array( $types ) ) {
+		if( is_array( $types ) && isset( $types[0] ) ) {
 			$type = $types[0]->term_id;
 		} else {
 			$type = 0;

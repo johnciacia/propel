@@ -93,6 +93,39 @@ function create_task($task, $project, $id) {
 
 <?php endif; ?>
 
-<?php if( get_option('PROPEL_DBVERSION') == 1.5 ) : ?>
-TODO: Implement migration tool
-<?php endif; ?>
+<?php 
+if( get_option('PROPEL_DBVERSION') == 1.5 ) :
+
+		die("Import Failed");
+		$args = array( 'post_type' => 'propel_task', 'numberposts' => -1, 'post_status' => null, 'post_parent' => null );
+		$posts = get_posts( $args );
+		foreach( $posts as $post ) {
+			$meta = get_post_meta( $post->ID, '_propel_task_metadata', true );
+			update_post_meta( $post->ID, '_propel_start_date', strtotime($meta['start'] ) );
+			update_post_meta( $post->ID, '_propel_end_date', strtotime($meta['end'] ) );
+
+			if(  $meta['priority'] >= 0 && $meta['priority'] < 3 ) {
+				$priority = 0;
+			} else if( $meta['priority'] >= 3 && $meta['priority'] < 7 ) {
+				$priority = 1;
+			} else {
+				$priority = 2;
+			}
+			update_post_meta( $post->ID, '_propel_priority', $priority );
+
+			$complete = (int)(round($meta['complete']/5)*5);
+			update_post_meta( $post->ID, '_propel_complete', $complete );
+		}
+
+		$args = array( 'post_type' => 'propel_project', 'numberposts' => -1, 'post_status' => null, 'post_parent' => null );
+		$posts = get_posts( $args );
+		foreach( $posts as $post ) {
+			update_post_meta( $post->ID, '_propel_start_date', time() );
+			update_post_meta( $post->ID, '_propel_end_date', time() );
+			update_post_meta( $post->ID, '_propel_priority', 1 );
+			update_post_meta( $post->ID, '_propel_complete', 0 );
+			update_post_meta( $post->ID, '_propel_owner', 0 );
+		}
+
+endif; 
+?>

@@ -218,7 +218,9 @@ class Propel_Options {
 		
 		echo '<input name="propel_options[show_client]" id="show_client" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_client']), false ) . ' /> Show Client';
 		echo '<br />';
-		echo "<br /><br />";
+		echo '<input name="propel_options[show_progress]" id="show_progress" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_progress']), false ) . ' /> Show Project Progress';
+		echo '<br />';
+		echo '<br /><br />';
 
 	}
 

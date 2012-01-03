@@ -211,7 +211,8 @@ class Post_Type_Project {
 		if( Propel_Options::option('show_end_date' ) )
 			$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
-		$new_columns['complete'] = __( 'Progress', 'propel' );
+		if( Propel_Options::option('show_progress' ) )
+			$new_columns['complete'] = __( 'Progress', 'propel' );
 		$new_columns['comments'] = $columns['comments'];
 		return $new_columns;
 	}
