@@ -167,7 +167,6 @@ class Post_Type_Task {
 
 		update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
 		update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
-		update_post_meta( $post_id, '_propel_contributors', $_POST['propel_user'] );
 	}
 
 	public static function register_taxonomy() {

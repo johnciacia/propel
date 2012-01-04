@@ -6,7 +6,8 @@
  *
  * @todo: add option to enable / disable pre_get_posts
  * @todo: move list-authors.php into this file
- * @todo: adding a coauthor to a task makes them a coauthor of the project?
+ * @todo: when a coauthor is added to a project, make that coauthor of all tasks in that project
+ * @todo: when a coauthor is removed from a project, remove that coauthor from all the tasks in the project
  */
 Propel_Authors::initialize();
 
@@ -76,10 +77,10 @@ class Propel_Authors {
 
 		$coauthors = array();
 		$post_id = (int)$post_id;
-		if(!$post_id && $post_ID) $post_id = $post_ID;
-		if(!$post_id && $post) $post_id = $post->ID;
+		if( !$post_id && $post_ID ) $post_id = $post_ID;
+		if( !$post_id && $post ) $post_id = $post->ID;
 
-		$defaults = array('orderby'=>'term_order', 'order'=>'ASC');
+		$defaults = array( 'orderby' => 'term_order', 'order' => 'ASC' );
 		$args = wp_parse_args( $args, $defaults );
 
 		if($post_id) {
@@ -182,6 +183,7 @@ class Propel_Authors {
 	}
 
 	public static function save_post($post_id, $post) {
+		global $typenow;
 		/**
 		 * Sanity checks
 		 */
@@ -197,6 +199,22 @@ class Propel_Authors {
 			check_admin_referer( 'coauthors-edit', 'coauthors-nonce' );
 			$coauthors = (array) $_POST['coauthors'];
 			$coauthors = array_map( 'esc_html', $coauthors );
+
+			//if a contributor is added/removed from a project, add/remove to/from 
+			//ALL THE TASKS associated with that project
+			if( 'propel_project' == $typenow ) {
+				
+			}
+
+			//add project contributors to new tasks
+			if( 'propel_task' == $typenow ) {
+				$project_managers = self::get_coauthors( $post->post_parent );
+				foreach( $project_managers as $project_manager ) {
+					$coauthors[] = $project_manager->user_login;
+				}
+				$coauthors = array_unique( $coauthors );
+			}
+
 			return self::add_coauthors( $post_id, $coauthors );
 		}
 	}

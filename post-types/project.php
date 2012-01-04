@@ -388,6 +388,9 @@ class Post_Type_Project {
 			if ( !current_user_can( 'edit_post', $post_id ) )
 				return;
 		}
+
+		if( !isset( $_POST['complete'] ) )
+			$_POST['complete'] = ''; //@todo: probably shouldn't set the value of a superglobal like this
 		
 		$start = !empty( $_POST['start_date'] ) ? strtotime( $_POST['start_date'] ) : time();
 		update_post_meta( $post_id, '_propel_start_date', $start );
