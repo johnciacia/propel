@@ -162,7 +162,7 @@ class Propel_Options {
 	public static function admin_init(){
 		register_setting( 'propel_options', 'propel_options', array( __CLASS__, 'options_validate' ) );
 		add_settings_section('propel_main', 'Main Settings', array( __CLASS__, 'plugin_section_text' ), 'propel');
-		//add_settings_field('propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
+		add_settings_field('propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
 		add_settings_field('propel_ui_options', 'UI Options', array( __CLASS__, 'propel_ui_options' ), 'propel', 'propel_main' );
 	}
 
