@@ -2,8 +2,8 @@
 Contributors: johnciacia, sidewindernet
 Tags: project, management, collaboration, tasks, project management, task management, basecamp
 Requires at least: 3.0
-Tested up to: 3.3
-Stable tag: 2.0.1
+Tested up to: 3.3.1
+Stable tag: 2.0.2
 
 This plugin allows users to manage projects and tasks.
 
