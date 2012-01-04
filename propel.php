@@ -54,13 +54,13 @@ class Propel {
 		add_action( 'admin_init', array(__CLASS__, 'admin_init' ) );
 		add_action( 'init', array( __CLASS__, 'init'));
 		
-		require_once( __DIR__ . '/functions.php' );
-		require_once( __DIR__ . '/post-types/project.php' );
-		require_once( __DIR__ . '/post-types/task.php' );
+		require_once( dirname(__FILE__) . '/functions.php' );
+		require_once( dirname(__FILE__) . '/post-types/project.php' );
+		require_once( dirname(__FILE__) . '/post-types/task.php' );
 		if( Propel_Options::get_option('time_tracking') ) 
-			require_once( __DIR__ . '/post-types/time.php' );
+			require_once( dirname(__FILE__) . '/post-types/time.php' );
 		if( Propel_Options::get_option('user_restrictions') ) 
-			require_once( __DIR__ . '/plugins/users.php' );
+			require_once( dirname(__FILE__) . '/plugins/users.php' );
 	}
 		
 	/**

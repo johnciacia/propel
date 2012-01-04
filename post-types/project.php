@@ -315,7 +315,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);
-		require( __DIR__ . '/../metaboxes/tasks.php');
+		require( dirname(__FILE__) . '/../metaboxes/tasks.php');
 	}
 
 	/**
@@ -334,7 +334,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);
-		require( __DIR__ . '/../metaboxes/tasks.php' );
+		require( dirname(__FILE__) . '/../metaboxes/tasks.php' );
 	}
 
 	/**
@@ -365,7 +365,7 @@ class Post_Type_Project {
 
 		$users = get_users();
 
-		require_once( __DIR__ . '/../metaboxes/project-meta.php' );
+		require_once( dirname(__FILE__) . '/../metaboxes/project-meta.php' );
 	}
 
 	/**
@@ -410,7 +410,7 @@ class Post_Type_Project {
 	 * @since 2.0
 	 */
 	public static function add_task() {
-		require_once( __DIR__ . '/../metaboxes/add-task.php' );	
+		require_once( dirname(__FILE__) . '/../metaboxes/add-task.php' );	
 	}
 
 	/**

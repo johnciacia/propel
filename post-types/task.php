@@ -433,7 +433,7 @@ class Post_Type_Task {
 		}
 
 
-		require_once( __DIR__ . '/../metaboxes/task-meta.php' );
+		require_once( dirname(__FILE__) . '/../metaboxes/task-meta.php' );
 	}
 
 	/**
