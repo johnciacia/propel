@@ -1,5 +1,53 @@
 <?php
 
+function dashboard_widget_function() {
+	$args = array(
+		'numberposts' => -1,
+		'post_type' => 'propel_project',
+		'post_status' => 'publish'
+	);
+	$projects = get_posts( $args );
+	echo "<table width='100%'>";
+	foreach( $projects as $project ) {
+		echo '<tr rowspan="3"><td><strong>' . $project->post_title . '</strong></td></tr>';
+		$argv = array(
+			'numberposts' => -1,
+			'post_type' => 'propel_task',
+			'post_status' => 'publish',
+			'post_parent' => $project->ID
+		);
+		$tasks = get_posts( $argv );
+		
+
+		foreach( $tasks as $task ) {
+			$progress = get_post_meta( $task->ID, '_propel_complete', true );
+			echo "<tr>";
+			echo "<td width='200'>" . $task->post_title . "</td>";
+			echo "<td width='65%'><div class='propel-progress-bar' style='height:13px' title='$progress'></div></td>";
+			echo "<td>" . $progress . "%</td>";
+			echo "</tr>";
+		}
+	}
+	echo "</table>";
+?>
+	<script type="text/javascript">
+		jQuery(document).ready(function() {
+			jQuery('.propel-progress-bar').each(function() {
+				value = { value: parseInt(this.title) }
+				jQuery(this).progressbar( value )
+			})
+		})
+	</script>
+<?php
+}
+
+function add_dashboard_widgets() {
+	wp_add_dashboard_widget('dashboard_widget', 'Projects Overview', 'dashboard_widget_function');
+}
+
+add_action('wp_dashboard_setup', 'add_dashboard_widgets' );
+
+
 class Propel_Functions {
 	
 	var $args = array();

@@ -103,11 +103,11 @@ class Post_Type_Task {
 	/**
 	 *
 	 */
-	 public static function wp_ajax_get_task_description() {
+	public static function wp_ajax_get_task_description() {
 		$post = get_post($_POST['id']);
 	 	echo $post->post_content;
 	 	die();
-	 }
+	}
 
 	/**
 	 * @since 2.0
@@ -389,15 +389,8 @@ class Post_Type_Task {
 		add_meta_box('custom-fields', __('Custom Fields'),
 			'post_custom_meta_box', self::POST_TYPE, 'normal', 'low');
 
-		// add_meta_box( 'propel_comments', __( 'Comments', 'propel' ),
-		// 	array( __CLASS__, 'comments'), self::POST_TYPE, 'normal' );
-
 		add_meta_box( 'propel_task_meta', __( 'Task', 'propel' ),
 			array( __CLASS__, 'edit_task_meta'), self::POST_TYPE, 'side' );
-	}
-
-	public static function comments() {
-		comment_form();
 	}
 
 	/**
@@ -431,7 +424,6 @@ class Post_Type_Task {
 		} else {
 			$type = 0;
 		}
-
 
 		require_once( dirname(__FILE__) . '/../metaboxes/task-meta.php' );
 	}

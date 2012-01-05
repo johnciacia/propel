@@ -3,7 +3,7 @@
 Plugin Name: Propel
 Plugin URI: http://www.johnciacia.com/propel/
 Description: Easily manage your projects, clients, tasks, and files.
-Version: 2.1
+Version: 2.0.3
 Author: John Ciacia
 Author URI: http://www.johnciacia.com
 
@@ -57,6 +57,7 @@ class Propel {
 		require_once( dirname(__FILE__) . '/functions.php' );
 		require_once( dirname(__FILE__) . '/post-types/project.php' );
 		require_once( dirname(__FILE__) . '/post-types/task.php' );
+		require_once( dirname(__FILE__) . '/deprecated.php' );
 		if( Propel_Options::get_option('time_tracking') ) 
 			require_once( dirname(__FILE__) . '/post-types/time.php' );
 		if( Propel_Options::get_option('user_restrictions') ) 
@@ -109,8 +110,9 @@ class Propel {
 			WP_PLUGIN_URL . '/propel/js/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('jquery-ui-progressbar', 
 			WP_PLUGIN_URL . '/propel/js/jquery.ui.progressbar.min.js', array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
-								
-		wp_register_style("propel-jquery-ui", get_option('propel_theme'));
+
+		$options = get_option( 'propel_options' );
+		wp_register_style("propel-jquery-ui", $options['theme'] );
 		wp_register_style("genesis-ui", WP_PLUGIN_URL . '/propel/gen/ui.css');
 		wp_register_style("propel-ui", WP_PLUGIN_URL . '/propel/style.css');
 
@@ -161,17 +163,23 @@ class Propel_Options {
 
 	public static function admin_init(){
 		register_setting( 'propel_options', 'propel_options', array( __CLASS__, 'options_validate' ) );
-		add_settings_section('propel_main', 'Main Settings', array( __CLASS__, 'plugin_section_text' ), 'propel');
-		add_settings_field('propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
-		add_settings_field('propel_ui_options', 'UI Options', array( __CLASS__, 'propel_ui_options' ), 'propel', 'propel_main' );
+		add_settings_section( 'propel_main', 'Main Settings', array( __CLASS__, 'plugin_section_text' ), 'propel' );
+		add_settings_section( 'propel_deprecated', 'Deprecated Settings', array( __CLASS__, 'plugin_section_deprecated' ), 'propel' );
+		// add_settings_field( 'propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
+		add_settings_field( 'propel_ui_options', 'UI Options', array( __CLASS__, 'propel_ui_options' ), 'propel', 'propel_main' );
+		add_settings_field( 'propel_deprecated_options', 'Custom Theme Directory', array( __CLASS__, 'propel_deprecated_options' ), 'propel', 'propel_deprecated' );
 	}
 
 	public static function plugin_section_text() {
 		echo '<p>These options allow you to customize Propel.</p>';
 	}
 
+	public static function plugin_section_deprecated() {
+		echo '<p>These options are for deprecated features.</p>';
+	}
+
 	public static function propel_beta_options() {
-		$options = get_option('propel_options');
+		$options = get_option( 'propel_options' );
 
 		echo '<input name="propel_options[dnd]" id="propel_dnd" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['dnd']), false ) . ' /> Enable Drag and Drop Ordering';
 		echo '<br />';
@@ -181,7 +189,7 @@ class Propel_Options {
 	}
 
 	public static function propel_ui_options() {
-		$options = get_option('propel_options');
+		$options = get_option( 'propel_options' );
 
 		echo '<input name="propel_options[show_start_date]" id="show_start_date" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_start_date']), false ) . ' /> Show Start Date';
 		echo '<br />';
@@ -194,10 +202,15 @@ class Propel_Options {
 		echo '<input name="propel_options[show_progress]" id="show_progress" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_progress']), false ) . ' /> Show Project Progress';
 		echo '<br />';
 		echo '<br /><br />';
-
 	}
 
-	public static function options_validate($input) {
+	public static function propel_deprecated_options() {
+		$options = get_option( 'propel_options' );
+		do_action( 'propel_deprecated_options', $options );
+		echo '<br /><br />';
+	}
+
+	public static function options_validate( $input ) {
 		return $input;
 	}
 
@@ -215,7 +228,15 @@ function propel_get_priorities() {
 
 register_activation_hook( __FILE__, 'propel_install' );
 function propel_install () {
-		add_option( 'propel_theme', WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css' );
+		/*
+		* @since 2.0.3
+		*/
+		$options = get_option( 'propel_options' );
+		if( ! isset( $options['theme'] ) || empty( $options['theme'] ) ) {
+			$options['theme'] = WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css';
+			update_option( 'propel_options', $options );
+		}
+
 		/*
 		* @since 1.6
 		*/
@@ -228,4 +249,5 @@ function propel_install () {
 		* @since 1.2
 		*/
 		add_option( 'PROPEL_DBVERSION', PROPEL_CURRENT_DBVERSION );
-	}
+}
+?>
