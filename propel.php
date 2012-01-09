@@ -90,6 +90,7 @@ class Propel {
 			WP_PLUGIN_URL . '/propel/js/functions.js', array( 'jquery-datatables' ) );
 		wp_register_style("propel-admin-jquery-ui", WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css');
 		wp_enqueue_style('propel-admin-jquery-ui');
+		wp_register_style("propel-admin-general-ui", WP_PLUGIN_URL . '/propel/style.css');
 	}
 	
     /**

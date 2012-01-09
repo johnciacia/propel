@@ -1,28 +1,28 @@
-<table width="100%">
+<table class="metaboxes-add-task">
 	<tr>
-		<td><p>Title</p></td>
-		<td><input type="text" name="task_title" class="widefat" /></td>
+		<td>
+			<input type="text" name="task_title" placeholder="Title" class="widefat" />
+		</td>
 	</tr>
 
 	<tr>
-		<td colspan="2"><p>Description</p></td>
-	</tr>
-
-	<tr>
-		<td colspan="2"><textarea name="task_description" class="widefat"></textarea></td>
+		<td colspan="2">
+			<textarea name="task_description" placeholder="Description" class="widefat"></textarea>
+			</td>
 	</tr>
 
 	<?php if( Propel_Options::option('show_end_date' ) ) : ?>
 	<tr>
-		<td><p>End Date</p> </td>
-		<td><input type="text" name="task_end_date" class="widefat date" /></td>
+		<td>
+			<input type="text" name="task_end_date" placeholder="End Date" class="widefat date" />
+			</td>
 	</tr>
 	<?php endif; ?>
 
 	<tr>
-		<td><p>Priority</p> </td>
 		<td>
-			<select name="task_priority">
+			<label>Priority</label>
+			<select name="task_priority" class="task-priority">
 			<?php
 			$priorities = propel_get_priorities();
 			for($i = 0; $i < count($priorities); $i++) :
@@ -34,11 +34,12 @@
 	</tr>
 
 	<tr>
-		<td><p>Owner</p></td>
 		<td>
+			<label>Owner</label>
 			<?php  
 			$current_user = wp_get_current_user();
-			wp_dropdown_users( array( 
+			wp_dropdown_users( array(
+				'class' => 'task-owner',
 				'show_option_none' => 'Unassigned',
 				'name' => 'task_author', 
 				'selected' => $current_user->ID) ); 

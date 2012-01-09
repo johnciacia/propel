@@ -1,4 +1,92 @@
 <?php
+/* CURRENT PROJECTS */
+function dashboard_client_current_projects_metabox() {
+
+	function dashboard_client_current_projects_content() {
+		echo "
+			<ul>
+				<li><a href='#'>Project #1</a></li>
+				<li><a href='#'>Project #2</a></li>
+			</ul>
+		";
+	}
+	
+	wp_add_dashboard_widget( 'dashboard_client_current_projects_content', __( 'Current Projects' ), 'dashboard_client_current_projects_content' );
+	
+}
+
+add_action('wp_dashboard_setup', 'dashboard_client_current_projects_metabox');
+
+
+/* COMPLETED PROJECTS */
+function dashboard_client_completed_projects_metabox() {
+
+	function dashboard_client_completed_projects_content() {
+		echo "
+			<ul>
+				<li><a href='#'>Project #1</a></li>
+				<li><a href='#'>Project #2</a></li>
+			</ul>
+		";
+	}
+
+	wp_add_dashboard_widget( 'dashboard_client_completed_projects_content', __( 'Completed Projects' ), 'dashboard_client_completed_projects_content' );
+}
+
+add_action('wp_dashboard_setup', 'dashboard_client_completed_projects_metabox');
+
+
+/* ARCHIVED PROJECTS */
+function dashboard_client_archived_projects_metabox() {
+
+	function dashboard_client_archived_projects_content() {
+		echo "
+			<ul>
+				<li><a href='#'>Project #1</a></li>
+				<li><a href='#'>Project #2</a></li>
+			</ul>
+		";
+	}
+
+	wp_add_dashboard_widget( 'dashboard_client_archived_projects_content', __( 'Archived Projects' ), 'dashboard_client_archived_projects_content' );
+}
+
+add_action('wp_dashboard_setup', 'dashboard_client_archived_projects_metabox');
+
+
+/* GANTT CHART */
+function dashboard_client_gantt_chart_metabox() {
+
+	function dashboard_client_gantt_chart_content() {
+		echo "
+			<img alt='Gannt Chart' src='/wp-content/themes/the-portland-company-version-three/images/gantt-chart.png' title='Gannt Chart' />
+		";
+	}
+
+	wp_add_dashboard_widget( 'dashboard_client_gantt_chart_content', __( 'Timeline' ), 'dashboard_client_gantt_chart_content' );
+
+}
+add_action('wp_dashboard_setup', 'dashboard_client_gantt_chart_metabox');
+
+
+/* SUPPORT REQUESTS */
+function dashboard_client_support_requests_metabox() {
+
+	function dashboard_client_support_requests_content() {
+		echo "
+			<p>If you have an inquiry or support request use the form below to have it added to the queue so it can be addressed promptly.</p>
+		";
+	}
+	
+	wp_add_dashboard_widget( 'dashboard_client_support_requests_content', __( 'Support Requests' ), 'dashboard_client_support_requests_content' );
+	
+}
+
+add_action('wp_dashboard_setup', 'dashboard_client_support_requests_metabox');
+
+
+
+
 
 function dashboard_widget_function() {
 	$args = array(
