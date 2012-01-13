@@ -1,22 +1,22 @@
-<table width="100%">
+<table class="metaboxes-project-meta">
 
 	<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 	<tr>
-		<td><p>Start Date</p></td>
-		<td><input type="text" name="start_date" class="date" value="<?php echo esc_attr($start); ?>" /></td>
+		<td class="first-column">Start Date</td>
+		<td class="second-column"><input type="text" name="start_date" class="date" value="<?php echo esc_attr($start); ?>" /></td>
 	</tr>
 	<?php endif; ?>
 
 	<?php if( Propel_Options::option('show_end_date' ) ) : ?>
 	<tr>
-		<td><p>End Date</p></td>
-		<td><input type="text" name="end_date" class="date" value="<?php echo esc_attr($end); ?>" /></td>
+		<td class="first-column">End Date</td>
+		<td class="second-column"><input type="text" name="end_date" class="date" value="<?php echo esc_attr($end); ?>" /></td>
 	</tr>
 	<?php endif; ?>
 
 	<tr>
-		<td><p>Priority</p></td>
-		<td>
+		<td class="first-column">Priority</td>
+		<td class="second-column">
 			<select name="priority">
 				<?php
 				$priorities = propel_get_priorities();
@@ -29,8 +29,8 @@
     </tr>
     <?php if( Propel_Options::option('show_client' ) ) : ?>
 	<tr>
-		<td><p>Progress</p></td>
-		<td>
+		<td class="first-column">Progress</td>
+		<td class="second-column">
 			<select name="complete">
 				<?php
 				for ($i = 0; $i <= 100; $i = $i+5) :
@@ -44,8 +44,8 @@
 
 	<?php if( Propel_Options::option('show_client' ) ) : ?>
 	<tr>
-		<td><p>Client</p></td>
-		<td>
+		<td class="first-column">Client</td>
+		<td class="second-column">
 			<select name="owner">
 			<?php foreach($users as $user) : ?>
 				<?php if($user->ID == $owner) : ?>
@@ -58,5 +58,11 @@
 		</td>
 	</tr>
 	<?php endif; ?>
+	
+	<tr>
+		<td colspan="2">
+			<input name="save" type="submit" id="publish" class="button-primary" value="Update Project" />
+		</td>
+	</tr>
 	
 </table>
