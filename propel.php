@@ -85,12 +85,12 @@ class Propel {
 	*/
 	public static function admin_init () {
 		wp_enqueue_script('jquery-datatables', 
-			WP_PLUGIN_URL . '/propel/js/jquery.dataTables.min.js', array('jquery', 'jquery-ui-core') );
+			plugins_url( '/propel/js/jquery.dataTables.min.js' ), array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('propel-functions', 
-			WP_PLUGIN_URL . '/propel/js/functions.js', array( 'jquery-datatables' ) );
-		wp_register_style("propel-admin-jquery-ui", WP_PLUGIN_URL . '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css');
+			plugins_url( '/propel/js/functions.js' ), array( 'jquery-datatables' ) );
+		wp_register_style("propel-admin-jquery-ui", plugins_url( '/propel/themes/smoothness/jquery-ui-1.8.6.custom.css' ) );
 		wp_enqueue_style('propel-admin-jquery-ui');
-		wp_register_style("propel-admin-general-ui", WP_PLUGIN_URL . '/propel/style.css');
+		wp_register_style("propel-admin-general-ui", plugins_url( '/propel/style.css' ) );
 	}
 	
     /**
@@ -108,14 +108,14 @@ class Propel {
 		
 		wp_enqueue_script('jquery-ui-tabs');
 		wp_enqueue_script('jquery-ui-datepicker', 
-			WP_PLUGIN_URL . '/propel/js/jquery.ui.datepicker.min.js', array('jquery', 'jquery-ui-core') );
+			plugins_url( '/propel/js/jquery.ui.datepicker.min.js' ), array('jquery', 'jquery-ui-core') );
 		wp_enqueue_script('jquery-ui-progressbar', 
-			WP_PLUGIN_URL . '/propel/js/jquery.ui.progressbar.min.js', array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
+			plugins_url( '/propel/js/jquery.ui.progressbar.min.js' ), array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
 
 		$options = get_option( 'propel_options' );
 		wp_register_style("propel-jquery-ui", $options['theme'] );
-		wp_register_style("genesis-ui", WP_PLUGIN_URL . '/propel/gen/ui.css');
-		wp_register_style("propel-ui", WP_PLUGIN_URL . '/propel/style.css');
+		wp_register_style("genesis-ui", plugins_url( '/propel/gen/ui.css' ) );
+		wp_register_style("propel-ui", plugins_url( '/propel/style.css' ) );
 
 		wp_enqueue_style('genesis-ui');
 		wp_enqueue_style('propel-jquery-ui');

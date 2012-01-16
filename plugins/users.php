@@ -161,8 +161,10 @@ class Propel_Authors {
 
 		global $user_ID;
 		$user = get_userdata( $user_ID );
-		$query->set( 'taxonomy', 'author' );
-		$query->set( 'term', $user->user_login );
+		if( $user ) {
+			$query->set( 'taxonomy', 'author' );
+			$query->set( 'term', $user->user_login );
+		}
 		return $query;
 	 }
 
