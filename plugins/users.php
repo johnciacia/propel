@@ -270,7 +270,7 @@ class Propel_Authors {
 		}
 
 		if( $notify ) {
-			self::notify_coauthors($notify);
+			self::notify_coauthors( $notify, $post_id );
 		}
 	}
 
@@ -306,10 +306,9 @@ class Propel_Authors {
 	//- assigned to a task
 	//- unassigned a task
 	//- task was updated (exclude users from the aforementioned two)
-	//- comment made
-	public static function notify_coauthors( $to ) {
-		global $post;
+	public static function notify_coauthors( $to, $post_id ) {
 
+		$post = get_post( $post_id );
 		$parent = get_post( $post->post_parent );
 		$subject = "ASSIGNMENT ($parent->post_title): $post->post_title";
 		foreach( $to as $login ) {
