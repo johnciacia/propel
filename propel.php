@@ -166,7 +166,7 @@ class Propel_Options {
 		register_setting( 'propel_options', 'propel_options', array( __CLASS__, 'options_validate' ) );
 		add_settings_section( 'propel_main', 'Main Settings', array( __CLASS__, 'plugin_section_text' ), 'propel' );
 		add_settings_section( 'propel_deprecated', 'Deprecated Settings', array( __CLASS__, 'plugin_section_deprecated' ), 'propel' );
-		// add_settings_field( 'propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
+		add_settings_field( 'propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
 		add_settings_field( 'propel_ui_options', 'UI Options', array( __CLASS__, 'propel_ui_options' ), 'propel', 'propel_main' );
 		add_settings_field( 'propel_deprecated_options', 'Custom Theme Directory', array( __CLASS__, 'propel_deprecated_options' ), 'propel', 'propel_deprecated' );
 	}
@@ -212,6 +212,9 @@ class Propel_Options {
 	}
 
 	public static function options_validate( $input ) {
+		if( $input['user_restrictions'] == 1 ) {
+			do_action( 'user_restrictions_enabled' );
+		}
 		return $input;
 	}
 

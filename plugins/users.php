@@ -4,16 +4,24 @@
  * A large portion of this code has been borrowed from the Co-Authors Plus plugin
  * (http://wordpress.org/extend/plugins/co-authors-plus/)
  *
- * @todo: add option to enable / disable pre_get_posts. after the initial import every author should
- * be added as a coauthor. this will allow for this plugin to be enabled and disabled seamlessly.
+ * @todo: add option to enable / disable pre_get_posts
  * @todo: move list-authors.php into this file
  * @todo: when a user is deleted projects are not reassigned appropratly 
  * @todo: make distinction between task owner and contributors more clear
  * @todo: add tool to bulk add / remove contributors
- * @todo: create an import tool. all authors should be added as contributors. 
- * should this happen each time the plugin is enabled?
  */
 Propel_Authors::initialize();
+
+/**
+ * When the plugin is activated. Add all post authors to the
+ * author taxonomy.
+ * @todo: This needs testing. Make sure this gets called not only when the plugin is activated but when the plugin is updated
+ */
+register_activation_hook( __FILE__, 'propel_authors_install' );
+function propel_authors_install () {
+	Propel_Authors::user_restrictions_enabled();
+}
+
 
 class Propel_Authors {
 
@@ -38,6 +46,46 @@ class Propel_Authors {
 		add_filter( 'views_edit-propel_project', array( __CLASS__, 'views_edit_post' ) );
 		add_action( 'post_wp_ajax_add_task', array( __CLASS__, 'post_wp_ajax_add_task' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+		add_action( 'user_restrictions_enabled', array( __CLASS__, 'user_restrictions_enabled' ) );
+	}
+
+	/**
+	 * When user restrictions are enabled, add each task author
+	 * to the author taxonomy for each task, and add each project
+	 * author to the author taxonomy for each project and each 
+	 * task associated with the project
+	 * @todo: This needs testing
+	 */
+	public static function user_restrictions_enabled() {
+		global $wpdb;
+
+		//get_posts cannot be used since the pre_get_posts filter is called
+		$tasks_querystr = "
+			SELECT $wpdb->posts.ID, $wpdb->posts.post_author, $wpdb->posts.post_title
+			FROM $wpdb->posts
+			WHERE $wpdb->posts.post_type = 'propel_task'";
+ 		$tasks = $wpdb->get_results( $tasks_querystr, OBJECT );
+		foreach( $tasks as $task ) {
+			self::add_coauthors( $task->ID, $task->post_author, true );
+		}
+
+		$projects_querystr = "
+			SELECT $wpdb->posts.ID, $wpdb->posts.post_author
+			FROM $wpdb->posts
+			WHERE $wpdb->posts.post_type = 'propel_project'";
+ 		$projects = $wpdb->get_results( $projects_querystr, OBJECT );
+		foreach( $projects as $project ) {
+			self::add_coauthors( $project->ID, $project->post_author, true );
+			$tasks_querystr = "
+				SELECT $wpdb->posts.ID, $wpdb->posts.post_author, $wpdb->posts.post_title
+				FROM $wpdb->posts
+				WHERE $wpdb->posts.post_type = 'propel_task'
+				AND $wpdb->posts.post_parent = '$project->ID'";
+	 		$tasks = $wpdb->get_results( $tasks_querystr, OBJECT );
+	 		foreach( $tasks as $task ) {
+	 			self::add_coauthors( $task->ID, $project->post_author );
+	 		}
+		}
 	}
 
 	public static function admin_menu() {
