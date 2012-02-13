@@ -1,11 +1,12 @@
 <table width="100%">
-
+	<?php
+	$projects = get_posts( 'post_type=propel_project&post_status=publish' );
+	if( count( $projects ) > 0 ) :
+	?>
 	<tr>
 		<td>Project</td>
 		<td>
 		<?php
-
-		$projects = get_posts('post_type=propel_project&post_status=publish');
 		echo "<select name='parent_id' id='parent_id'>";
 		foreach($projects as $project) :
 			if($project->ID == $parent) {
@@ -18,11 +19,10 @@
 				echo '</option>';				
 			}
 		endforeach;
-
 		?>
 		</td>
 	</tr>
-
+	<?php endif; ?>
 	<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 	<tr>
 		<td><p>Start Date</p></td>
