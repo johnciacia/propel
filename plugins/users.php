@@ -2,7 +2,6 @@
 /**
  * @todo: move list-authors.php into this file
  * @todo: when a user is deleted projects are not reassigned appropratly 
- * @todo: make distinction between task owner and contributors more clear
  * @todo: when user restrictions are enabled All Tasks shows up under the
  * Propel menu even if there are no projects that user has access to
  *
@@ -18,7 +17,7 @@ Propel_Authors::initialize();
  * and tasks. Instead of using the default author field
  * which only allows a single author, a new `author` taxonomy
  * is created and each author is term whose value is the 
- * authors user login name
+ * authors user login name 
  *
  * Authors assigned to a project will automatically be 
  * assigned to all child posts
@@ -53,7 +52,7 @@ class Propel_Authors {
 
 		add_action( 'comment_post', array( __CLASS__, 'comment_post' ) );
 		add_action( 'delete_user',  array( __CLASS__, 'delete_user' ) );
-		add_filter( 'wp_insert_post_data', array( __CLASS__, 'wp_insert_post_data' ) );
+		add_filter( 'wp_insert_post_data', array( __CLASS__, 'wp_insert_post_data' ), 10, 2 );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ), 10, 2 );
 		add_action( 'post_wp_ajax_add_task', array( __CLASS__, 'post_wp_ajax_add_task' ) );
 		add_action( 'init', array( __CLASS__, 'init' ) );
@@ -66,7 +65,7 @@ class Propel_Authors {
 	}
 
 	/**
-	 * Remove "Add New" button from edit.php on the propel_tasks
+	 * Remove "Add New" button from edit.php for the propel_tasks
 	 * post type if the user does not have access to any projects
 	 */
 	public static function admin_print_styles() {
@@ -80,7 +79,6 @@ class Propel_Authors {
 			}
 		}
 	}
-
 
 	/**
 	 *
@@ -107,9 +105,9 @@ class Propel_Authors {
 		// do this if the user restrictions option is toggled
 		if( (bool)$update_contributors xor (bool)$input['user_restrictions'] ) {
 			// only update the terms if user_restrictions is enabled
-			if( (bool)$input['user_restrictions'] )
+			if( (bool)$input['user_restrictions'] ) {
 				self::user_restrictions_enabled();
-
+			}
 			update_option( 'update_contributors', !(bool)$update_contributors );	
 		}
 	}
@@ -124,7 +122,7 @@ class Propel_Authors {
 		// when this plugin is first installed, enable options by default
 		// and add each post author to the author taxonomy
 		if( $propel_authors_version != self::PROPEL_AUTHORS_VERSION ) {
-			if( $propel_authors_version == 1.0 ) {
+			if( 1.0 == $propel_authors_version ) {
 				// next time this plugin gets a update bump the PROPEL_AUTHORS_VERSION
 				// value and any code in this block will be ran
 			} else {
@@ -359,7 +357,7 @@ class Propel_Authors {
 	/**
 	 *
 	 */
-	public static function wp_insert_post_data( $data ) {
+	public static function wp_insert_post_data( $data, $post ) {
 
 		// bail on autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && !DOING_AUTOSAVE )
@@ -372,17 +370,14 @@ class Propel_Authors {
 		if( isset( $_REQUEST['coauthors-nonce'] ) && is_array( $_POST['coauthors'] ) ) {
 			$author = $_POST['coauthors'][0];
 			if( $author ) {
-				$author_data = get_user_by( 'login', $author );
-				$data['post_author'] = $author_data->ID;
+				$data['post_author'] = $post['propel_post_author'];
 			}
 		} else {
 			// if for some reason we don't have the coauthors fields set
 			if( ! isset( $data['post_author'] ) ) {
-				$user = wp_get_current_user();
-				$data['post_author'] = $user->ID;
+				$data['post_author'] = $post['propel_post_author'];
 			}
 		}
-
 		return $data;
 	}
 
@@ -427,6 +422,8 @@ class Propel_Authors {
 				foreach( $project_managers as $project_manager ) {
 					$coauthors[] = $project_manager->user_login;
 				}
+				$author = get_userdata($post->post_author);
+				$coauthors[] = $author->user_login;
 				$coauthors = array_unique( $coauthors );
 			}
 
