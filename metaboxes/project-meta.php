@@ -46,15 +46,17 @@
 	<tr>
 		<td class="first-column">Client</td>
 		<td class="second-column">
-			<select name="owner">
-			<?php foreach($users as $user) : ?>
-				<?php if($user->ID == $owner) : ?>
-					<option value="<?php echo $user->ID; ?>" selected><?php echo $user->display_name; ?></option>
-				<?php else : ?>
-					<option value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
-				<?php endif; ?>
-			<?php endforeach; ?>
-			</select>
+
+			<?php
+			foreach($users as $user) :
+				if($user->ID == $owner) :
+					$assigned_to_client = $user->ID;
+				endif;
+			endforeach;
+			?>
+			
+			<?php wp_dropdown_users( array( 'orderby' => 'display_name', 'order' => 'ASC', 'show' => 'display_name', 'name' => 'owner', 'selected' => $assigned_to_client ) ); ?>
+
 		</td>
 	</tr>
 	<?php endif; ?>

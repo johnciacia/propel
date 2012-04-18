@@ -4,10 +4,14 @@
  * A large portion of this code has been borrowed from the Co-Authors Plus plugin
  * (http://wordpress.org/extend/plugins/co-authors-plus/)
  *
- * @todo: add option to enable / disable pre_get_posts
+ * @todo: add option to enable / disable pre_get_posts. after the initial import every author should
+ * be added as a coauthor. this will allow for this plugin to be enabled and disabled seamlessly.
  * @todo: move list-authors.php into this file
- * @todo: when a coauthor is added to a project, make that coauthor of all tasks in that project
- * @todo: when a coauthor is removed from a project, remove that coauthor from all the tasks in the project
+ * @todo: when a user is deleted projects are not reassigned appropratly 
+ * @todo: make distinction between task owner and contributors more clear
+ * @todo: add tool to bulk add / remove contributors
+ * @todo: create an import tool. all authors should be added as contributors. 
+ * should this happen each time the plugin is enabled?
  */
 Propel_Authors::initialize();
 
@@ -20,7 +24,7 @@ class Propel_Authors {
 	 */
 	public static function initialize() {
 		add_filter( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
-		add_action( 'delete_user',  array( __CLASS__, 'delete_user_action' ) );
+		add_action( 'delete_user',  array( __CLASS__, 'delete_user' ) );
 		add_filter( 'wp_insert_post_data', array( __CLASS__, 'wp_insert_post_data' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ), 10, 2 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
@@ -44,7 +48,15 @@ class Propel_Authors {
 	public static function post_wp_ajax_add_task( $post_id ) {
 		$post = get_post( $post_id );
 		$user = get_userdata( $post->post_author );
-		self::add_coauthors( $post_id, array( $user->user_login) );
+		$coauthors = array( $user->user_login );
+
+		$project_managers = self::get_coauthors( $post->post_parent );
+		foreach( $project_managers as $project_manager ) {
+			$coauthors[] = $project_manager->user_login;
+		}
+		$coauthors = array_unique( $coauthors );
+
+		self::add_coauthors( $post_id, $coauthors );
 	}
 
 	public static function comment_post( $comment_ID ) {
@@ -62,7 +74,6 @@ class Propel_Authors {
 				wp_mail($user->user_email, $subject, $message);
 			}
 		}
-		
 	}
 
 	public static function register_columns( $columns ) {
@@ -150,8 +161,10 @@ class Propel_Authors {
 
 		global $user_ID;
 		$user = get_userdata( $user_ID );
-		$query->set( 'taxonomy', 'author' );
-		$query->set( 'term', $user->user_login );
+		if( $user ) {
+			$query->set( 'taxonomy', 'author' );
+			$query->set( 'term', $user->user_login );
+		}
 		return $query;
 	 }
 
@@ -194,7 +207,6 @@ class Propel_Authors {
 			return;
 
 		$post_type = $post->post_type;
-
 		if( isset( $_POST['coauthors-nonce'] ) && isset( $_POST['coauthors'] ) ) {
 			check_admin_referer( 'coauthors-edit', 'coauthors-nonce' );
 			$coauthors = (array) $_POST['coauthors'];
@@ -203,7 +215,10 @@ class Propel_Authors {
 			//if a contributor is added/removed from a project, add/remove to/from 
 			//ALL THE TASKS associated with that project
 			if( 'propel_project' == $typenow ) {
-				
+				$posts = get_posts( array( 'post_type' => 'propel_task', 'post_parent' => $post_id ) );
+				foreach( $posts as $post ) {
+					self::add_coauthors( $post->ID, $coauthors );
+				}
 			}
 
 			//add project contributors to new tasks
@@ -220,10 +235,12 @@ class Propel_Authors {
 	}
 
 	/**
-	 *
+	 * $post_id int 
 	 * $coauthors array 
+	 * $append bool
+	 * $notify bool
 	 */
-	public static function add_coauthors( $post_id, $coauthors, $append = false ) {
+	public static function add_coauthors( $post_id, $coauthors, $append = false, $notify = true ) {
 		global $current_user, $post;
 
 		$notify = array();
@@ -243,7 +260,7 @@ class Propel_Authors {
 				$insert = wp_insert_term( $name, self::COAUTHOR_TAXONOMY, $args );
 			}
 
-			if( !has_term( $name, self::COAUTHOR_TAXONOMY, $post->ID ) ){
+			if( !has_term( $name, self::COAUTHOR_TAXONOMY, $post_id ) ){
 				$notify[] = $name;
 			}
 		}
@@ -251,31 +268,37 @@ class Propel_Authors {
 		if( !is_wp_error( $insert ) ) {
 			$set = wp_set_post_terms( $post_id, $coauthors, self::COAUTHOR_TAXONOMY, $append );
 		}
-		self::notify_coauthors($notify);
+
+		if( $notify ) {
+			self::notify_coauthors( $notify, $post_id );
+		}
 	}
 
-
+	/**
+	 * When a user is deleted, remove the term information and reassign
+	 * if requested.
+	 */
 	public static function delete_user( $delete_id ) {
 		global $wpdb;
 
 		$reassign_id = absint( $_POST['reassign_user'] );
 
 		if($reassign_id) {
-			$reassign_user = get_profile_by_id( 'user_login', $reassign_id );
+			$reassign_user = get_user_by( 'id', $reassign_id );
 			if( $reassign_user ) {
 				$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_author = %d", $delete_id ) );
 
 				if ( $post_ids ) {
 					foreach ( $post_ids as $post_id ) {
-						self::add_coauthors( $post_id, array( $reassign_user ), true );
+						self::add_coauthors( $post_id, array( $reassign_user->user_login ), true, false );
 					}
 				}
 			}
 		}
 
-		$delete_user = get_profile_by_id( 'user_login', $delete_id );
+		$delete_user = get_user_by( 'id', $delete_id );
 		if( $delete_user ) {
-			wp_delete_term( $delete_user, self::COAUTHOR_TAXONOMY );
+			wp_delete_term( $delete_user->user_login, self::COAUTHOR_TAXONOMY );
 		}
 	}
 
@@ -283,19 +306,20 @@ class Propel_Authors {
 	//- assigned to a task
 	//- unassigned a task
 	//- task was updated (exclude users from the aforementioned two)
-	//- comment made
-	public static function notify_coauthors( $to ) {
-		global $post;
+	public static function notify_coauthors( $to, $post_id ) {
 
+		$post = get_post( $post_id );
+		$permalink = get_permalink( $post_id );
 		$parent = get_post( $post->post_parent );
-		$subject = "ASSIGNMENT ($parent->post_title): $post->post_title";
+		$subject = "New Task Assigned: $post->post_title ($parent->post_title)";
 		foreach( $to as $login ) {
 			$user = get_user_by( 'login', $login );
-			$message = "Hello $user->user_nicename,\n\n";
-			$message .= "The task '$post->post_title' is now assigned to you.\n";
-			$message .= "$post->guid";
+			$message .= "<p>The task <a href='$permalink'>'$post->post_title'</a> is now assigned to you on the project $parent->post_title.\n</p>";
+			$message .= "<p>Description: '$post->post_title'</p>";
+			add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
 			wp_mail($user->user_email, $subject, $message);
 		}
+		
 	}
 
 

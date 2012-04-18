@@ -23,7 +23,7 @@ function propel_projects_shortcode ($atts) {
 		<ul>
 		<?php 
 		foreach( $projects as $project ) {
-			echo '<li><a href="#project-' . $project->ID . '"><span>' . $project->post_title . '</span></a></li>';
+			echo '<li><a href="#project-' . $project->ID . '" title="' . esc_attr($project->post_content) . '"><span>' . $project->post_title . '</span></a></li>';
 		}
 		?>
 		</ul>
