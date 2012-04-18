@@ -27,8 +27,14 @@ class Post_Type_Task {
 		add_action( 'quick_edit_custom_box',  array( __CLASS__, 'quick_edit_custom_box' ), 10, 2 );
 		add_filter( 'post_row_actions', array( __CLASS__, 'post_row_actions' ), 10, 2 );
 		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
+		add_filter( 'wp_insert_post_data', array( __CLASS__, 'wp_insert_post_data' ), 10, 2 );
 	}
- 
+
+	public static function wp_insert_post_data( $data, $postarr ) {
+		$data['post_author'] = $postarr['propel_post_author'];
+		return $data;
+	}
+
 	public static function admin_footer() {
 		global $current_screen;
 

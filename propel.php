@@ -60,8 +60,7 @@ class Propel {
 		require_once( dirname(__FILE__) . '/deprecated.php' );
 		if( Propel_Options::get_option('time_tracking') ) 
 			require_once( dirname(__FILE__) . '/post-types/time.php' );
-		if( Propel_Options::get_option('user_restrictions') ) 
-			require_once( dirname(__FILE__) . '/plugins/users.php' );
+		require_once( dirname(__FILE__) . '/plugins/users.php' );
 	}
 		
 	/**
@@ -126,20 +125,37 @@ class Propel {
 }
 
 class Propel_Options {
-	
-	public static function get_option($option) {
-		$options = get_option('propel_options');
+
+	/**
+	 * Initialize Propel_Options
+	 */
+	public static function initialize() {
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * @param $option Option name
+	 * @return The option if the option exists false otherwise
+	 */
+	public static function get_option( $option ) {
+		$options = get_option( 'propel_options' );
 
 		if( isset( $options[$option] ) ) 
 			return $options[$option];
 
-		return 0;
+		return false;
 	}
 
-	public static function initialize() {
-		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
-		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
-
+	/**
+	 * @param $option Option to update
+	 * @param $value New value for the specified option
+	 * @return bool True if option value has changed, false if not or if update failed.
+	 */
+	public static function update_option( $option, $value ) {
+		$options = get_option( 'propel_options' );
+		$options[$option] = $value;
+		return update_option( 'propel_options', $options );
 	}
 
 	public static function admin_menu() {
@@ -165,9 +181,16 @@ class Propel_Options {
 		register_setting( 'propel_options', 'propel_options', array( __CLASS__, 'options_validate' ) );
 		add_settings_section( 'propel_main', 'Main Settings', array( __CLASS__, 'plugin_section_text' ), 'propel' );
 		add_settings_section( 'propel_deprecated', 'Deprecated Settings', array( __CLASS__, 'plugin_section_deprecated' ), 'propel' );
+		add_settings_field( 'propel_settings', 'Settings', array( __CLASS__, 'propel_settings' ), 'propel', 'propel_main' );
 		// add_settings_field( 'propel_beta_options', 'Beta Options', array( __CLASS__, 'propel_beta_options' ), 'propel', 'propel_main' );
 		add_settings_field( 'propel_ui_options', 'UI Options', array( __CLASS__, 'propel_ui_options' ), 'propel', 'propel_main' );
 		add_settings_field( 'propel_deprecated_options', 'Custom Theme Directory', array( __CLASS__, 'propel_deprecated_options' ), 'propel', 'propel_deprecated' );
+	}
+
+	public static function propel_settings() {
+		$options = get_option( 'propel_options' );
+		do_action( 'propel_settings', $options );
+		echo "<br /><br />";
 	}
 
 	public static function plugin_section_text() {
@@ -180,16 +203,16 @@ class Propel_Options {
 
 	public static function propel_beta_options() {
 		$options = get_option( 'propel_options' );
-
 		echo '<input name="propel_options[dnd]" id="propel_dnd" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['dnd']), false ) . ' /> Enable Drag and Drop Ordering';
 		echo '<br />';
-		echo '<input name="propel_options[user_restrictions]" id="propel_user_restrictions" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['user_restrictions']), false ) . ' /> Enable User Restrictions';
-		echo '<br />';
 		echo '<input name="propel_options[time_tracking]" id="propel_time_tracking" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['time_tracking']), false ) . ' /> Enable Time Tracking';
+
+		do_action( 'propel_beta_options', $options );
 	}
 
 	public static function propel_ui_options() {
 		$options = get_option( 'propel_options' );
+
 
 		echo '<input name="propel_options[show_start_date]" id="show_start_date" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_start_date']), false ) . ' /> Show Start Date';
 		echo '<br />';
@@ -201,6 +224,7 @@ class Propel_Options {
 		echo '<br />';
 		echo '<input name="propel_options[show_progress]" id="show_progress" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_progress']), false ) . ' /> Show Project Progress';
 		echo '<br />';
+		do_action( 'propel_ui_options', $options );
 		echo '<br /><br />';
 	}
 
@@ -211,6 +235,7 @@ class Propel_Options {
 	}
 
 	public static function options_validate( $input ) {
+		do_action( 'propel_options_validate', $input );
 		return $input;
 	}
 
