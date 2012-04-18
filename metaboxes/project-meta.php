@@ -53,9 +53,8 @@
 					$assigned_to_client = $user->ID;
 				endif;
 			endforeach;
-			?>
 			
-			<?php wp_dropdown_users( array( 'orderby' => 'display_name', 'order' => 'ASC', 'show' => 'display_name', 'name' => 'owner', 'selected' => $assigned_to_client ) ); ?>
+			wp_dropdown_users( array( 'orderby' => 'display_name', 'order' => 'ASC', 'show' => 'display_name', 'name' => 'owner', 'selected' => $assigned_to_client ) ); ?>
 
 		</td>
 	</tr>
