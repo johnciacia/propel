@@ -227,8 +227,8 @@ class Propel_Authors {
 			$post = get_post( $comment->comment_post_ID );
 			$parent = get_post( $post->post_parent );
 			if( $post->post_type == "propel_task" ) {
-				$subject = "NEW COMMENT ($parent->post_title): $post->post_title";
-				$message = "Hello,\n\n";
+				$subject = "New Comment ($parent->post_title): $post->post_title";
+				$message = "\n\n";
 				$message .= "$comment->comment_author commented on the task '$post->post_title':\n";
 				$message .= "$comment->comment_content\n";
 				$coauthors = wp_get_post_terms( $post->ID, self::COAUTHOR_TAXONOMY );
@@ -504,18 +504,20 @@ class Propel_Authors {
 	//- unassigned a task
 	//- task was updated (exclude users from the aforementioned two)
 	public static function notify_coauthors( $to, $post_id ) {
+
 		if( Propel_Options::get_option('email_notifications') ) { 
 			$post = get_post( $post_id );
 			$parent = get_post( $post->post_parent );
-			$subject = "ASSIGNMENT ($parent->post_title): $post->post_title";
+			$subject = "New Task Assigned ($parent->post_title): $post->post_title";
 			foreach( $to as $login ) {
 				$user = get_user_by( 'login', $login );
-				$message = "Hello $user->user_nicename,\n\n";
-				$message .= "The task '$post->post_title' is now assigned to you.\n";
-				$message .= "$post->guid";
+				$message .= "<p>The task <a href='$post->guid''>'$post->post_title'</a> is now assigned to you on the project $parent->post_title.\n</p>";
+				$message .= "<p>Description: '$post->post_title'</p>";
+				add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
 				wp_mail($user->user_email, $subject, $message);
 			}
 		}
+		
 	}
 
 	/**
