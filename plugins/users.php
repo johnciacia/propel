@@ -220,7 +220,6 @@ class Propel_Authors {
 	 * @param $comment_ID
 	 * @todo: do emails get sent for projects?
 	 * 	@todo: I believe they should. If a project's status, title, description or other data is updated the contributors should be notified.
-	 * @todo: Ensure email notifications for comments the receiver posted are NOT delivered.
 	 */
 	public static function comment_post( $comment_ID ) {
 		if( Propel_Options::get_option('email_notifications') ) {
@@ -229,8 +228,10 @@ class Propel_Authors {
 			$post = get_post( $comment->comment_post_ID );
 			$parent = get_post( $post->post_parent );
 			
+			$domain_name = $_SERVER['SERVER_NAME'];
+
 			if( $post->post_type == "propel_task" ) {
-				$headers = "From: $comment->comment_author <donotreply@wordpress.org>" . "\r\n";
+				$headers = "From: $comment->comment_author <donotreply@$domain_name>" . "\r\n";
 				$subject = "New Comment ($parent->post_title): $post->post_title";
 				$message = "\n\n";
 				$message .= "<p style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'><b>$comment->comment_author said:</b> &#34;$comment->comment_content&#34;</p>";
@@ -519,22 +520,32 @@ class Propel_Authors {
 		}
 	}
 
-	//email when
-	//- assigned to a task
-	//- unassigned a task
-	//- task was updated (exclude users from the aforementioned two)
+	/**
+	* @completed email when assigned to a task
+	* @todo email when unassigned a task
+	* @todo email when task was updated (exclude users from the aforementioned two)
+	* @todo email when the task status is modified (if it's completed say that in the message, if it's pending review, etc...)
+	*/
 	public static function notify_coauthors( $to, $post_id ) {
 
 		if( Propel_Options::get_option('email_notifications') ) { 
 			$post = get_post( $post_id );
 			$parent = get_post( $post->post_parent );
+			$headers = "From: $current_user->ID <donotreply@wordpress.org>" . "\r\n";
 			$subject = "New Task Assigned ($parent->post_title): $post->post_title";
+			
 			foreach( $to as $login ) {
 				$user = get_user_by( 'login', $login );
-				$message .= "<p>The task <a href='$post->guid''>'$post->post_title'</a> is now assigned to you on the project $parent->post_title.\n</p>";
-				$message .= "<p>Description: '$post->post_title'</p>";
+				$message .= "
+					<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+						<h3>The task following task has been assigned to you on the &#34;$parent->post_title&#34; project:</h3>
+						<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
+						<p><b>Details:</b> &#34;$post->post_title&#34;</p>
+					</div>
+				";
+				
 				add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
-				wp_mail($user->user_email, $subject, $message);
+				wp_mail($user->user_email, $subject, $message, $headers);
 			}
 		}
 		

@@ -79,7 +79,7 @@
 	</tr>
 
 	<tr>
-		<td><p>Owner</p></td>
+		<td><p>Manager</p></td>
 		<td>
 			<?php 
 			$args = array(
