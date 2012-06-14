@@ -1,6 +1,5 @@
-<?php 
-$users = get_users( array( 'orderby' => 'display_name', 'order' => 'ASC' ) );
-?>
+<?php $users = get_users( array( 'orderby' => 'display_name', 'order' => 'ASC' ) ); ?>
+
 <div id="propel_list_users" class="categorydiv">
 	<ul id="propel_list_users-tabs" class="category-tabs">
 		<li class="tabs">
@@ -31,6 +30,7 @@ $users = get_users( array( 'orderby' => 'display_name', 'order' => 'ASC' ) );
 		</ul>
 	</div>
 </div>
+
 <?php
 wp_nonce_field( 'coauthors-edit', 'coauthors-nonce' );
 function propel_is_coauthor( $user_id ) {

@@ -391,6 +391,9 @@ class Propel_Authors {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
 
+		if ( wp_is_post_revision( $post_id ) )
+				return;
+
 		if ( !current_user_can( 'edit_post', $post_id ) )
 			return;
 
@@ -410,9 +413,17 @@ class Propel_Authors {
 			// if a contributor is added/removed from a project, add/remove to/from 
 			// ALL THE TASKS associated with that project
 			if( 'propel_project' == $typenow ) {
+				$project_managers = self::get_coauthors( $post_id );
+				$p = array();
+				foreach( $project_managers as $pm) {
+					$p[] = $pm->data->user_login;
+				}
+
+				$p = array_diff( $p, $coauthors );
 				$posts = get_posts( array( 'post_type' => 'propel_task', 'post_parent' => $post_id ) );
+
 				foreach( $posts as $post ) {
-					self::add_coauthors( $post->ID, $coauthors );
+					self::add_coauthors( $post->ID, $p );
 				}
 			}
 
