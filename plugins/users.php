@@ -203,6 +203,9 @@ class Propel_Authors {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
 
+		if ( wp_is_post_revision( $post_id ) )
+				return;
+
 		if ( !current_user_can( 'edit_post', $post_id ) )
 			return;
 
@@ -230,6 +233,7 @@ class Propel_Authors {
 				$coauthors = array_unique( $coauthors );
 			}
 
+			error_log("FOO\n", 3, '/tmp/error_log');
 			return self::add_coauthors( $post_id, $coauthors );
 		}
 	}
