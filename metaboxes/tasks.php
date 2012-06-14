@@ -40,8 +40,8 @@
 		$x = ($progress == 100) ? "" : "un";
 		$nonce = wp_create_nonce('propel-trash');
 		?>
-		<tr class="toggle" id="<?php esc_attr_e( $task->ID ); ?>">
-			<td data-value="<?php esc_attr_e($task->post_title); ?>">
+		<tr id="<?php esc_attr_e( $task->ID ); ?>">
+			<td class="toggle" data-value="<?php esc_attr_e($task->post_title); ?>">
 				<p><?php esc_html_e($task->post_title); ?></p></td>
 
 			<td data-value="<?php esc_attr_e( $priority ); ?>">
