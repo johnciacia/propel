@@ -23,10 +23,12 @@
 		$progress = get_post_meta( $task->ID, '_propel_complete', true );
 		$priority = get_post_meta( $task->ID, '_propel_priority', true );
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
+		
 		if( $start )
 			$start = date( get_option( 'date_format' ), $start );
 
 		$end = get_post_meta( $task->ID, '_propel_end_date', true );
+		
 		if( $end )
 			$end = date( get_option( 'date_format' ), $end);
 
@@ -40,8 +42,8 @@
 		$x = ($progress == 100) ? "" : "un";
 		$nonce = wp_create_nonce('propel-trash');
 		?>
-		<tr class="toggle" id="<?php esc_attr_e( $task->ID ); ?>">
-			<td data-value="<?php esc_attr_e($task->post_title); ?>">
+		<tr id="<?php esc_attr_e( $task->ID ); ?>">
+			<td class="toggle" data-value="<?php esc_attr_e($task->post_title); ?>">
 				<p><?php esc_html_e($task->post_title); ?></p></td>
 
 			<td data-value="<?php esc_attr_e( $priority ); ?>">
@@ -51,11 +53,13 @@
 					?></p></td>
 
 			<td data-value="<?php esc_attr_e( $author ); ?>">
-				<p><?php esc_html_e($author); ?></p></td>
+				<p><?php esc_html_e($author); ?></p>
+			</td>
 
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 			<td data-value="<?php esc_attr_e( $start ); ?>">
-				<p><?php esc_html_e($start); ?></p></td>
+				<p><?php esc_html_e($start); ?></p>
+			</td>
 			<?php endif; ?>
 
 			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
