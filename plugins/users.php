@@ -219,13 +219,16 @@ class Propel_Authors {
 	/**
 	 * @param $comment_ID
 	 * @todo: do emails get sent for projects?
+	 * 	@todo: I believe they should. If a project's status, title, description or other data is updated the contributors should be notified.
 	 * @todo: Ensure email notifications for comments the receiver posted are NOT delivered.
 	 */
 	public static function comment_post( $comment_ID ) {
-		if( Propel_Options::get_option('email_notifications') ) { 
+		if( Propel_Options::get_option('email_notifications') ) {
+		
 			$comment = get_comment( $comment_ID );
 			$post = get_post( $comment->comment_post_ID );
 			$parent = get_post( $post->post_parent );
+			
 			if( $post->post_type == "propel_task" ) {
 				$headers = "From: $comment->comment_author <donotreply@wordpress.org>" . "\r\n";
 				$subject = "New Comment ($parent->post_title): $post->post_title";
@@ -233,10 +236,14 @@ class Propel_Authors {
 				$message .= "<p style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'><b>$comment->comment_author said:</b> &#34;$comment->comment_content&#34;</p>";
 				$message .= "<p style='margin-left: 11px; margin-bottom: 17px; background: #F1831E; background: -moz-linear-gradient(bottom, #F16C00, #FFA84A); background: -webkit-gradient(linear, left bottom, left top, from(#F16C00), to(#FFA84A)); border: none; border-top: 1px solid #F06B00; border-radius: 10em; padding: 0 40px; height: 38px !important; line-height: 35px; display: inline-block; text-align: center; color: white; text-shadow: 0 -1px 0 #C17C3A; font-size: 18px !important; font-family: Helvetica Neue,sans-serif; font-weight: 400; -webkit-box-shadow: inset 0 1px 0 #FFB667; -moz-box-shadow: inset 0 1px 0 #ffb667; box-shadow: inset 0 1px 0 #FFB667; float: right;'><a style='color: #fff; text-decoration: none;' href='$post->guid#comment-$comment_ID'>Respond &#8658;</a></p>";
 				$coauthors = wp_get_post_terms( $post->ID, self::COAUTHOR_TAXONOMY );
+				
 				foreach($coauthors as $login) {
-						$user = get_user_by( 'login', $login->slug );
+					$user = get_user_by( 'login', $login->slug );
+					
+					if ( $comment->comment_author_email != $user->user_email ) {
 						add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
 						wp_mail($user->user_email, $subject, $message, $headers);
+					}
 				}
 			}
 		}
