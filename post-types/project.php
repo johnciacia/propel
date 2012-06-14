@@ -267,7 +267,42 @@ class Post_Type_Project {
 			case 'end':
 				$date = get_post_meta( $id, '_propel_end_date', true );
 				if($date) {
-					echo date( "M. jS, Y" , $date );
+				
+					echo date( get_option( 'date_format' ) , $date ); // Project's actual due date.
+					echo "<br />" . date( get_option( 'date_format' ) . " G:i" ); // Todays date.
+					
+					$day   = date('d'); // Day of the countdown
+					$month = date('m'); // Month of the countdown
+					$year  = date('Y'); // Year of the countdown
+					$hour  = date('H'); // Hour of the day (east coast time)
+					
+					$calculation = ( $date - time() ) / 3600;
+					$hours = (int)$calculation + 24;
+					$days  = (int)( $hours / 24 ) - 1;
+					
+					$hours_remaining = $hours-($days*24)-24;
+					
+					// Used for debugging.
+					// date_default_timezone_set('America/Los_Angeles');
+					// echo "<br />";
+					// print_r(date_default_timezone_get());
+					
+					if ( $hours >= 48 ) {
+						echo "<br /><span style='color: green;'>Due in " . $days . " days " . $hours_remaining . " hours.</span>";
+					} elseif ( $hours <= 48 && $hours >= 24 ) {
+						echo "<br /><span style='color: brown;'>Due tomorrow.</span>";
+					} elseif ( $hours <= 24 && $hours >= 0 ) {
+						echo "<br /><span style='color: orange;'>Due today.</span>";
+					} elseif ( $hours < 0 && $hours > -24 ) {
+						echo "<br /><span style='color: red;'>" . str_replace( '-', '', $hours) . " hours past due.</span>";
+					} elseif ( $hours < -24 ) {
+						echo "<br /><span style='color: red; font-weight: bold;'>" . str_replace( '-', '', $days) . " days past due.</span>";
+					}
+					
+					else {
+						echo "<br /><span>Recurring Project</span>";
+					}
+					
 				}
 				break;
 

@@ -1,25 +1,25 @@
 <table width="100%">
 	<?php
-	$projects = get_posts( 'post_type=propel_project&post_status=publish' );
+		$projects = get_posts( array( 'post_type' => 'propel_project', 'numberposts' => -1 ) );
 	if( count( $projects ) > 0 ) :
 	?>
 	<tr>
 		<td>Project</td>
 		<td>
-		<?php
-		echo "<select name='parent_id' id='parent_id'>";
-		foreach($projects as $project) :
-			if($project->ID == $parent) {
-				echo '<option value=' . $project->ID . ' selected>';
-				echo $project->post_title;
-				echo '</option>';
-			} else {
-				echo '<option value=' . $project->ID . '>';
-				echo $project->post_title;
-				echo '</option>';				
-			}
-		endforeach;
-		?>
+			<?php
+			echo "<select name='parent_id' id='parent_id'>";
+			foreach($projects as $project) :
+				if($project->ID == $parent) {
+					echo '<option value=' . $project->ID . ' selected>';
+					echo $project->post_title;
+					echo '</option>';
+				} else {
+					echo '<option value=' . $project->ID . '>';
+					echo $project->post_title;
+					echo '</option>';				
+				}
+			endforeach;
+			?>
 		</td>
 	</tr>
 	<?php endif; ?>
