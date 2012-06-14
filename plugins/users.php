@@ -233,7 +233,6 @@ class Propel_Authors {
 				$coauthors = array_unique( $coauthors );
 			}
 
-			error_log("FOO\n", 3, '/tmp/error_log');
 			return self::add_coauthors( $post_id, $coauthors );
 		}
 	}
