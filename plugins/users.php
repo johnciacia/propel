@@ -1,50 +1,207 @@
 <?php
 /**
- * This plugin will allow you to assign multiple authors to a project or task.
- * A large portion of this code has been borrowed from the Co-Authors Plus plugin
- * (http://wordpress.org/extend/plugins/co-authors-plus/)
- *
- * @todo: add option to enable / disable pre_get_posts. after the initial import every author should
- * be added as a coauthor. this will allow for this plugin to be enabled and disabled seamlessly.
  * @todo: move list-authors.php into this file
  * @todo: when a user is deleted projects are not reassigned appropratly 
- * @todo: make distinction between task owner and contributors more clear
+ * @todo: when user restrictions are enabled All Tasks shows up under the
+ * Propel menu even if there are no projects that user has access to
+ *
  * @todo: add tool to bulk add / remove contributors
- * @todo: create an import tool. all authors should be added as contributors. 
- * should this happen each time the plugin is enabled?
+ * @todo: add the ability to create teams
  */
-Propel_Authors::initialize();
 
+
+Propel_Authors::initialize();
+/**
+ * Propel_Authors replaces the built in WordPress author
+ * functionaliy by allowing multiple authors for projects 
+ * and tasks. Instead of using the default author field
+ * which only allows a single author, a new `author` taxonomy
+ * is created and each author is term whose value is the 
+ * authors user login name 
+ *
+ * Authors assigned to a project will automatically be 
+ * assigned to all child posts
+ *
+ * A large portion of this code has been borrowed from the 
+ * Co-Authors Plus plugin
+ * (http://wordpress.org/extend/plugins/co-authors-plus/)
+ */
 class Propel_Authors {
 
 	const COAUTHOR_TAXONOMY = 'author';
+	const PROPEL_AUTHORS_VERSION = 1.0;
 
 	/**
 	 *
 	 */
 	public static function initialize() {
-		add_filter( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
-		add_action( 'delete_user',  array( __CLASS__, 'delete_user' ) );
-		add_filter( 'wp_insert_post_data', array( __CLASS__, 'wp_insert_post_data' ) );
-		add_action( 'save_post', array( __CLASS__, 'save_post' ), 10, 2 );
-		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
-		add_action( 'init', array( __CLASS__, 'init' ) );
-		add_filter( 'manage_edit-propel_project_columns', array( __CLASS__, 'register_columns' ) );
-		add_filter( 'manage_edit-propel_task_columns', array( __CLASS__, 'register_columns' ) );
-		add_action( 'manage_propel_project_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
-		add_action( 'manage_propel_task_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
+		if( Propel_Options::get_option('user_restrictions') ) {
+			add_filter( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
+			add_filter( 'views_edit-propel_task', array( __CLASS__, 'views_edit_post' ) );
+			add_filter( 'views_edit-propel_project', array( __CLASS__, 'views_edit_post' ) );
+		}
+
+		if( Propel_Options::get_option('contributors') ) {
+			add_filter( 'manage_edit-propel_project_columns', array( __CLASS__, 'register_columns' ) );
+			add_filter( 'manage_edit-propel_task_columns', array( __CLASS__, 'register_columns' ) );
+			add_action( 'manage_propel_project_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
+			add_action( 'manage_propel_task_posts_custom_column', array( __CLASS__, 'manage_columns' ), 10, 2 );
+			add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+			add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
+		}
+
 		add_action( 'comment_post', array( __CLASS__, 'comment_post' ) );
-		add_filter( 'views_edit-propel_task', array( __CLASS__, 'views_edit_post' ) );
-		add_filter( 'views_edit-propel_project', array( __CLASS__, 'views_edit_post' ) );
+		add_action( 'delete_user',  array( __CLASS__, 'delete_user' ) );
+		add_filter( 'wp_insert_post_data', array( __CLASS__, 'wp_insert_post_data' ), 10, 2 );
+		add_action( 'save_post', array( __CLASS__, 'save_post' ), 10, 2 );
 		add_action( 'post_wp_ajax_add_task', array( __CLASS__, 'post_wp_ajax_add_task' ) );
-		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+		add_action( 'init', array( __CLASS__, 'init' ) );
+		add_action( 'user_restrictions_enabled', array( __CLASS__, 'user_restrictions_enabled' ) );
+		add_action( 'propel_settings', array( __CLASS__, 'propel_settings' ) );
+		add_action( 'propel_options_validate', array( __CLASS__, 'propel_options_validate' ) );
+		add_action( 'init', array( __CLASS__, 'install' ) );
+		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
+		add_action( 'admin_print_styles', array( __CLASS__, 'admin_print_styles' ) );
 	}
 
+	/**
+	 * Remove "Add New" button from edit.php for the propel_tasks
+	 * post type if the user does not have access to any projects
+	 */
+	public static function admin_print_styles() {
+		global $typenow;
+		if( $typenow == 'propel_task' ) {
+			$projects = get_posts( 'post_type=propel_project&post_status=publish' );
+			if( count( $projects ) == 0 ) {
+			?>
+				<style type="text/css">.add-new-h2 { display: none; }</style>
+			<?php
+			}
+		}
+	}
+
+	/**
+	 *
+	 */
+	public static function admin_init() {
+		global $pagenow, $typenow;
+		// if the user does not have access to any projects make sure
+		// they cant add a new task. What project would they add the task to?
+		if( $pagenow == 'post-new.php' && $typenow == 'propel_task' ) {
+			$projects = get_posts( 'post_type=propel_project&post_status=publish' );
+			if( count( $projects ) == 0 ) {
+				wp_redirect( $_SERVER['HTTP_REFERER'] );
+			}
+		}
+	}
+
+	/**
+	 * @todo: Need to test to make sure this is called only when the 
+	 * User Restrictions option is enabled
+	 */
+	public static function propel_options_validate( $input ) {
+		$update_contributors = get_option( 'update_contributors' );
+
+		// do this if the user restrictions option is toggled
+		if( (bool)$update_contributors xor (bool)$input['user_restrictions'] ) {
+			// only update the terms if user_restrictions is enabled
+			if( (bool)$input['user_restrictions'] ) {
+				self::user_restrictions_enabled();
+			}
+			update_option( 'update_contributors', !(bool)$update_contributors );	
+		}
+	}
+
+	/**
+	 * Set the default options
+	 * @todo: Make sure this is ran when the plugin is updated
+	 */
+	public static function install() {
+		$propel_authors_version = get_option( 'propel_authors_version' );
+
+		// when this plugin is first installed, enable options by default
+		// and add each post author to the author taxonomy
+		if( $propel_authors_version != self::PROPEL_AUTHORS_VERSION ) {
+			if( 1.0 == $propel_authors_version ) {
+				// next time this plugin gets a update bump the PROPEL_AUTHORS_VERSION
+				// value and any code in this block will be ran
+			} else {
+				Propel_Options::update_option( 'user_restrictions', 0 );
+				Propel_Options::update_option( 'contributors', 1 );
+				Propel_Options::update_option( 'email_notifications', 1 );
+				update_option( 'propel_authors_version', self::PROPEL_AUTHORS_VERSION );	
+				self::user_restrictions_enabled();
+			}
+		}
+	}
+
+	/**
+	 * @param $options Propel specific options
+	 * Add options to the Propel options page
+	 */
+	public static function propel_settings( $options ) {
+		echo '<input name="propel_options[email_notifications]" id="propel_email_notifications" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['email_notifications']), false ) . ' /> Enable Email Notifications';
+		echo '<br />';
+		echo '<input name="propel_options[contributors]" id="propel_contributors" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['contributors']), false ) . ' /> Enable Contributors';
+		echo '<br />';
+		echo '<input name="propel_options[user_restrictions]" id="propel_user_restrictions" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['user_restrictions']), false ) . ' /> Enable User Restrictions';
+	}
+
+	/**
+	 * When user restrictions are enabled, add each task author
+	 * to the author taxonomy for each task, and add each project
+	 * author to the author taxonomy for each project and each 
+	 * task associated with the project
+	 */
+	public static function user_restrictions_enabled() {
+		global $wpdb;
+		// get_posts cannot be used since the pre_get_posts filter is called
+		$tasks_querystr = "
+			SELECT $wpdb->posts.ID, $wpdb->posts.post_author, $wpdb->posts.post_title
+			FROM $wpdb->posts
+			WHERE $wpdb->posts.post_type = 'propel_task'";
+ 		$tasks = $wpdb->get_results( $tasks_querystr, OBJECT );
+		foreach( $tasks as $task ) {
+			$user = get_userdata($task->post_author);
+			self::add_coauthors( $task->ID, array( $user->user_login ), true );
+		}
+
+		$projects_querystr = "
+			SELECT $wpdb->posts.ID, $wpdb->posts.post_author, $wpdb->posts.post_title
+			FROM $wpdb->posts
+			WHERE $wpdb->posts.post_type = 'propel_project'";
+ 		$projects = $wpdb->get_results( $projects_querystr, OBJECT );
+		foreach( $projects as $project ) {
+			$user = get_userdata($project->post_author);
+			self::add_coauthors( $project->ID, array( $user->user_login ), true );
+			$tasks_querystr = "
+				SELECT $wpdb->posts.ID, $wpdb->posts.post_author, $wpdb->posts.post_title
+				FROM $wpdb->posts
+				WHERE $wpdb->posts.post_type = 'propel_task'
+				AND $wpdb->posts.post_parent = '$project->ID'";
+	 		$tasks = $wpdb->get_results( $tasks_querystr, OBJECT );
+	 		foreach( $tasks as $task ) {
+	 			$user = get_userdata($project->post_author);
+	 			self::add_coauthors( $task->ID, array( $user->user_login ) );
+	 			$user = get_userdata($task->post_author);
+	 			self::add_coauthors( $task->ID, array( $user->user_login ) );
+	 		}
+		}
+	}
+
+	/**
+	 * If this plugin is enabled remove the author metabox
+	 * from the propel_project and propel_task post type since
+	 * the author functionality is replaced by author taxonomy
+	 */
 	public static function admin_menu() {
 		remove_meta_box( 'authordiv', 'propel_project', 'normal' );
 		remove_meta_box( 'authordiv', 'propel_task', 'normal' );
 	}
 
+	/**
+	 *
+	 */
 	public static function post_wp_ajax_add_task( $post_id ) {
 		$post = get_post( $post_id );
 		$user = get_userdata( $post->post_author );
@@ -59,23 +216,37 @@ class Propel_Authors {
 		self::add_coauthors( $post_id, $coauthors );
 	}
 
+	/**
+	 * @param $comment_ID
+	 * @todo: do emails get sent for projects?
+	 * @todo: emails should include a link to the comment
+	 */
 	public static function comment_post( $comment_ID ) {
-		$comment = get_comment( $comment_ID );
-		$post = get_post( $comment->comment_post_ID );
-		$parent = get_post( $post->post_parent );
-		if( $post->post_type == "propel_task" ) {
-			$subject = "NEW COMMENT ($parent->post_title): $post->post_title";
-			$message = "Hello,\n\n";
-			$message .= "$comment->comment_author commented on the task '$post->post_title':\n";
-			$message .= "$comment->comment_content\n";
-			$coauthors = wp_get_post_terms( $post->ID, self::COAUTHOR_TAXONOMY );
-			foreach($coauthors as $login) {
-				$user = get_user_by( 'login', $login->slug );
-				wp_mail($user->user_email, $subject, $message);
+		if( Propel_Options::get_option('email_notifications') ) { 
+			$comment = get_comment( $comment_ID );
+			$post = get_post( $comment->comment_post_ID );
+			$parent = get_post( $post->post_parent );
+			if( $post->post_type == "propel_task" ) {
+				$subject = "NEW COMMENT ($parent->post_title): $post->post_title";
+				$message = "Hello,\n\n";
+				$message .= "$comment->comment_author commented on the task '$post->post_title':\n";
+				$message .= "$comment->comment_content\n";
+				$coauthors = wp_get_post_terms( $post->ID, self::COAUTHOR_TAXONOMY );
+				foreach($coauthors as $login) {
+					$user = get_user_by( 'login', $login->slug );
+					wp_mail($user->user_email, $subject, $message);
+				}
 			}
 		}
 	}
 
+	/**
+	 * @param $columns an array of registered columns
+	 * @return $columns an array of registered columns
+	 * This function adds the 'Contributors' column on the
+	 * edit.php screen for propel_task and propel_project
+	 * post types
+	 */
 	public static function register_columns( $columns ) {
 		$columns = array_slice($columns, 0, 4, true) +
     		array('contributor' => __( 'Contributors', 'propel' )) +
@@ -83,6 +254,9 @@ class Propel_Authors {
 		return $columns;
 	}
 
+	/**
+	 *
+	 */
 	public static function get_coauthors( $post_id = 0, $args = array() ) {
 		global $post, $post_ID, $coauthors_plus, $wpdb;
 
@@ -115,6 +289,9 @@ class Propel_Authors {
 		return $coauthors;
 	}
 
+	/**
+	 *
+	 */
 	public static function manage_columns($column_name, $id) {
 		if( $column_name == 'contributor' )	{
 			$authors = self::get_coauthors( $id );
@@ -128,6 +305,9 @@ class Propel_Authors {
 		}
 	}
 
+	/**
+	 *
+	 */
 	public static function init() {
 		register_taxonomy( self::COAUTHOR_TAXONOMY, null,
 			array('hierarchical' => false,
@@ -140,6 +320,9 @@ class Propel_Authors {
 			);
 	}
 
+	/**
+	 *
+	 */
 	public static function add_meta_boxes() {
 		add_meta_box( 'propel_list_authors', __( 'Contributors' ),
 			array( __CLASS__, 'list_authors'), 'propel_project', 'side' );
@@ -147,6 +330,9 @@ class Propel_Authors {
 			array( __CLASS__, 'list_authors'), 'propel_task', 'side' );
 	}
 
+	/**
+	 *
+	 */
 	public static function list_authors() {
 		require_once( dirname(__FILE__) . '/../metaboxes/list-authors.php')	;
 	}
@@ -168,38 +354,40 @@ class Propel_Authors {
 		return $query;
 	 }
 
+	/**
+	 *
+	 */
+	public static function wp_insert_post_data( $data, $post ) {
 
-	public static function wp_insert_post_data( $data ) {
-		// Bail on autosave
+		// bail on autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && !DOING_AUTOSAVE )
 			return $data;
 
-		// Bail on revisions
+		// bail on revisions
 		if( $data['post_type'] == 'revision' )
 			return $data;
 
 		if( isset( $_REQUEST['coauthors-nonce'] ) && is_array( $_POST['coauthors'] ) ) {
 			$author = $_POST['coauthors'][0];
 			if( $author ) {
-				$author_data = get_user_by( 'login', $author );
-				$data['post_author'] = $author_data->ID;
+				$data['post_author'] = $post['propel_post_author'];
 			}
 		} else {
-			// If for some reason we don't have the coauthors fields set
+			// if for some reason we don't have the coauthors fields set
 			if( ! isset( $data['post_author'] ) ) {
-				$user = wp_get_current_user();
-				$data['post_author'] = $user->ID;
+				$data['post_author'] = $post['propel_post_author'];
 			}
 		}
-
 		return $data;
 	}
 
+	/**
+	 *
+	 */
 	public static function save_post($post_id, $post) {
 		global $typenow;
-		/**
-		 * Sanity checks
-		 */
+
+		// sanity checks
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
 
@@ -210,13 +398,20 @@ class Propel_Authors {
 			return;
 
 		$post_type = $post->post_type;
-		if( isset( $_POST['coauthors-nonce'] ) && isset( $_POST['coauthors'] ) ) {
+		if( isset( $_POST['coauthors-nonce'] ) ) {
+
+			if( !isset( $_POST['coauthors'] ) ) {
+				$user = wp_get_current_user();
+				$coauthors = array( $user->user_login );
+			} else {
+				$coauthors = (array) $_POST['coauthors'];
+			}
+
 			check_admin_referer( 'coauthors-edit', 'coauthors-nonce' );
-			$coauthors = (array) $_POST['coauthors'];
 			$coauthors = array_map( 'esc_html', $coauthors );
 
-			//if a contributor is added/removed from a project, add/remove to/from 
-			//ALL THE TASKS associated with that project
+			// if a contributor is added/removed from a project, add/remove to/from 
+			// ALL THE TASKS associated with that project
 			if( 'propel_project' == $typenow ) {
 				$project_managers = self::get_coauthors( $post_id );
 				$p = array();
@@ -232,12 +427,14 @@ class Propel_Authors {
 				}
 			}
 
-			//add project contributors to new tasks
+			// add project contributors to new tasks
 			if( 'propel_task' == $typenow ) {
 				$project_managers = self::get_coauthors( $post->post_parent );
 				foreach( $project_managers as $project_manager ) {
 					$coauthors[] = $project_manager->user_login;
 				}
+				$author = get_userdata($post->post_author);
+				$coauthors[] = $author->user_login;
 				$coauthors = array_unique( $coauthors );
 			}
 
@@ -246,10 +443,10 @@ class Propel_Authors {
 	}
 
 	/**
-	 * $post_id int 
-	 * $coauthors array 
-	 * $append bool
-	 * $notify bool
+	 * @param $post_id int 
+	 * @param $coauthors mixed array or integer
+	 * @param $append bool
+	 * @param $notify bool
 	 */
 	public static function add_coauthors( $post_id, $coauthors, $append = false, $notify = true ) {
 		global $current_user, $post;
@@ -318,20 +515,23 @@ class Propel_Authors {
 	//- unassigned a task
 	//- task was updated (exclude users from the aforementioned two)
 	public static function notify_coauthors( $to, $post_id ) {
-
-		$post = get_post( $post_id );
-		$parent = get_post( $post->post_parent );
-		$subject = "ASSIGNMENT ($parent->post_title): $post->post_title";
-		foreach( $to as $login ) {
-			$user = get_user_by( 'login', $login );
-			$message = "Hello $user->user_nicename,\n\n";
-			$message .= "The task '$post->post_title' is now assigned to you.\n";
-			$message .= "$post->guid";
-			wp_mail($user->user_email, $subject, $message);
+		if( Propel_Options::get_option('email_notifications') ) { 
+			$post = get_post( $post_id );
+			$parent = get_post( $post->post_parent );
+			$subject = "ASSIGNMENT ($parent->post_title): $post->post_title";
+			foreach( $to as $login ) {
+				$user = get_user_by( 'login', $login );
+				$message = "Hello $user->user_nicename,\n\n";
+				$message .= "The task '$post->post_title' is now assigned to you.\n";
+				$message .= "$post->guid";
+				wp_mail($user->user_email, $subject, $message);
+			}
 		}
 	}
 
-
+	/**
+	 *
+	 */
 	public static function views_edit_post( $views ) {
 		global $wpdb, $avail_post_stati, $typenow;
 		if( $typenow != 'propel_project' && $typenow != 'propel_task' ) return $views;
@@ -345,18 +545,23 @@ class Propel_Authors {
 			WHERE T.name = (SELECT U.user_login FROM {$wpdb->users} AS U WHERE U.ID = {$user->ID}) 
 			AND TT.taxonomy = 'author'
 			AND P.post_type = '{$typenow}'
+			AND P.post_status <> 'auto-draft'
+			AND P.post_status <> 'inherit'
 			GROUP BY P.post_status";
 
-		//@todo cache $count
+		/**
+		 * @todo cache $count
+		 */
 		$count = $wpdb->get_results( $query, ARRAY_A );
 
 		$stats = array();
-		foreach ( get_post_stati() as $state )
+		foreach ( get_post_stati() as $state ) {
 			$stats[$state] = 0;
+		}
 
-		foreach ( (array) $count as $row )
+		foreach ( (array) $count as $row ) {
 			$stats[$row['post_status']] = $row['num_posts'];
-
+		}
 
 		$num_posts = (object)$stats;
 
@@ -365,8 +570,6 @@ class Propel_Authors {
 		$allposts = '';
 
 		$current_user_id = get_current_user_id();
-
-
 
 		$total_posts = array_sum( (array) $num_posts );
 
@@ -390,7 +593,6 @@ class Propel_Authors {
 
 			$status_links[$status_name] = "<a href='edit.php?post_status=$status_name&amp;post_type=$typenow'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
 		}
-
 		return $status_links;
 	}
 }
