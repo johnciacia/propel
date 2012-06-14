@@ -268,8 +268,8 @@ class Post_Type_Project {
 				$date = get_post_meta( $id, '_propel_end_date', true );
 				if($date) {
 				
-					echo date( "M. jS, Y" , $date ); // Project's actual due date.
-					echo "<br />" . date( "M. jS, Y H:i" ); // Todays date.
+					echo date( get_option( 'date_format' ) , $date ); // Project's actual due date.
+					echo "<br />" . date( get_option( 'date_format' ) . " G:i" ); // Todays date.
 					
 					$day   = date('d'); // Day of the countdown
 					$month = date('m'); // Month of the countdown

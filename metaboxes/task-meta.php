@@ -6,7 +6,6 @@
 	<tr>
 		<td>Project</td>
 		<td>
-			<?php /* wp_dropdown_pages( array( 'depth' => 1, 'post_type' => 'page' ) ); This should work but it seems post type is broken when you change it to anything beside 'page'. */ ?>
 			<?php
 			echo "<select name='parent_id' id='parent_id'>";
 			foreach($projects as $project) :
