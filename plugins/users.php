@@ -530,7 +530,6 @@ class Propel_Authors {
 			
 			foreach( $to as $login ) {
 				$user = get_user_by( 'login', $login );
-				error_log("$login\n", 3, '/tmp/error_log');
 				$message .= "
 					<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 						<h3>The task following task has been assigned to you on the &#34;$parent->post_title&#34; project:</h3>
