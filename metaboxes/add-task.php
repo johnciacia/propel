@@ -35,14 +35,17 @@
 
 	<tr>
 		<td>
-			<label>Owner</label>
-			<?php  
+			<label>Manager</label>
+			<?php 
 			$current_user = wp_get_current_user();
-			wp_dropdown_users( array(
-				'class' => 'task-owner',
-				'show_option_none' => 'Unassigned',
-				'name' => 'task_author', 
-				'selected' => $current_user->ID) ); 
+			wp_dropdown_users(
+				array(
+					'class' => 'task-owner',
+					'show_option_none' => 'Unassigned',
+					'name' => 'propel_post_author', 
+					'selected' => $current_user->ID
+				)
+			);
 			?>
 		</td>
 	</tr>
