@@ -490,7 +490,7 @@ class Post_Type_Project {
 						description: $('textarea[name=task_description]').val(),
 						end_date: $('input[name=task_end_date]').val(),
 						priority: $('select[name=task_priority]').val(),
-						user: $('#task_author option:selected').val()
+						user: $('#propel_post_author option:selected').val()
 				};
 
 				jQuery.post(ajaxurl, data, function(response) {

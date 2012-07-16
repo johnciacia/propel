@@ -31,6 +31,8 @@ class Post_Type_Task {
 	}
 
 	public static function wp_insert_post_data( $data, $postarr ) {
+		if( ! isset( $postarr['propel_post_author'] ) ) return $data;
+		
 		$data['post_author'] = $postarr['propel_post_author'];
 		return $data;
 	}
