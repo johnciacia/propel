@@ -207,12 +207,6 @@ class Propel_Authors {
 		$user = get_userdata( $post->post_author );
 		$coauthors = array( $user->user_login );
 
-		$project_managers = self::get_coauthors( $post->post_parent );
-		foreach( $project_managers as $project_manager ) {
-			$coauthors[] = $project_manager->user_login;
-		}
-		$coauthors = array_unique( $coauthors );
-
 		self::add_coauthors( $post_id, $coauthors );
 	}
 
@@ -536,6 +530,7 @@ class Propel_Authors {
 			
 			foreach( $to as $login ) {
 				$user = get_user_by( 'login', $login );
+				error_log("$login\n", 3, '/tmp/error_log');
 				$message .= "
 					<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 						<h3>The task following task has been assigned to you on the &#34;$parent->post_title&#34; project:</h3>
@@ -544,8 +539,8 @@ class Propel_Authors {
 					</div>
 				";
 				
-				add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
-				wp_mail($user->user_email, $subject, $message, $headers);
+				add_filter( 'wp_mail_content_type', create_function( '', 'return "text/html";' ) );
+				wp_mail( $user->user_email, $subject, $message, $headers );
 			}
 		}
 		
