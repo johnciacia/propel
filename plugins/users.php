@@ -228,7 +228,7 @@ class Propel_Authors {
 			$post = get_post( $comment->comment_post_ID );
 			$parent = get_post( $post->post_parent );
 			
-			$domain_name = $_SERVER['SERVER_NAME'];
+			$domain =  preg_replace('/^www\./','',$_SERVER['HTTP_HOST']); 
 
 			if( $post->post_type == "propel_task" ) {
 				$headers = "From: $comment->comment_author <donotreply@$domain_name>" . "\r\n";
@@ -531,18 +531,21 @@ class Propel_Authors {
 		if( Propel_Options::get_option('email_notifications') ) { 
 			$post = get_post( $post_id );
 			$parent = get_post( $post->post_parent );
-			$headers = "From: $current_user->ID <donotreply@wordpress.org>" . "\r\n";
+			$domain =  preg_replace('/^www\./','',$_SERVER['HTTP_HOST']); 
+			$current_user = wp_get_current_user();
+			
+			$headers = "From: $current_user->display_name <donotreply@$domain_name>" . "\r\n";
 			$subject = "New Task Assigned ($parent->post_title): $post->post_title";
+			$message .= "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>$current_user->display_name assigned the following to you on the &#34;$parent->post_title&#34; project:</h3>
+					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
+				</div>
+			";
 			
 			foreach( $to as $login ) {
 				$user = get_user_by( 'login', $login );
-				$message .= "
-					<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
-						<h3>The task following task has been assigned to you on the &#34;$parent->post_title&#34; project:</h3>
-						<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
-						<p><b>Details:</b> &#34;$post->post_title&#34;</p>
-					</div>
-				";
 				
 				add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
 				wp_mail($user->user_email, $subject, $message, $headers);

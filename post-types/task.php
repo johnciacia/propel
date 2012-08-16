@@ -31,6 +31,7 @@ class Post_Type_Task {
 	}
 
 	public static function wp_insert_post_data( $data, $postarr ) {
+		if( ! isset( $postarr['propel_post_author'] ) ) return $data;
 		$data['post_author'] = $postarr['propel_post_author'];
 		return $data;
 	}
@@ -395,7 +396,7 @@ class Post_Type_Task {
 		add_meta_box('custom-fields', __('Custom Fields'),
 			'post_custom_meta_box', self::POST_TYPE, 'normal', 'low');
 
-		add_meta_box( 'propel_task_meta', __( 'Task', 'propel' ),
+		add_meta_box( 'propel_task_meta', __( 'Edit Task', 'propel' ),
 			array( __CLASS__, 'edit_task_meta'), self::POST_TYPE, 'side' );
 	}
 
@@ -431,7 +432,7 @@ class Post_Type_Task {
 			$type = 0;
 		}
 
-		require_once( dirname(__FILE__) . '/../metaboxes/task-meta.php' );
+		require_once( dirname(__FILE__) . '/../metaboxes/edit-task.php' );
 	}
 
 	/**

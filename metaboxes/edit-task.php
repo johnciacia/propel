@@ -86,6 +86,7 @@
 				'name' => 'propel_post_author',
 				'show_option_none' => 'Unassigned',
 				'orderby' => 'display_name',
+				'name' => 'propel_post_author', 
 				'selected' => $post->post_author
 			);
 			wp_dropdown_users( $args );

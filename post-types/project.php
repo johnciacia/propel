@@ -180,6 +180,7 @@ class Post_Type_Project {
 		update_post_meta( $post_id, '_propel_complete', 100 );
 
 		$tasks = get_children( "post_parent=$post_id" );
+		
 		foreach( $tasks as $task ) {
 			$end = get_post_meta( $task->ID, '_propel_end_date', true);
 			if( !$end && empty( $_POST['end_date'] ) ) {
@@ -437,7 +438,7 @@ class Post_Type_Project {
 		update_post_meta( $post_id, '_propel_end_date', $end );
 		update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
 		update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
-		update_post_meta( $post_id, '_propel_owner', (int)$_POST['owner'] );
+		update_post_meta( $post_id, '_propel_owner', (int)$_POST['propel_post_author'] );
 
 	}
 
@@ -490,7 +491,7 @@ class Post_Type_Project {
 						description: $('textarea[name=task_description]').val(),
 						end_date: $('input[name=task_end_date]').val(),
 						priority: $('select[name=task_priority]').val(),
-						user: $('#task_author option:selected').val()
+						user: $('#propel_post_author option:selected').val()
 				};
 
 				jQuery.post(ajaxurl, data, function(response) {

@@ -1,4 +1,35 @@
 <?php
+
+/* TASKS FOR SIGNED IN USERS ONLY aps2012 */
+function get_authored_posts($query) {
+    global $user_ID;
+	$u = get_userdata($user_ID);
+	$queried_post_type = get_query_var('post_type');
+    if ('propel_task' ==  $queried_post_type ) {
+	  	$taxquery = array(
+		     array(   
+				'taxonomy' => 'author',
+				 'field' => 'name',
+                 'terms' => $u->user_login				
+		     )
+		 );
+      $query->set('tax_query', $taxquery);	
+    }
+    if ('propel_project' ==  $queried_post_type ) {
+	  	$taxquery = array(
+		     array(   
+				'taxonomy' => 'author',
+				 'field' => 'name',
+                 'terms' => $u->user_login				
+		     )
+		 );
+      $query->set('tax_query', $taxquery);	
+    }
+    return $query;
+}
+add_filter('pre_get_posts', 'get_authored_posts');
+
+
 /* CURRENT PROJECTS */
 function dashboard_client_current_projects_metabox() {
 
@@ -84,15 +115,20 @@ function dashboard_client_support_requests_metabox() {
 
 add_action('wp_dashboard_setup', 'dashboard_client_support_requests_metabox');
 
-
-
-
-
 function dashboard_widget_function() {
+    global $user_ID;
+	$u = get_userdata($user_ID);
 	$args = array(
 		'numberposts' => -1,
 		'post_type' => 'propel_project',
-		'post_status' => 'publish'
+		'post_status' => 'publish',
+		'tax_query' => array(
+		     array(   
+				 'taxonomy' => 'author',
+				 'field' => 'name',
+                 'terms' => $u->user_login				
+		     )
+		 )
 	);
 	$projects = get_posts( $args );
 	echo "<table width='100%'>";
@@ -102,7 +138,14 @@ function dashboard_widget_function() {
 			'numberposts' => -1,
 			'post_type' => 'propel_task',
 			'post_status' => 'publish',
-			'post_parent' => $project->ID
+			'post_parent' => $project->ID,
+			'tax_query' => array(
+		        array(   
+				 'taxonomy' => 'author',
+				 'field' => 'name',
+                 'terms' => $u->user_login				
+		        )
+		    )
 		);
 		$tasks = get_posts( $argv );
 		
