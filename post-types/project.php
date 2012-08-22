@@ -15,11 +15,14 @@ class Post_Type_Project {
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_post' ) );
-		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
+		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );		
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_sortable_columns', array( __CLASS__, 'register_sortable_columns' ) );
 		add_filter( 'manage_edit-' . self::POST_TYPE . '_columns', array( __CLASS__, 'register_columns' ) );
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
+		add_action( 'project_get_task', array( __CLASS__, 'project_get_task' ) );
 		add_action( 'wp_ajax_add_task', array( __CLASS__, 'wp_ajax_add_task' ) );
+		add_action( 'wp_ajax_update_task', array( __CLASS__, 'wp_ajax_update_task' ) );
+		add_action( 'wp_ajax_get_task_detail', array( __CLASS__, 'wp_ajax_get_task_detail' ) );
 		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
 		add_filter( 'request', array( __CLASS__, 'request' ) );
 	}
@@ -328,7 +331,7 @@ class Post_Type_Project {
 		add_meta_box( 'propel_project_meta', __('Project', 'propel' ),
 			array( __CLASS__, 'edit_project_meta'), 'propel_project', 'side' );
 
-		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {
+		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {		
 			add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),	array( __CLASS__, 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 			add_meta_box('propel_completed_tasks', __('Completed Tasks', 'propel'), array( __CLASS__, 'completed_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 			add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
@@ -372,7 +375,7 @@ class Post_Type_Project {
 		$posts = $wpdb->get_results($query);
 		require( dirname(__FILE__) . '/../metaboxes/tasks.php' );
 	}
-
+		
 	/**
 	 * @since 2.0
 	 */
@@ -439,7 +442,7 @@ class Post_Type_Project {
 		update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
 		update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
 		update_post_meta( $post_id, '_propel_owner', (int)$_POST['propel_post_author'] );
-
+		
 	}
 
 	/**
@@ -448,7 +451,7 @@ class Post_Type_Project {
 	public static function add_task() {
 		require_once( dirname(__FILE__) . '/../metaboxes/add-task.php' );	
 	}
-
+	
 	/**
 	 * @since 2.0
 	 */
@@ -472,6 +475,8 @@ class Post_Type_Project {
 		update_post_meta( $id, '_propel_complete', 0 );
 		update_post_meta( $id, '_propel_priority', $_POST['priority'] );
 		do_action( 'post_wp_ajax_add_task', $id );
+		do_action( 'project_get_task', $id);		
+
 		die($id);
 	}
 
@@ -480,28 +485,330 @@ class Post_Type_Project {
 	 */
 	public static function admin_footer() { ?>
 		<script type="text/javascript">
-		jQuery(document).ready(function($) { 
+		jQuery(document).ready(function($) { 			
+			
 			$(".date").datepicker();
-			$("#add-task").click(function() {
+			
+			$('#propel_edit_task').css({ 'display':'none' });
+			$('#propel_add_task').css({ 'display':'block' });
+			
+			$("#add-task").click(function(e) {				
 				var data = {
-						action: 'add_task',
-						security: '<?php echo wp_create_nonce( "add-task" ); ?>',
-						parent: '<?php echo get_the_ID(); ?>',
-						title: $('input[name=task_title]').val(),
-						description: $('textarea[name=task_description]').val(),
-						end_date: $('input[name=task_end_date]').val(),
-						priority: $('select[name=task_priority]').val(),
-						user: $('#propel_post_author option:selected').val()
+					action: 'add_task',
+					security: '<?php echo wp_create_nonce( "add-task" ); ?>',
+					parent: '<?php echo get_the_ID(); ?>',
+					title: $('input[name=task_title]').val(),
+					description: $('textarea[name=task_description]').val(),
+					end_date: $('input[name=task_end_date]').val(),
+					priority: $('select[name=task_priority]').val(),
+					user: $('#propel_post_author').val()
 				};
 
 				jQuery.post(ajaxurl, data, function(response) {
-					location.reload();
+					 //rob_eyouth:added this...
+					 $('#propel_project_tasks #propel-tasks tbody').fadeOut('slow',function(){
+						 	$(this).prepend(response).fadeIn('slow');
+					 });						 				
 				});
+					
+				return false;			
 			});
-		});
-		</script>
+
+			//rob_eyouth : added this to remove the deleted data from the current task table
+			 $("#propel-tasks tbody td.gen-delete-icon").live('click',function(){
+				 var $parent = $(this).parent();
+				 $parent.fadeOut('slow',function(){
+					var _href = $(this).find('a').attr('href');
+					jQuery.post(_href,function() {
+						$parent.remove();	
+					});
+					 
+				 });
+				 return false;
+			 });
+			
+			//rob_eyouth : added this to remove the checked data from the current task table
+			// and added to the completed task table
+		  $("#propel-tasks tbody td.gen-unchecked-icon").live('click',function(){
+					var task_id = $(this).parent().attr('id'); 
+					var $parent = $(this).parent();
+					var data = {
+							action: 'update_task',
+							security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+							postid: task_id,
+							end_date: '<?php echo time(); ?>',
+							priority: $('#propel_edit_prior').val(),
+							complete: 100,
+							propel_post_author: $('#propel_post_author').val()
+					};
+	
+					jQuery.post(ajaxurl, data, function(response) {
+						 $('#propel_completed_tasks #propel-tasks tbody').fadeOut('slow',function(){
+							$parent.fadeOut('slow',function(){
+								$parent.remove();
+								$('#propel_completed_tasks #propel-tasks tbody').prepend(response).fadeIn('slow');										
+							})																		
+						 });						 				
+					});
+
+				 return false;
+			 });
+			
+			$("#propel_project_tasks #propel-tasks tbody tr.toggle").live('click',function(event){
+					  
+ 				    var task_id = $(this).attr('id');					
+				
+					if(jQuery('#details-' + task_id).length > 0) {
+						
+						jQuery('#details-' + task_id).remove();
+						
+					} else {
+
+						var data = {
+								action: 'get_task_detail',
+								security: '<?php echo wp_create_nonce( "get-task-detail" ); ?>',
+								postid: task_id,
+						};
+		
+						jQuery.post(ajaxurl, data, function(response) {
+							 $("#" + task_id).closest( "tr" ).after( response );																			
+						});
+					}
+					 
+				return false;
+			}).live('mouseenter',function(){
+               $(this).css({'cursor':'pointer'}); 
+            }).live('mouseleave',function(){
+               $(this).css({'cursor':'default'}); 
+            });
+			
+			$('#propel_task_update').live('click',function(){
+				
+					var _task_id = $.trim($(this).closest('tr').attr('id').substr(8,5));
+					var _tr_id = $(this).closest('tr').attr('id');
+					var _tr_before_id = $('#'+_task_id).prev('tr').attr('id');
+
+					var data = {
+							action: 'update_task',
+							security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+							parent: '<?php echo get_the_ID(); ?>',
+							postid: _task_id,
+							end_date: '<?php echo time(); ?>',
+							title: $('#propel_edit_task').val(),
+							priority: $('#propel_edit_prior').val(),
+							complete: $('#propel_edit_progress').val(),
+							user: $('#propel_edit_author').val()
+					};
+	
+					jQuery.post(ajaxurl, data, function(response) {
+						$('#'+_task_id).fadeOut('slow',function(){
+							$(this).remove();
+							$('#'+_tr_id).fadeOut('slow',function(){
+								$(this).remove();
+							});
+							if ( parseInt($('#propel_edit_progress').val()) < 100 ) {
+								if ( _tr_before_id === undefined )
+									$("#propel_project_tasks #propel-tasks tbody").prepend(response).fadeIn('slow');
+								else
+									$("#" + _tr_before_id).closest( "tr" ).after( response ).fadeIn('slow');
+							} else {
+								$('#propel_completed_tasks #propel-tasks tbody').prepend(response).fadeIn('slow');										
+							}
+						})																								 				
+					});
+
+				 return false;
+			});			
+		})    
+    </script>
 	<?php
+		
 	}
-}
+
+	/**
+	 * @since 2.0
+	 * rob: added this function..
+	 */
+	public static function project_get_task( $id ) {
+		$task = get_post($id); 		
+		$progress = get_post_meta( $task->ID, '_propel_complete', true );
+		$priority = get_post_meta( $task->ID, '_propel_priority', true );
+		$start = get_post_meta( $task->ID, '_propel_start_date', true );
+		if( $start )
+			$start = date( get_option( 'date_format' ), $start );
+
+		$end = get_post_meta( $task->ID, '_propel_end_date', true );
+		if( $end )
+			$end = date( get_option( 'date_format' ), $end);
+
+		if( $task->post_author ) {
+			$userdata = get_userdata( $task->post_author );
+			$authid = $userdata->ID; 
+			$author = $userdata->display_name;
+		} else {
+			$authid = '-1';
+			$author = "Unassigned";
+		}	
+			
+		$x = ($progress == 100) ? "" : "un";
+		$nonce = wp_create_nonce('propel-trash');
+
+		?>        
+		<tr class="toggle" id="<?php esc_attr_e( $task->ID ); ?>">
+			<td data-value="<?php esc_attr_e($task->post_title); ?>" class="propel_editable">
+				<p><?php esc_html_e($task->post_title); ?></p></td>
+
+			<td data-value="<?php esc_attr_e( $priority ); ?>" class="propel_editable">
+				<p><?php 
+					$priorities = propel_get_priorities();
+					esc_html_e($priorities[$priority]); 
+					?></p></td>
+
+			<td data-value="<?php esc_attr_e( $authid ); ?>" class="propel_editable">
+				<p><?php esc_html_e($author); ?></p></td>
+
+			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
+			<td data-value="<?php esc_attr_e( $start ); ?>" class="propel_editable">
+				<p><?php esc_html_e($start); ?></p></td>
+			<?php endif; ?>
+
+			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
+			<td data-value="<?php esc_attr_e( $end ); ?>" class="propel_editable">
+				<p><?php esc_html_e($end); ?></p></td>
+			<?php endif; ?>
+
+			<td data-value="<?php esc_attr_e( $progress ); ?>" class="propel_editable">
+				<p><?php esc_html_e($progress); ?>%</p></td>
+			
+            <td class="gen-icon gen-edit-icon"> </td>
+
+			<td class="gen-icon gen-delete-icon">
+				<a href="post.php?action=propel-delete&amp;post=<?php esc_attr_e( $task->ID ); ?>&amp;_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
+
+			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
+					<a href="post.php?action=complete&amp;post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
+		</tr>	
+        
+		<?php		
+		remove_action( 'project_get_task', array( __CLASS__, 'project_get_task' ) );
+	}	
+	
+	/**
+	 * @since 2.0
+	 * added by rob : 
+	 */
+	public static function wp_ajax_update_task() {
+		
+		check_ajax_referer( 'update-task', 'security' );
+		
+		$post_id = $_POST['postid'];
+
+		if ( isset($_POST["title"]) ){
+			$post = array(
+				'ID' => (int)$post_id,
+				'post_title' => $_POST['title'],
+				'post_parent' => $_POST['parent'],
+				'post_type' => 'propel_task',
+				'post_status' => 'publish'
+			);
+			wp_update_post( $post );		
+		}
+			
+		$start = !empty( $_POST['start_date'] ) ? strtotime( $_POST['start_date'] ) : time();
+		
+		update_post_meta( $post_id, '_propel_start_date', $start );
+
+		$end = strtotime($_POST['end_date']);
+		if( empty( $_POST['end_date'] ) && $_POST['complete'] == 100  ) {
+			$end = time();
+		}
+		
+		update_post_meta( $post_id, '_propel_end_date', $end );
+		
+		if ( isset( $_POST['priority'] ) )
+			update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
+		
+		if ( isset( $_POST['complete'] ) )
+			update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
+		
+		if ( isset( $_POST['user'] ) )
+			update_post_meta( $post_id, '_propel_owner', (int)$_POST['user'] );
+		
+		do_action('project_get_task',$post_id);
+		
+		die($post_id);
+	}
+	
+	/**
+	 * @since 2.0
+	 * rob: added this function..
+	*/
+	public static function wp_ajax_get_task_detail() {
+		$id = $_POST["postid"];
+		$task = get_post($id); 		
+		$nonce = wp_create_nonce('propel-trash');
+		if( $task->post_author ) {
+			$userdata = get_userdata( $task->post_author );
+			$authid = $userdata->ID; 
+			$author = $userdata->display_name;
+		} else {
+			$authid = '-1';
+			$author = "Unassigned";
+		}
+		?>        
+		<tr id="details-<?php esc_attr_e( $task->ID ); ?>">
+			<td data-value="<?php esc_attr_e($task->post_title); ?>" class="propel_editable">
+				<p><input type="text" value="<?php esc_html_e($task->post_title); ?>" id="propel_edit_task"/></p></td>
+
+			<td data-value="<?php esc_attr_e( $priority ); ?>" class="propel_editable">
+				<p>
+					<select name="priority" id="propel_edit_prior">
+                    	<?php
+							$priorities = propel_get_priorities();
+							for($i = 0; $i < count($priorities); $i++) :
+								echo "<option value='$i'".selected($priority, $authid).">$priorities[$i]</option>";
+							endfor;
+						?>
+						</select>
+					
+                </p>
+            </td>
+
+			<td data-value="<?php esc_attr_e( $authid ); ?>" class="propel_editable">
+				<p>
+					 <?php
+						$args = array(
+							'name' => 'propel_edit_author',
+							'show_option_none' => 'Unassigned',
+							'orderby' => 'display_name',
+							'name' => 'propel_edit_author', 
+							'selected' => $project->post_author
+						);
+						wp_dropdown_users( $args );
+                    ?>                        
+                </p>
+            </td>
+            
+			<td data-value="<?php esc_attr_e( $progress ); ?>" class="propel_editable">
+				<p>
+				    <select name="complete" id="propel_edit_progress">
+                        <?php
+                        for ($i = 0; $i <= 100; $i = $i+5) :
+                            echo "<option value='$i'".selected($complete, $i).">$i</option>";
+                        endfor;
+                        ?> 
+                    </select>            
+                </p>
+            </td>
+			
+            <td class="gen-icon gen-edit-icon" colspan="3"> <input type="button" class="button-primary" value="Update" id="propel_task_update"> </td>
+
+        </tr>	
+        
+		<?php		
+	}
+	
+		
+} //End of class
 
 ?>

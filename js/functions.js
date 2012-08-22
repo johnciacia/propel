@@ -36,6 +36,7 @@ jQuery(document).ready(function($) {
 				"aoColumns" : asdf
 	});
 
+	/*	
 	jQuery('.tasks-table tbody tr').click(function() {
 		if(jQuery('#details-' + jQuery(this).attr('id')).length > 0) {
 			jQuery('#details-' + jQuery(this).attr('id')).remove();
@@ -46,6 +47,7 @@ jQuery(document).ready(function($) {
 			
 		}
 	});
+	*/
 
 	/*
 	$('.tasks-table tbody tr').hover(
@@ -58,7 +60,7 @@ jQuery(document).ready(function($) {
 		}
 	);
 	*/
-} );
+});
 
 function get_details(id) {
 	var data = {
