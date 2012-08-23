@@ -18,30 +18,49 @@
 			<th class="sortable"><p>Progress</p></th>
 		</tr>
 	</thead>
+
+    <tr class="toggle">
+        <td colspan="10"><p style="font-weight:bold;">
+            <?php 
+                $parent = get_post($post->post_parent); 
+                $parent_obj = get_post($parent);
+                esc_html_e($parent_obj->post_title);
+            ?>
+        </p></td>
+    </tr>
 	
 	<?php
 	foreach($posts as $post) {
 		$task = get_post($post->post_id);
 		$progress = get_post_meta( $task->ID, '_propel_complete', true );
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
-		
 		if( $start )
 			$start = date( get_option( 'date_format' ), $start );
 
 		$end = get_post_meta( $task->ID, '_propel_end_date', true );
-		
 		if( $end )
 			$end = date( get_option( 'date_format' ), $end);
 
 		if( $task->post_author ) {
 			$userdata = get_userdata( $task->post_author );
+			$authid = $userdata->ID; 
 			$author = $userdata->display_name;
 		} else {
+			$authid = '-1';
 			$author = "Unassigned";
-		}
-
+		}	
+							
 		$x = ($progress == 100) ? "" : "un";
 		$nonce = wp_create_nonce('propel-trash');
+		
+		
+		
+		/*
+		* rob_eyouth : added by rob to show task for the current user and if user is admin
+		*/
+		//if user is admin
+		$current_user = wp_get_current_user();		
+		if ( $current_user->ID == $userdata->ID || $current_user->ID == 1) { 
 		?>
 		<tr id="<?php esc_attr_e( $task->ID ); ?>">
 		
@@ -76,14 +95,13 @@
 				<p><?php esc_html_e($progress); ?>%</p></td>
 		</tr>
 		<?php
+		}
 	}
 
 	?>
 
 </table>
 <div style="clear:both;"></div>
-
-
 <script type="text/JavaScript">
 
 	function gen_expand(elem) {

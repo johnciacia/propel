@@ -1,13 +1,13 @@
 <table class="metaboxes-add-task">
 	<tr>
 		<td>
-			<input type="text" name="task_title" placeholder="Title" class="widefat" />
+			<input type="text" name="task_title" id="_task_title" placeholder="Title" class="widefat" />
 		</td>
 	</tr>
 
 	<tr>
 		<td colspan="2">
-			<textarea name="task_description" placeholder="Description" class="widefat"></textarea>
+			<textarea name="task_description" id="_task_desc" placeholder="Description" class="widefat"></textarea>
 			</td>
 	</tr>
 

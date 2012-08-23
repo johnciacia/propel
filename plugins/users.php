@@ -50,6 +50,9 @@ class Propel_Authors {
 			add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
 		}
 
+		
+		add_action('pre_post_update', array( __CLASS__, 'pre_post_update'));
+		add_action('transition_post_status', array( __CLASS__, 'transition_post_status'));
 		add_action( 'comment_post', array( __CLASS__, 'comment_post' ) );
 		add_action( 'delete_user',  array( __CLASS__, 'delete_user' ) );
 		add_filter( 'wp_insert_post_data', array( __CLASS__, 'wp_insert_post_data' ), 10, 2 );
@@ -62,6 +65,7 @@ class Propel_Authors {
 		add_action( 'init', array( __CLASS__, 'install' ) );
 		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
 		add_action( 'admin_print_styles', array( __CLASS__, 'admin_print_styles' ) );
+
 	}
 
 	/**
@@ -351,16 +355,15 @@ class Propel_Authors {
 	 *
 	 */
 	public static function pre_get_posts( $query ) {
-		$types = array( 'propel_task', 'propel_project' );
-		if( !isset( $query->query_vars['post_type']) ) return $query;
-		if( !in_array( $query->query_vars['post_type'], $types ) )  return $query;
+		global $post_id;
 
-		global $user_ID;
-		$user = get_userdata( $user_ID );
-		if( $user ) {
-			$query->set( 'taxonomy', 'author' );
-			$query->set( 'term', $user->user_login );
+		$pr1 = get_post_meta( $post_id, '_propel_complete',true);
+		$pr2 = get_post_meta( $post_id, '_propel_complete_before',true);
+		
+		if ($pr2 == 0){
+		  	update_post_meta( $post_id, '_propel_complete_before',$pr1);
 		}
+		
 		return $query;
 	 }
 
@@ -460,7 +463,6 @@ class Propel_Authors {
 	 */
 	public static function add_coauthors( $post_id, $coauthors, $append = false, $notify = true ) {
 		global $current_user, $post;
-
 		$notify = array();
 		$post_id = (int) $post_id;
 		$insert = false;
@@ -477,21 +479,109 @@ class Propel_Authors {
 				$args = array( 'slug' => sanitize_title( $name ) );
 				$insert = wp_insert_term( $name, self::COAUTHOR_TAXONOMY, $args );
 			}
-
-			if( !has_term( $name, self::COAUTHOR_TAXONOMY, $post_id ) ){
 				$notify[] = $name;
-			}
 		}
 
 		if( !is_wp_error( $insert ) ) {
 			$set = wp_set_post_terms( $post_id, $coauthors, self::COAUTHOR_TAXONOMY, $append );
 		}
-
+        
+		$notify = self::select_notifications($post_id, $notify); 
+		 
 		if( $notify ) {
 			self::notify_coauthors( $notify, $post_id );
 		}
 	}
 
+	/**
+	 *  aps2012 updates
+	 * 
+	 */
+	public static function pre_post_update($post_id) {
+		global $wpdb;
+		$p = get_post($post_id);
+		$u = get_userdata($p->post_author);
+	    update_post_meta($post_id,'_propel_before_author', $u->user_login);
+    }
+	/**
+	 *  aps2012 updates
+	 * 
+	 */
+	public static function transition_post_status($new_status, $old_status=null, $post=null){
+		$static_id = self::set_id();
+		  if ($new_status == "draft"){
+              update_post_meta( $static_id, '_propel_before_author_new',"New");
+          }
+   }
+
+	/**
+	 * aps2012 updates
+	 * 
+	 */
+	public static function set_id(){
+		$part1 = "999999999999";
+		$current_user = wp_get_current_user();
+		$part2 = $current_user->ID;
+	    $id = $part1 . $part2;
+		return (int)($id);
+	}
+   
+	/**
+	 * aps2012 updates
+	 * 
+	 */
+	public static function select_notifications($post_id, $notified) {
+		global $wpdb;
+		
+		$b4_complete = get_post_meta( $post_id, '_propel_complete_before',true);
+		$now_complete = get_post_meta( $post_id, '_propel_complete',true);
+		
+		if(!$complete_tag){
+		   $complete_tag = get_post_meta( $post_id, '_propel_complete_tag',true);
+		}
+		
+		if(!$before_author){
+		   $before_author = get_post_meta( $post_id, '_propel_before_author',true);
+		}
+		
+		$current_user = wp_get_current_user();
+		$currname = $current_user->display_name;
+
+        if (($b4_complete < 100) &&  ($now_complete == 100)){
+			update_post_meta( $post_id, '_propel_complete_tag','completed');
+		} elseif(($b4_complete == 100) &&  ($now_complete == 100)){
+			update_post_meta( $post_id, '_propel_complete_tag','sent');
+		} elseif(($b4_complete == 100) &&  ($now_complete < 100)){
+			update_post_meta( $post_id, '_propel_complete_tag','reverse');
+		} else {
+			update_post_meta( $post_id, '_propel_complete_tag','null');
+		}
+	
+        $p = get_post($post_id);
+		$u = get_userdata($p->post_author);
+
+		if(($before_author != $u->user_login) && ($before_author != 'NULL')){
+			update_post_meta( $post_id, '_propel_notify','proceed');
+		} elseif ($before_author == $u->user_login) {
+	   		update_post_meta( $post_id, '_propel_notify','sent');
+		} elseif($before_author == 'NULL'){
+	  		update_post_meta( $post_id, '_propel_notify','new');
+		} else {
+			update_post_meta( $post_id, '_propel_notify','null');
+		}
+		
+		$static_id = self::set_id();
+		$new = get_post_meta( $static_id, '_propel_before_author_new',true);
+		if($new == 'New'){
+			update_post_meta( $post_id, '_propel_notify','new');
+		}
+		
+        delete_post_meta( $static_id, '_propel_before_author_new'); 
+		update_post_meta($post_id, '_propel_complete_before', $now_complete);  
+		$pos = array_search($currname, $notified);
+		unset($notified[$pos]);
+		return $notified;
+	}
 	/**
 	 * When a user is deleted, remove the term information and reassign
 	 * if requested.
@@ -534,24 +624,83 @@ class Propel_Authors {
 			$domain =  preg_replace('/^www\./','',$_SERVER['HTTP_HOST']); 
 			$current_user = wp_get_current_user();
 			
+			$post_owner = get_userdata( $post->post_author );
+			$complete_tag = get_post_meta( $post_id, '_propel_complete_tag',true);
+			$pnotify = get_post_meta( $post_id, '_propel_notify',true);
 			$headers = "From: $current_user->display_name <donotreply@$domain_name>" . "\r\n";
-			$subject = "New Task Assigned ($parent->post_title): $post->post_title";
-			$message .= "
-				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
-					<h3>$current_user->display_name assigned the following to you on the &#34;$parent->post_title&#34; project:</h3>
-					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
-					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
-				</div>
-			";
+			$subject = "";
+			$subject = self::set_subject($pnotify, $complete_tag, $parent->post_title, $post->post_title); 
+			$message = self::set_message($pnotify, $complete_tag, $current_user->display_name,
+			                             $post_owner->user_login, $parent->post_title,
+										 $post->guid,$post->post_title,$post->post_content);
+            
 			
-			foreach( $to as $login ) {
-				$user = get_user_by( 'login', $login );
-				
-				add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
-				wp_mail($user->user_email, $subject, $message, $headers);
+			if($subject != ""){ 
+					foreach( $to as $login ) {
+						$user = get_user_by( 'login', $login );
+						add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
+						wp_mail($user->user_email, $subject, $message, $headers);
+					}
 			}
+
 		}
 		
+	}
+	public static function set_subject($pnotify, $complete_tag, $parent_title, $post_title){
+		    if($pnotify == 'new'){
+				$subject = "New Task Assigned ($parent_title): $post_title";
+			} elseif($pnotify == 'proceed'){			
+			    $subject = " - Task is Re-Assigned ($parent_title): $post_title";
+			} 
+
+			if($complete_tag == 'completed'){
+				$subject .= " - Task Completed ($parent_title): $post_title";
+ 			} elseif($complete_tag == 'reverse'){
+				$subject .= " - Task is Re-Opened ($parent_title): $post_title";
+ 			}
+			
+			return $subject;
+	}
+	public static function set_message($pnotify, $complete_tag, $dname, $ulogin, 
+	                                   $parent_title, $guid, $post_title, $content){
+		    if ($pnotify == 'new'){
+			$message = "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>$dname assigned the following to $ulogin on the &#34;$parent_title&#34; project:</h3>
+					<p><b>&#34;<a href='$guid' style='color: #1E8CBE;'>$post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$content&#34;</p>
+				</div>
+			";
+			} elseif ($pnotify == 'proceed'){			
+			$message = "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>$dname re-assigned the following to $ulogin on the &#34;$post_title&#34; project:</h3>
+					<p><b>&#34;<a href='$guid' style='color: #1E8CBE;'>$post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$content&#34;</p>
+				</div>
+			";
+			}
+
+			if($complete_tag == 'completed'){
+			    $message .= "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>$dname has updated the project as 100% complete &#34;$parent_title&#34; project:</h3>
+					<p><b>&#34;<a href='$guid' style='color: #1E8CBE;'>$post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$content&#34;</p>
+				</div>
+			";
+			} elseif($complete_tag == 'reverse'){
+			    $message .= "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>$dname has reopened the project &#34;$parent_title&#34; project:</h3>
+					<p><b>&#34;<a href='$guid' style='color: #1E8CBE;'>$post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$content&#34;</p>
+				</div>
+			";
+			}
+	        
+
+			return $message;
 	}
 
 	/**

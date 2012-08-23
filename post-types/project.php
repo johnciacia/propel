@@ -211,6 +211,7 @@ class Post_Type_Project {
 			$new_columns['start'] = __( 'Start Date', 'propel' );
 		if( Propel_Options::option('show_end_date' ) )
 			$new_columns['end'] = __( 'End Date', 'propel' );
+		$new_columns['priority'] = __( 'Priority', 'propel' );
 		if( Propel_Options::option('show_progress' ) )
 			$new_columns['complete'] = __( 'Progress', 'propel' );
 		$new_columns['comments'] = $columns['comments'];
@@ -224,6 +225,7 @@ class Post_Type_Project {
 		$columns['client'] = 'client';
 		$columns['start'] = 'start';
 		$columns['end'] = 'end';
+		$columns['priority'] = 'priority';
 		$columns['complete'] = 'complete';
 		$columns['author'] = 'author';
 		return $columns;
@@ -268,7 +270,7 @@ class Post_Type_Project {
 				if($date) {
 				
 					echo date( get_option( 'date_format' ) , $date ); // Project's actual due date.
-					// echo "<br />" . date( get_option( 'date_format' ) . " G:i" ); Todays date.
+					echo "<br />" . date( get_option( 'date_format' ) . " G:i" ); // Todays date.
 					
 					$day   = date('d'); // Day of the countdown
 					$month = date('m'); // Month of the countdown
@@ -501,5 +503,4 @@ class Post_Type_Project {
 	<?php
 	}
 }
-
 ?>

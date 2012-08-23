@@ -28,6 +28,7 @@ class Post_Type_Task {
 		add_filter( 'post_row_actions', array( __CLASS__, 'post_row_actions' ), 10, 2 );
 		add_action( 'admin_footer', array( __CLASS__, 'admin_footer' ) );
 		add_filter( 'wp_insert_post_data', array( __CLASS__, 'wp_insert_post_data' ), 10, 2 );
+
 	}
 
 	public static function wp_insert_post_data( $data, $postarr ) {
@@ -97,7 +98,7 @@ class Post_Type_Task {
 				<span class="title">Priority</span>
 				<select name='priority' id='post_priority'>
 					<option value="0">Low</option>
-					<option value="1">Medium</option>
+					<option value="1">Mediumx</option>
 					<option value="2">High</option>
 				</select>
 			</div>
@@ -174,6 +175,8 @@ class Post_Type_Task {
 
 		update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
 		update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
+		
+		
 	}
 
 	public static function register_taxonomy() {
