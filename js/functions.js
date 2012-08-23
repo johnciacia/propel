@@ -36,28 +36,6 @@ jQuery(document).ready(function($) {
 				"aoColumns" : asdf
 	});
 
-	jQuery('.tasks-table tbody tr').click(function() {
-		if(jQuery('#details-' + jQuery(this).attr('id')).length > 0) {
-			jQuery('#details-' + jQuery(this).attr('id')).remove();
-		} else {
-			id = jQuery(this).attr('id');
-			jQuery(this).after('<tr id="details-'+id+'"><td colspan="9"><p id="detail-'+id+'" style="margin-left: 50px;">&nbsp;</p></td></tr>');	
-			get_details(id);
-			
-		}
-	});
-
-	/*
-	$('.tasks-table tbody tr').hover(
-		function() {
-			console.log($(this).children(':first'));
-			$(this).children(':first').toggleClass('toggle-arrow');
-		},
-		function() {
-			$(this).children(':first').toggleClass('toggle-arrow');
-		}
-	);
-	*/
 } );
 
 function get_details(id) {

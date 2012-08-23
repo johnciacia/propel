@@ -19,14 +19,21 @@
 		</tr>
 	</thead>
 
-    <tr class="toggle">
-        <td colspan="10"><p style="font-weight:bold;">
-            <?php 
-                $parent = get_post($post->post_parent); 
-                $parent_obj = get_post($parent);
-                esc_html_e($parent_obj->post_title);
-            ?>
-        </p></td>
+    <tr id="post_parent_">
+        <td>
+        	<p style="font-weight:bold;padding-left:5px;">
+				<?php 
+                    $parent = get_post($post->post_parent); 
+                    $parent_obj = get_post($parent);
+                    esc_html_e($parent_obj->post_title);
+                ?>
+            </p>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>    
     </tr>
 	
 	<?php
@@ -62,7 +69,7 @@
 		$current_user = wp_get_current_user();		
 		if ( $current_user->ID == $userdata->ID || $current_user->ID == 1) { 
 		?>
-		<tr id="<?php esc_attr_e( $task->ID ); ?>">
+		<tr class="toggle" id="<?php esc_attr_e( $task->ID ); ?>">
 		
 			<td class="gen-icon gen-delete-icon">
 				<a href="post.php?action=propel-delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
