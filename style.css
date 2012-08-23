@@ -48,3 +48,26 @@
 	width: 200px;
 	float: right;
 }
+
+.tasks-table p {
+	margin: 5px 0;
+}
+.tasks-table td {
+	padding: 0 0 0 1px;
+	min-width: auto;
+	color: #666;
+	text-shadow: 1px 1px #fff;
+}
+.tasks-table .title {
+	padding: 0 15px 0 0;
+}
+.tasks-table .author {
+	font-size: 10px;
+}
+.tasks-table .odd {
+	background: #fdfdfd;
+}
+.gen-icon {
+	margin: 0;
+	padding: 0;
+}

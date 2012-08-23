@@ -1,8 +1,8 @@
 === Propel ===
-Contributors: johnciacia, sidewindernet
-Tags: project, management, collaboration, tasks, project management, task management, basecamp
+Contributors: johnciacia, The Portland Company, sidewindernet
+Tags: project, management, collaboration, tasks, project management, task management, basecamp, mavenlink, do, crm, invoicing, invoices, estimates, estimating, task manager, project manager
 Requires at least: 3.0
-Tested up to: 3.3.1
+Tested up to: 3.4
 Stable tag: 2.0.4
 
 This plugin allows users to manage projects and tasks.
@@ -13,12 +13,9 @@ This plugin enables you to manage your projects from the
 WordPress interface you are already comfortable with. Easily
 create and track the progress of projects and tasks.
 
+It seamlessly integrates with WP-CRM and WP-Invoice, provided by <a href="http://www.usabilitydynamics.com" target="_blank">Usability Dynamics</a>.
+
 If you are having issues with this plugin you may submit a comment <a href="http://www.johnciacia.com/propel/">here</a> or ask on the <a href="http://wordpress.org/tags/propel">WordPress forum</a>.
-
-== Installation ==
-
-1. Download propel.zip and unzip it.
-2. Upload the plugin folder to wp-content/plugins/ and activate from the Plugin administrative menu.
 
 == Screenshots ==
 1. Front-end interface displaying one project. This is done  using [pl-projects id=x]. To display all your projects use [pl-projects]
