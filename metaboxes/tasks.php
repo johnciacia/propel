@@ -16,6 +16,16 @@
             <th></th>
 		</tr>
 	</thead>
+
+    <tr class="toggle">
+        <td colspan="10"><p style="font-weight:bold;">
+            <?php 
+                $parent = get_post($post->post_parent); 
+                $parent_obj = get_post($parent);
+                esc_html_e($parent_obj->post_title);
+            ?>
+        </p></td>
+    </tr>
 	
 	<?php
 	foreach($posts as $post) {
@@ -53,7 +63,10 @@
 		?>
             <tr class="toggle" id="<?php esc_attr_e( $task->ID ); ?>">
                 <td data-value="<?php esc_attr_e($task->post_title); ?>" class="propel_editable">
-                    <p><?php esc_html_e($task->post_title); ?></p></td>
+                    <p style="padding: 0 0 0 20px">
+						<?php esc_html_e($task->post_title); ?>
+                    </p>
+                </td>
     
                 <td data-value="<?php esc_attr_e( $priority ); ?>" class="propel_editable">
                     <p><?php 
