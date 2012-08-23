@@ -39,7 +39,7 @@ $customerSupportURL = $current_url;
 $wp_admin_bar->add_menu( array(
  'parent' => false,
  'id' => 'customer_support',
- 'title' => __('Preference')
+ 'title' => __('Context')
 ));
  
 $contactUsURL = $current_url;
