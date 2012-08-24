@@ -30,35 +30,36 @@ function ajax_update(x){
 add_action('admin_head','ajax_scripts');
 
 function mytheme_admin_bar_render() {
-global $wp_admin_bar;
-global $url_curr;
-global $wp;
-$current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; 
-$wp_admin_bar->remove_menu('updates');
-$customerSupportURL = $current_url;
-$wp_admin_bar->add_menu( array(
- 'parent' => false,
- 'id' => 'customer_support',
- 'title' => __('Context')
-));
- 
-$contactUsURL = $current_url;
-$wp_admin_bar->add_menu(array(
- 'parent' => 'customer_support',
- 'id' => 'adminpref',
- 'title' => __('Admin'),
- 'href' => $contactUsURL,
- 'meta' => array( 'onclick' => 'ajax_update("admin")' )
- )); 
-
- $contactUsURL = $current_url;
- $wp_admin_bar->add_menu(array(
- 'parent' => 'customer_support',
- 'id' => 'personalpref',
- 'title' => __('Personal'),
- 'href' => $contactUsURL,
- 'meta' => array( 'onclick' => 'ajax_update("personal")' )
- ));
+	global $wp_admin_bar;
+	global $url_curr;
+	global $wp;
+	$current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; 
+	$wp_admin_bar->remove_menu('updates');
+	$customerSupportURL = $current_url;
+	
+	$wp_admin_bar->add_menu( array(
+		'parent' => false,
+		'id' => 'customer_support',
+		'title' => __('Context')
+	));
+	
+	$contactUsURL = $current_url;
+	$wp_admin_bar->add_menu(array(
+		'parent' => 'customer_support',
+		'id' => 'adminpref',
+		'title' => __('Admin'),
+		'href' => $contactUsURL,
+		'meta' => array( 'onclick' => 'ajax_update("admin")' )
+	)); 
+	
+	$contactUsURL = $current_url;
+	$wp_admin_bar->add_menu(array(
+		'parent' => 'customer_support',
+		'id' => 'personalpref',
+		'title' => __('Personal'),
+		'href' => $contactUsURL,
+		'meta' => array( 'onclick' => 'ajax_update("personal")' )
+	));
 }
 
 add_action( 'wp_before_admin_bar_render', 'mytheme_admin_bar_render' );
@@ -157,21 +158,6 @@ function dashboard_client_archived_projects_metabox() {
 add_action('wp_dashboard_setup', 'dashboard_client_archived_projects_metabox');
 
 
-/* GANTT CHART */
-function dashboard_client_gantt_chart_metabox() {
-
-	function dashboard_client_gantt_chart_content() {
-		echo "
-			<img alt='Gannt Chart' src='/wp-content/themes/the-portland-company-version-three/images/gantt-chart.png' title='Gannt Chart' />
-		";
-	}
-
-	wp_add_dashboard_widget( 'dashboard_client_gantt_chart_content', __( 'Timeline' ), 'dashboard_client_gantt_chart_content' );
-
-}
-add_action('wp_dashboard_setup', 'dashboard_client_gantt_chart_metabox');
-
-
 /* SUPPORT REQUESTS */
 function dashboard_client_support_requests_metabox() {
 
@@ -187,100 +173,12 @@ function dashboard_client_support_requests_metabox() {
 
 add_action('wp_dashboard_setup', 'dashboard_client_support_requests_metabox');
 
-function dashboard_widget_function() {
-    global $user_ID;
-	$u = get_userdata($user_ID);
-	$part1 = "889999999999";
-	$current_user = wp_get_current_user();
-	$part2 = $current_user->ID;
-	$id = $part1 . $part2;
-	$static_id = (int)($id);
-	$profile = get_post_meta( $static_id, '_propel_preference',true);
-	if(empty($profile)){
-	   $profile = "personal";
-	}
-	if($profile == "personal"){
-			$args = array(
-				'numberposts' => -1,
-				'post_type' => 'propel_project',
-				'post_status' => 'publish',
-				'tax_query' => array(
-					 array(   
-						 'taxonomy' => 'author',
-						 'field' => 'name',
-						 'terms' => $u->user_login				
-					 )
-				 )	);
-	} else {
-			$args = array(
-				'numberposts' => -1,
-				'post_type' => 'propel_project',
-				'post_status' => 'publish'
-				 );
-	}
-	$projects = get_posts( $args );
-	echo "<table width='100%'>";
-	foreach( $projects as $project ) {
-		echo '<tr rowspan="3"><td><strong>' . $project->post_title . '</strong></td></tr>';
 
-		if($profile == "personal"){
-  		    $argv = array(
-					'numberposts' => -1,
-					'post_type' => 'propel_task',
-					'post_status' => 'publish',
-					'post_parent' => $project->ID,
-					'tax_query' => array(
-						array(   
-						 'taxonomy' => 'author',
-						 'field' => 'name',
-						 'terms' => $u->user_login				
-						)
-					)
-				);
-		} else {
-				$argv = array(
-							'numberposts' => -1,
-							'post_type' => 'propel_task',
-							'post_status' => 'publish',
-							'post_parent' => $project->ID
-						);
-		}
-		$tasks = get_posts( $argv );
-		
 
-		foreach( $tasks as $task ) {
-			$progress = get_post_meta( $task->ID, '_propel_complete', true );
-			echo "<tr>";
-			echo "<td width='200'>" . $task->post_title . "</td>";
-			echo "<td width='65%'><div class='propel-progress-bar' style='height:13px' title='$progress'></div></td>";
-			echo "<td>" . $progress . "%</td>";
-			echo "</tr>";
-		}
-	}
-	echo "</table>";
-?>
-	<script type="text/javascript">
-		jQuery(document).ready(function() {
-			jQuery('.propel-progress-bar').each(function() {
-				value = { value: parseInt(this.title) }
-				jQuery(this).progressbar( value )
-			})
-		})
-	</script>
-<?php
-}
-
-function add_dashboard_widgets() {
-	wp_add_dashboard_widget('dashboard_widget', 'Projects Overview', 'dashboard_widget_function');
-}
-
-add_action('wp_dashboard_setup', 'add_dashboard_widgets' );
-
-/*----------------------
-
-------------------------*/
+/* DASHBOARD METABOX THAT DISPLAYS PAST DUE TASKS */
 function Past_Due_Function() {
-  global $user_ID;
+
+	global $user_ID;
 	$u = get_userdata($user_ID);
 	$part1 = "889999999999";
 	$current_user = wp_get_current_user();
@@ -288,90 +186,101 @@ function Past_Due_Function() {
 	$id = $part1 . $part2;
 	$static_id = (int)($id);
 	$profile = get_post_meta( $static_id, '_propel_preference',true);
+	
 	if(empty($profile)){
-	   $profile = "personal";
+		$profile = "personal";
 	}
+	
 	if($profile == "personal"){
-			$args = array(
-				'numberposts' => -1,
-				'post_type' => 'propel_project',
-				'post_status' => 'publish',
-				'tax_query' => array(
-					 array(   
-						 'taxonomy' => 'author',
-						 'field' => 'name',
-						 'terms' => $u->user_login				
-					 )
-				 )	);
+		$args = array(
+			'numberposts' => -1,
+			'post_type' => 'propel_project',
+			'post_status' => 'publish',
+			'tax_query' => array(
+				array(
+				'taxonomy' => 'author',
+				'field' => 'name',
+				'terms' => $u->user_login				
+				)
+			)
+		);
 	} else {
-			$args = array(
-				'numberposts' => -1,
-				'post_type' => 'propel_project',
-				'post_status' => 'publish'
-				 );
+		$args = array(
+		'numberposts' => -1,
+		'post_type' => 'propel_project',
+		'post_status' => 'publish'
+		);
 	}
+	
 	$projects = get_posts( $args );
+	
 	echo "<table width='100%'>";
+	
 	foreach( $projects as $project ) {
+		
 		if($profile == "personal"){
-  		    $argv = array(
-					'numberposts' => -1,
-					'post_type' => 'propel_task',
-					'post_status' => 'publish',
-					'post_parent' => $project->ID,
-					'tax_query' => array(
-						array(   
-						 'taxonomy' => 'author',
-						 'field' => 'name',
-						 'terms' => $u->user_login				
-						)
-					)
-				);
+		
+		$argv = array(
+			'numberposts' => -1,
+			'post_type' => 'propel_task',
+			'post_status' => 'publish',
+			'post_parent' => $project->ID,
+			'tax_query' => array(
+				array(   
+				'taxonomy' => 'author',
+				'field' => 'name',
+				'terms' => $u->user_login				
+				)
+			)
+		);
+		
 		} else {
-				$argv = array(
-							'numberposts' => -1,
-							'post_type' => 'propel_task',
-							'post_status' => 'publish',
-							'post_parent' => $project->ID
-						);
+			$argv = array(
+				'numberposts' => -1,
+				'post_type' => 'propel_task',
+				'post_status' => 'publish',
+				'post_parent' => $project->ID
+			);
 		}
+		
 		$tasks = get_posts( $argv );
-		foreach( $tasks as $task ) {
-				$progress = get_post_meta( $task->ID, '_propel_complete', true );
-				$date = get_post_meta( $task->ID, '_propel_end_date', true );
-				if($date) {
 				
-					//echo date( get_option( 'date_format' ) , $date ); // Project's actual due date.
-						
-					$day   = date('d'); // Day of the countdown
-					$month = date('m'); // Month of the countdown
-					$year  = date('Y'); // Year of the countdown
-					$hour  = date('H'); // Hour of the day (east coast time)
-					
-					$calculation = ( $date - time() ) / 3600;
-					$hours = (int)$calculation + 24;
-					$days  = (int)( $hours / 24 ) - 1;
-					
-					$hours_remaining = $hours-($days*24)-24;
-					
-							if ( $hours < 0 && $hours > -24 ) {
-								 
-								  echo "<tr>";
-									echo "<td width='200'><a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
-									echo " <td width='200'><span style='color: red;'>" . str_replace( '-', '', $hours) 
-									. " hours past due.</span></td>";
-								  echo "</tr>";
-							} 
-							
-							if ( $hours < -24 ) {
-								  echo "<tr>";
-									echo "<td width='200'><a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
-									echo " <td width='200'><span style='color: red; font-weight: bold;'>" 
-									. str_replace( '-', '', $days) . " days past due.</span></td>";
-								  echo "</tr>";
-							}
-					
-				  }
+		foreach( $tasks as $task ) {
+		
+			$progress = get_post_meta( $task->ID, '_propel_complete', true );
+			$date = get_post_meta( $task->ID, '_propel_end_date', true );
+			
+			if($date) {
+			
+				//echo date( get_option( 'date_format' ) , $date ); // Project's actual due date.
+				
+				$day   = date('d'); // Day of the countdown
+				$month = date('m'); // Month of the countdown
+				$year  = date('Y'); // Year of the countdown
+				$hour  = date('H'); // Hour of the day (east coast time)
+				
+				$calculation = ( $date - time() ) / 3600;
+				$hours = (int)$calculation + 24;
+				$days  = (int)( $hours / 24 ) - 1;
+				
+				$hours_remaining = $hours-($days*24)-24;
+				
+				if ( $hours < 0 && $hours > -24 ) {
+					echo "<tr>";
+					echo "<td><a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
+					echo "<td><span style='color: red;'>" . str_replace( '-', '', $hours) 
+					. " hours past due.</span></td>";
+					echo "</tr>";
+				}
+			
+				if ( $hours < -24 ) {
+					echo "<tr>";
+					echo "<td><a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
+					echo " <td><span style='color: red; font-weight: bold;'>" 
+					. str_replace( '-', '', $days) . " days past due.</span></td>";
+					echo "</tr>";
+				}
+			}
 		}
 	}
 	echo "</table>";
@@ -417,33 +326,40 @@ function Due_Today_Tomorrow_Function() {
 				 );
 	}
 	$projects = get_posts( $args );
+	
 	echo "<table width='100%'>";
+	
 	foreach( $projects as $project ) {
-		echo '<tr rowspan="3"><td><strong>' . $project->post_title . '</strong></td></tr>';
 
-		if($profile == "personal"){
+		if($profile == "personal") {
   		    $argv = array(
-					'numberposts' => -1,
-					'post_type' => 'propel_task',
-					'post_status' => 'publish',
-					'post_parent' => $project->ID,
-					'tax_query' => array(
-						array(   
-						 'taxonomy' => 'author',
-						 'field' => 'name',
-						 'terms' => $u->user_login				
-						)
+				'numberposts' => -1,
+				'post_type' => 'propel_task',
+				'post_status' => 'publish',
+				'post_parent' => $project->ID,
+				'tax_query' => array(
+					array(   
+					 'taxonomy' => 'author',
+					 'field' => 'name',
+					 'terms' => $u->user_login				
 					)
-				);
+				)
+			);
 		} else {
-				$argv = array(
-							'numberposts' => -1,
-							'post_type' => 'propel_task',
-							'post_status' => 'publish',
-							'post_parent' => $project->ID
-						);
+			$argv = array(
+				'numberposts' => -1,
+				'post_type' => 'propel_task',
+				'post_status' => 'publish',
+				'post_parent' => $project->ID
+			);
 		}
+		
 		$tasks = get_posts( $argv );
+		
+		if ( !isset($tasks) ) {
+			echo '<tr rowspan="3"><td><strong>' . $project->post_title . '</strong></td></tr>';
+		}
+		
 		foreach( $tasks as $task ) {
 				$progress = get_post_meta( $task->ID, '_propel_complete', true );
 				$date = get_post_meta( $task->ID, '_propel_end_date', true );
@@ -462,22 +378,22 @@ function Due_Today_Tomorrow_Function() {
 					
 					$hours_remaining = $hours-($days*24)-24;
 					
-							if ( $hours <= 48 && $hours >= 24 ) {
-								 
-								  echo "<tr>";
-					                echo "<td width='200'><a href='"
-									 .get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
-									echo " <td width='200'><span style='color: brown;'>Due tomorrow.</span></td>";
-					              echo "</tr>";
-							} 
-							
-							if ( $hours <= 24 && $hours >= 0 ) {
-								  echo "<tr>";
-					                echo "<td width='200'><a href='"
-									.get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
-									echo " <td width='200'><span style='color: brown;'>Due today.</span></td>";
-					              echo "</tr>";
-							}
+					if ( $hours <= 48 && $hours >= 24 ) {
+						 
+						  echo "<tr>";
+			                echo "<td><a href='"
+							 .get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
+							echo " <td><span style='color: brown;'>Due tomorrow.</span></td>";
+			              echo "</tr>";
+					} 
+					
+					if ( $hours <= 24 && $hours >= 0 ) {
+						  echo "<tr>";
+			                echo "<td><a href='"
+							.get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
+							echo " <td><span style='color: brown;'>Due today.</span></td>";
+			              echo "</tr>";
+					}
 					
 				  }
 		}
@@ -486,7 +402,7 @@ function Due_Today_Tomorrow_Function() {
 } 
 
 function Due_Today_Tomorrow_Hook() {
-	wp_add_dashboard_widget('duetodaytomorrow_dashboard_widget', 'Due Today And Tomorrow Tasks', 'Due_Today_Tomorrow_Function');	
+	wp_add_dashboard_widget('duetodaytomorrow_dashboard_widget', 'Tasks Due Today And Tomorrow', 'Due_Today_Tomorrow_Function');	
 } 
 add_action('wp_dashboard_setup', 'Due_Today_Tomorrow_Hook' ); 
 

@@ -71,3 +71,13 @@
 	margin: 0;
 	padding: 0;
 }
+.metabox-add-task-title {
+	width: 270px;
+}
+.metabox-add-task-description {
+	float: left;
+	clear: both;
+	height: 23px;
+	margin: 0 0 2px 0;
+	width: 100%;
+}
