@@ -1,9 +1,33 @@
+<?php
+/* this will be an ajax search for the contributors
+ * - have replaced the existing and placed it in an
+ *   ajax called file list-authors_ajax.php
+ */
+?>
+<script type="text/javascript">
+function _list_authors(){
+	var http_req = new XMLHttpRequest();
+	var module = "<?php echo plugins_url(); ?>/propel2/metaboxes/list-authors_ajax.php";
+	var user = document.getElementById("users_get").value; 
+	var vars = "user="+ user ; 
+	http_req.open("POST", module, true);
+	http_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	http_req.onreadystatechange = function(){
+		if (http_req.readyState == 4 && http_req.status == 200){
+			var return_info = http_req.responseText;
+			document.getElementById("result_get").innerHTML = return_info;
+		}
+	}
+	http_req.send(vars); 	
+	document.getElementById("result_get").innerHTML = "..searching";
+}
+</script>
 <?php $users = get_users( array( 'orderby' => 'display_name', 'order' => 'ASC' ) ); ?>
 
 <div id="propel_list_users" class="categorydiv">
 	<ul id="propel_list_users-tabs" class="category-tabs">
 		<li class="tabs">
-			<a href="#propel_user-all">All Users</a>
+			<a href="#propel_user-all">All Contributors</a>
 		</li>
 	</ul>
 
@@ -13,10 +37,17 @@
 		<?php foreach($users as $user) : ?>
 			<li id="propel_user-<?php esc_attr_e($user->ID); ?>" class="popular-category">
 				<label class="selectit">
+				    <?php if( propel_is_coauthor( $user->ID ) ) { ?>
 					<input value="<?php  esc_attr_e($user->user_login); ?>" type="checkbox" name="coauthors[]" id="in-propel_user-<?php echo $user->ID; ?>" <?php 
+				
 					if( propel_is_coauthor( $user->ID ) ) { echo "checked='checked' "; }
 					if( propel_is_parent_coauthor( $user->ID ) ) { echo "disabled='disabled'"; }
-					?>> <?php esc_html_e($user->display_name); ?>
+				
+					?>> <?php esc_html_e($user->display_name); 
+					}
+					?>
+					
+					
 					<?php
 					if( propel_is_parent_coauthor( $user->ID ) ) {
 					?>
@@ -50,4 +81,13 @@ function propel_is_parent_coauthor( $user_id ) {
 		if($coauthor->ID == $user_id) return true;
 	}
 	return false;
-}
+}?>
+
+
+<input type="text" id="users_get">
+<input type="hidden" id="hidden_post" value="<?php echo $post->ID; ?>">
+<input type="button" id="srch_usrs" onClick="javascript:_list_authors();" value="Search">
+<div style="clear:both"></div>
+
+<div id="result_get"></div>
+

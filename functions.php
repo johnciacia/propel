@@ -17,11 +17,6 @@ function ajax_update(x){
 	http_req.onreadystatechange = function(){
 	}
 	http_req.send(); 	
-	if (x == "admin"){ 
-      alert("This will revert to Admin Settings.");
-    } else if(x == "personal"){
-      alert("This will revert to Personal Settings.");
-    }
 }
 </script>
 <?php
@@ -36,11 +31,24 @@ function mytheme_admin_bar_render() {
 	$current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; 
 	$wp_admin_bar->remove_menu('updates');
 	$customerSupportURL = $current_url;
+	$part1 = "889999999999";
+	$current_user = wp_get_current_user();
+	$part2 = $current_user->ID;
+	$id = $part1 . $part2;
+	$static_id = (int)($id);
+	$profile = get_post_meta( $static_id, '_propel_preference',true);
+	if(empty($profile)){
+	   $title = "Context - Personal";
+	} elseif($profile == 'personal'){
+	   $title = "Context - Personal";
+	} elseif($profile == 'admin'){
+	   $title = "Context - Admin";
+	}
 	
 	$wp_admin_bar->add_menu( array(
 		'parent' => false,
 		'id' => 'customer_support',
-		'title' => __('Context')
+		'title' => __($title)
 	));
 	
 	$contactUsURL = $current_url;
@@ -392,7 +400,7 @@ function Due_Today_Tomorrow_Function() {
 } 
 
 function Due_Today_Tomorrow_Hook() {
-	wp_add_dashboard_widget('duetodaytomorrow_dashboard_widget', 'Tasks Due Today And Tomorrow', 'Due_Today_Tomorrow_Function');	
+  wp_add_dashboard_widget('duetodaytomorrow_dashboard_widget', 'Tasks Due Today And Tomorrow', 'Due_Today_Tomorrow_Function');	
 } 
 add_action('wp_dashboard_setup', 'Due_Today_Tomorrow_Hook' ); 
 

@@ -1,3 +1,33 @@
+<?php
+/* this will be an ajax search for the Owners / Authors
+ */
+?>
+<script type="text/javascript">
+function _list_owners(){
+	var http_req = new XMLHttpRequest();
+	var module = "<?php echo plugins_url(); ?>/propel2/metaboxes/owner_ajax.php";
+	var user = document.getElementById("propel_post_author2").value; 
+	var vars = "user="+ user ; 
+	http_req.open("POST", module, true);
+	http_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	http_req.onreadystatechange = function(){
+		if (http_req.readyState == 4 && http_req.status == 200){
+			var return_info = http_req.responseText;
+			document.getElementById("owner_result").innerHTML = return_info;
+		}
+	}
+	http_req.send(vars); 	
+	document.getElementById("owner_result").innerHTML = "..searching";
+}
+
+var $state = jQuery.noConflict();
+$state(document).ready(function(){
+		$state("#propel_post_author").live('change',function(){
+			document.getElementById('propel_post_author2').value = $state("#propel_post_author option:selected").text();
+		});
+});
+</script>
+
 <table width="100%">
 	<?php
 		$projects = get_posts( array( 'post_type' => 'propel_project', 'numberposts' => -1 ) );
@@ -80,18 +110,15 @@
 
 	<tr>
 		<td><p>Manager</p></td>
-		<td>
-			<?php
-			$args = array(
-				'name' => 'propel_post_author',
-				'show_option_none' => 'Unassigned',
-				'orderby' => 'display_name',
-				'name' => 'propel_post_author', 
-				'selected' => $post->post_author
-			);
-			wp_dropdown_users( $args );
-			?>
+		<td style="position:relative">
+		<?php $user_info = get_userdata($post->post_author); ?>
+			<input type="text" name="propel_post_author2" id="propel_post_author2" value="<?php echo $user_info->user_login;  ?>" >
+			<input type="button" value="search" style="position:absolute; left:223px;" onClick="_list_owners();">
 		</td>
 	</tr>
+		<tr id="owner_result">
+
+	</tr>
+	
 	
 </table>
