@@ -1,7 +1,7 @@
-<input class="metabox-add-task-title" type="text" name="task_title" id="_task_title" placeholder="Title" class="widefat" />
+<input class="metabox-add-task-title widefat" type="text" name="task_title" id="_task_title" placeholder="Title" />
 
 <?php if( Propel_Options::option('show_end_date' ) ) : ?>
-<input class="metabox-add-task-title" type="text" name="task_end_date" placeholder="End Date" class="widefat date" />
+<input class="metabox-add-task-title widefat date" type="text" name="task_end_date" placeholder="End Date" />
 <?php endif; ?>
 
 <label>Manager:</label>
