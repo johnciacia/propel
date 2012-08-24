@@ -354,7 +354,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);
-		require( dirname(__FILE__) . '/../metaboxes/tasks.php');
+		require( dirname(__FILE__) . '/../metaboxes/project-tasks.php');
 	}
 
 	/**
@@ -373,7 +373,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);		
-		require( dirname(__FILE__) . '/../metaboxes/tasks.php' );
+		require( dirname(__FILE__) . '/../metaboxes/project-tasks.php' );
 	}
 
 	/**

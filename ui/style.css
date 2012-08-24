@@ -49,6 +49,18 @@
 	float: right;
 }
 
+.tasks-table thead tr th {
+	padding: 0 !important;
+}
+.tasks-table thead p {
+	color: #666;
+	font-weight: bold;
+	text-shadow: 1px 1px #fff;
+}
+.tasks-table .start-date, .tasks-table .end-date {
+	font-size: 10px;
+	color: #999;
+}
 .tasks-table p {
 	margin: 5px 0;
 }
@@ -79,5 +91,15 @@
 	clear: both;
 	height: 23px;
 	margin: 0 0 2px 0;
+	width: 100%;
+}
+#propel_project_tasks .inside table {
+	border: none;
+}
+#propel_project_tasks .inside {
+	margin: 0;
+	padding: 0;
+}
+#propel_project_tasks input[type='text'] {
 	width: 100%;
 }

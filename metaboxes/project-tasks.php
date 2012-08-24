@@ -1,14 +1,45 @@
+<!-- Spencer tried adding this but adding tasks simply doesn't work. It also appears in the "completed" list.
+<table>
+	<tr>
+		<td>
+			<input class="metabox-add-task-title" type="text" name="task_title" id="_task_title" placeholder="Title" class="widefat" />
+
+			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
+			<input class="metabox-add-task-title" type="text" name="task_end_date" placeholder="End Date" class="widefat date" />
+			<?php endif; ?>
+
+			<label>Manager:</label>
+			<?php 
+			$current_user = wp_get_current_user();
+			$args = array(
+			'class' => 'metabox-add-task-user',
+			'name' => 'propel_post_author',
+			'show_option_none' => 'Unassigned',
+			'orderby' => 'display_name',
+			'selected' => $current_user->ID
+			);
+			wp_dropdown_users( $args );
+			?>
+			<input class="metabox-add-task-button button-primary" type="button" id="add-task" value="Add Task" />
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<textarea class="metabox-add-task-description widefat" name="task_description" id="_task_desc" placeholder="Description"></textarea>
+		</td>
+	</tr>
+</table>
+-->
 <table width="100%" class="gen-table tasks-table" id="propel-tasks">
 	<thead>
 		<tr>
-			<th></th>
-			<th></th>
-			<th></th>
-			<th class="sortable"><p>Name</p></th>
-			<th class="sortable"><p>Owner</p></th>
+			<th colspan="3">
+			</th>
+			<th class="sortable"><p>Title</p></th>
+			<th class="sortable"><p>Contributors</p></th>
 			
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
-				<th class="sortable"><p>Start</p></th>
+				<th class="sortable"><p>Started</p></th>
 			<?php endif; ?>
 			
 			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
@@ -20,15 +51,7 @@
 	</thead>
 
     <tr id="post_parent_">
-        <td>
-        	<p style="font-weight:bold;padding-left:5px;">
-				<?php 
-                    $parent = get_post($post->post_parent); 
-                    $parent_obj = get_post($parent);
-                    esc_html_e($parent_obj->post_title);
-                ?>
-            </p>
-        </td>
+        <td></td>
         <td></td>
         <td></td>
         <td></td>
@@ -40,7 +63,7 @@
         <?php if( Propel_Options::option('show_end_date' ) ) : ?>
             <td></td>
         <?php endif; ?>
-        <td></td>            
+        <td></td>
     </tr>
 	
 	<?php
@@ -106,7 +129,9 @@
 			<?php endif; ?>
 
 			<td data-value="<?php esc_attr_e( $progress ); ?>">
-				<p><?php esc_html_e($progress); ?>%</p></td>
+				<progress max="100" value="<?php esc_html_e($progress); ?>">
+				</progress>
+			</td>
 		</tr>
 		<?php
 		}
@@ -115,11 +140,3 @@
 	?>
 
 </table>
-<div style="clear:both;"></div>
-<script type="text/JavaScript">
-
-	function gen_expand(elem) {
-		jQuery('#gen-row-' + elem.id).toggle();
-	}
-	
-</script>
