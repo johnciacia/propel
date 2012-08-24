@@ -191,33 +191,19 @@ function Past_Due_Function() {
 		$profile = "personal";
 	}
 	
-	if($profile == "personal"){
-		$args = array(
-			'numberposts' => -1,
-			'post_type' => 'propel_project',
-			'post_status' => 'publish',
-			'tax_query' => array(
-				array(
-				'taxonomy' => 'author',
-				'field' => 'name',
-				'terms' => $u->user_login				
-				)
-			)
-		);
-	} else {
-		$args = array(
+	$args = array(
 		'numberposts' => -1,
 		'post_type' => 'propel_project',
 		'post_status' => 'publish'
-		);
-	}
+	);
+	
 	
 	$projects = get_posts( $args );
 	
 	echo "<table width='100%'>";
 	
 	foreach( $projects as $project ) {
-		
+		$display = 0;
 		if($profile == "personal"){
 		
 		$argv = array(
@@ -246,7 +232,7 @@ function Past_Due_Function() {
 		$tasks = get_posts( $argv );
 				
 		foreach( $tasks as $task ) {
-		
+		    
 			$progress = get_post_meta( $task->ID, '_propel_complete', true );
 			$date = get_post_meta( $task->ID, '_propel_end_date', true );
 			
@@ -266,6 +252,10 @@ function Past_Due_Function() {
 				$hours_remaining = $hours-($days*24)-24;
 				
 				if ( $hours < 0 && $hours > -24 ) {
+					if ($display == 0){
+						echo "<td><span style='font-weight: bold;'>" .$project->post_title. "</span></td>";
+					    $display++;
+					}
 					echo "<tr>";
 					echo "<td><a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
 					echo "<td><span style='color: red;'>" . str_replace( '-', '', $hours) 
@@ -274,6 +264,10 @@ function Past_Due_Function() {
 				}
 			
 				if ( $hours < -24 ) {
+					if ($display == 0){
+						echo "<td><span style='font-weight: bold;'>" .$project->post_title. "</span></td>";
+					    $display++;
+					}
 					echo "<tr>";
 					echo "<td><a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
 					echo " <td><span style='color: red; font-weight: bold;'>" 
@@ -306,31 +300,19 @@ function Due_Today_Tomorrow_Function() {
 	if(empty($profile)){
 	   $profile = "personal";
 	}
-	if($profile == "personal"){
-			$args = array(
-				'numberposts' => -1,
-				'post_type' => 'propel_project',
-				'post_status' => 'publish',
-				'tax_query' => array(
-					 array(   
-						 'taxonomy' => 'author',
-						 'field' => 'name',
-						 'terms' => $u->user_login				
-					 )
-				 )	);
-	} else {
-			$args = array(
-				'numberposts' => -1,
-				'post_type' => 'propel_project',
-				'post_status' => 'publish'
-				 );
-	}
+
+	$args = array(
+		'numberposts' => -1,
+		'post_type' => 'propel_project',
+		'post_status' => 'publish'
+		 );
+	
 	$projects = get_posts( $args );
 	
 	echo "<table width='100%'>";
 	
 	foreach( $projects as $project ) {
-
+        $display = 0;
 		if($profile == "personal") {
   		    $argv = array(
 				'numberposts' => -1,
@@ -361,6 +343,7 @@ function Due_Today_Tomorrow_Function() {
 		}
 		
 		foreach( $tasks as $task ) {
+			
 				$progress = get_post_meta( $task->ID, '_propel_complete', true );
 				$date = get_post_meta( $task->ID, '_propel_end_date', true );
 				if($date) {
@@ -379,7 +362,10 @@ function Due_Today_Tomorrow_Function() {
 					$hours_remaining = $hours-($days*24)-24;
 					
 					if ( $hours <= 48 && $hours >= 24 ) {
-						 
+					    if ($display == 0){
+							echo "<td><span style='font-weight: bold;'>" .$project->post_title. "</span></td>";
+					    	$display++;
+					    }
 						  echo "<tr>";
 			                echo "<td><a href='"
 							 .get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
@@ -388,6 +374,10 @@ function Due_Today_Tomorrow_Function() {
 					} 
 					
 					if ( $hours <= 24 && $hours >= 0 ) {
+					    if ($display == 0){
+							echo "<td><span style='font-weight: bold;'>" .$project->post_title. "</span></td>";
+					    	$display++;
+					    }
 						  echo "<tr>";
 			                echo "<td><a href='"
 							.get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
