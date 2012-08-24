@@ -24,7 +24,6 @@ class Post_Type_Project {
 		add_action( 'wp_ajax_update_task', array( __CLASS__, 'wp_ajax_update_task' ) );
 		add_action( 'wp_ajax_get_task_detail', array( __CLASS__, 'wp_ajax_get_task_detail' ) );
 		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
-		add_action( 'propel_add_task', array( __CLASS__, 'add_task' ) );
 		add_filter( 'request', array( __CLASS__, 'request' ) );
 	}
 
@@ -332,10 +331,10 @@ class Post_Type_Project {
 		add_meta_box( 'propel_project_meta', __('Project', 'propel' ),
 			array( __CLASS__, 'edit_project_meta'), 'propel_project', 'side' );
 
-		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {
+		if( isset($_GET['action']) && $_GET['action'] == "edit" ) {		
+			add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'normal', 'high', 10, 2);
 			add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),	array( __CLASS__, 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 			add_meta_box('propel_completed_tasks', __('Completed Tasks', 'propel'), array( __CLASS__, 'completed_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
-			//add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'side');
 		}
 	}
 
@@ -374,7 +373,6 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);		
-		do_action( 'propel_add_task' );
 		require( dirname(__FILE__) . '/../metaboxes/tasks.php' );
 	}
 
@@ -782,7 +780,13 @@ class Post_Type_Project {
                     ?>                        
                 </p>
             </td>
+			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
+                <td></td>
+            <?php endif; ?>
             
+            <?php if( Propel_Options::option('show_end_date' ) ) : ?>
+                <td></td>
+            <?php endif; ?>
 			<td data-value="<?php esc_attr_e( $progress ); ?>" class="propel_editable">
 				<p>
 				    <select name="complete" id="propel_edit_progress">
