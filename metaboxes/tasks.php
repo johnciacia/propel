@@ -33,7 +33,14 @@
         <td></td>
         <td></td>
         <td></td>
-        <td></td>    
+		<?php if( Propel_Options::option('show_start_date' ) ) : ?>
+            <td></td>
+        <?php endif; ?>
+        
+        <?php if( Propel_Options::option('show_end_date' ) ) : ?>
+            <td></td>
+        <?php endif; ?>
+        <td></td>            
     </tr>
 	
 	<?php
