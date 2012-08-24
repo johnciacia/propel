@@ -1,7 +1,7 @@
-/* beginning of metaboxes */
-/* beginning of metaboxes */
-/* beginning of metaboxes */
-
+/* There appears to be a div in the lower left of WordPress that displays with this class, can't tell what it's related to so this should get figured out at some point. */
+#ui-datepicker-div {
+	display: none;
+}
 
 
 /* beginning of metaboxes-project-meta */
