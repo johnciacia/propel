@@ -33,8 +33,10 @@
 <table width="100%" class="gen-table tasks-table" id="propel-tasks">
 	<thead>
 		<tr>
-			<th colspan="3">
-			</th>
+			<!--Change back to elements instead of colspan. The datables will raise an error using colspan when initialize-->
+            <th></th>
+            <th></th>
+            <th></th>
 			<th class="sortable"><p>Title</p></th>
 			<th class="sortable"><p>Contributors</p></th>
 			
@@ -49,22 +51,6 @@
 			<th class="sortable"><p>Progress</p></th>
 		</tr>
 	</thead>
-
-    <tr id="post_parent_">
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-		<?php if( Propel_Options::option('show_start_date' ) ) : ?>
-            <td></td>
-        <?php endif; ?>
-        
-        <?php if( Propel_Options::option('show_end_date' ) ) : ?>
-            <td></td>
-        <?php endif; ?>
-        <td></td>
-    </tr>
 	
 	<?php
 	foreach($posts as $post) {
@@ -99,38 +85,38 @@
 		$current_user = wp_get_current_user();		
 		if ( $current_user->ID == $userdata->ID || $current_user->ID == 1) { 
 		?>
-		<tr class="toggle" id="<?php esc_attr_e( $task->ID ); ?>">
+		<tr id="<?php esc_attr_e( $task->ID ); ?>">
 		
 			<td class="gen-icon gen-delete-icon">
 				<a href="post.php?action=propel-delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
 
 			<td class="gen-icon gen-edit-icon">
-				<a href="post.php?post=<?php esc_attr_e( $task->ID ); ?>&action=edit" title="Edit">Edit</a></td>
+				<a href="#" title="Edit">Edit</a></td>
 
 			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
 				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
 				
-			<td class="title" class="toggle" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
-				<p><?php esc_html_e($task->post_title); ?></p></td>
+			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
+				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($task->post_title); ?></p></td>
 
 			<td class="owner" data-value="<?php esc_attr_e( $author ); ?>">
-				<p><?php esc_html_e($author); ?></p>
+				<p id="edit_owner_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($author); ?></p>
 			</td>
 
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 			<td data-value="<?php esc_attr_e( $start ); ?>">
-				<p style="font-size: 10px; color: #999;"><?php esc_html_e($start); ?></p>
+				<p style="font-size: 10px; color: #999;" id="edit_sdate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($start); ?></p>
 			</td>
 			<?php endif; ?>
 
 			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
 			<td data-value="<?php esc_attr_e( $end ); ?>">
-				<p style="font-size: 10px; color: #999;"><?php esc_html_e($end); ?></p></td>
+				<p style="font-size: 10px; color: #999;" id="edit_edate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($end); ?></p></td>
 			<?php endif; ?>
 
 			<td data-value="<?php esc_attr_e( $progress ); ?>">
-				<progress max="100" value="<?php esc_html_e($progress); ?>">
-				</progress>
+				<p style="font-size: 10px; color: #999;" id="edit_progr_<?php esc_attr_e( $task->ID ); ?>"><progress max="100" value="<?php esc_html_e($progress); ?>">
+				</progress></p>
 			</td>
 		</tr>
 		<?php
