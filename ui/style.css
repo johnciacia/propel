@@ -45,8 +45,18 @@
 	float: right;
 }
 .metaboxes-add-task .task-owner {
-	width: 200px;
 	float: right;
+}
+.metabox-add-task-title {
+	width: 270px;
+}
+.metabox-add-task-date {
+	width: 150px;
+}
+.metabox-add-task-description {
+	height: 33px;
+	margin: 5px 0 2px 0;
+	width: 100%;
 }
 
 .tasks-table thead tr th {
@@ -83,23 +93,19 @@
 	margin: 0;
 	padding: 0;
 }
-.metabox-add-task-title {
-	width: 270px;
-}
-.metabox-add-task-description {
-	height: 33px;
-	margin: 5px 0 2px 0;
-	width: 100%;
-}
 #propel_add_task .inside p {
 	margin:0;
 }
-#propel_project_tasks .inside table {
+#propel_project_tasks .inside table, #propel_completed_tasks .inside table {
 	border: none;
 }
-#propel_project_tasks .inside {
+#propel_project_tasks .inside, #propel_completed_tasks .inside {
 	margin: 0;
 	padding: 0;
+}
+.dataTables_empty p {
+	color: #999;
+	padding: 0 0 0 5px;
 }
 #propel_project_tasks input[type='text'] {
 	width: 100%;
