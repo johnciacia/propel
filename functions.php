@@ -1,28 +1,23 @@
 <?php
+
 /*
  * aps2012
  */
-function ajax_scripts(){?>
-<script type="text/javascript">
-function ajax_update(x){
-		
-	var http_req = new XMLHttpRequest();
-	if (x == "admin"){ 
-		var php_file = "<?php echo plugins_url(); ?>/propel/ajax-admin.php";
-	} else if(x == "personal"){
-		var php_file = "<?php echo plugins_url(); ?>/propel/ajax-personal.php";
-    }
-	http_req.open("POST", php_file, true);
-	http_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	http_req.onreadystatechange = function(){
-	}
-	http_req.send(); 	
-}
-</script>
-<?php
-}
+function set_context(){
+   	$part1 = "889999999999";
+	$current_user = wp_get_current_user();
+	$part2 = $current_user->ID;
+	$id = $part1 . $part2;
+	$static_id = (int)($id);
 
-add_action('admin_head','ajax_scripts');
+	if ($_REQUEST['context'] == 'admin'){
+		update_post_meta( $static_id, '_propel_preference',"admin");
+	} elseif ($_REQUEST['context'] == 'personal'){
+		update_post_meta( $static_id, '_propel_preference',"personal");
+	}
+	
+}
+add_action( 'admin_init', 'set_context' ); 
 
 function mytheme_admin_bar_render() {
 	global $wp_admin_bar;
@@ -56,7 +51,7 @@ function mytheme_admin_bar_render() {
 		'parent' => 'customer_support',
 		'id' => 'adminpref',
 		'title' => __('Admin'),
-		'href' => $contactUsURL,
+		'href' => parse_url(get_admin_url(),PHP_URL_PATH)."?context=admin",
 		'meta' => array( 'onclick' => 'ajax_update("admin")' )
 	)); 
 	
@@ -65,7 +60,7 @@ function mytheme_admin_bar_render() {
 		'parent' => 'customer_support',
 		'id' => 'personalpref',
 		'title' => __('Personal'),
-		'href' => $contactUsURL,
+		'href' => parse_url(get_admin_url(),PHP_URL_PATH)."?context=personal",
 		'meta' => array( 'onclick' => 'ajax_update("personal")' )
 	));
 }
@@ -208,7 +203,30 @@ function Past_Due_Function() {
 	
 	$projects = get_posts( $args );
 	
-	echo "<table width='100%'>";
+	echo "
+	<table width='100%'>
+	<div>
+	<style>
+	 .pdue_title{ width:100%; height:20px; position:relative; margin:3px 0px;}
+	 .pdue_title a{text-decoration:none; border:0px; font-weight:bold; color: #000;}
+	 .task_name{ float:left; width:480px; }
+	 .task_remark{ float:left; width:100px; }
+	 </style>
+	 <script type='text/javascript'>
+	  var togl = jQuery.noConflict();
+	  togl(document).ready(function(){
+	      togl('.pdue_title a').click(function(){
+			  togl(this).parent().parent().nextAll('.pdue_tasks').eq(0).toggle();
+			  });
+		  togl('.pdue_title a').hover(function(){
+			  togl(this).css({'border':'1px solid #CCC', padding:'3px'});
+		  });	  
+		  togl('.pdue_title a').mouseout(function(){
+			  togl(this).css({'border':'none', padding:'0px'});
+		  });
+	  });
+	 </script> 
+	";
 	
 	foreach( $projects as $project ) {
 		$display = 0;
@@ -261,31 +279,43 @@ function Past_Due_Function() {
 				
 				if ( $hours < 0 && $hours > -24 ) {
 					if ($display == 0){
-						echo "<td><span style='font-weight: bold;'>" .$project->post_title. "</span></td>";
+						echo "
+						<div class='pdue_title'>
+							<span style='font-weight: bold;'><a class='pdue_tgle' href='javascript:;'>"
+							 .$project->post_title. "</a></span>
+						</div>
+						<div class='pdue_tasks'>
+						";
 					    $display++;
 					}
-					echo "<tr>";
-					echo "<td><a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
-					echo "<td><span style='color: red;'>" . str_replace( '-', '', $hours) 
-					. " hours past due.</span></td>";
-					echo "</tr>";
+					echo "<div class='task_name'>
+					<a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></div>";
+					echo "<div class='task_remark'>
+					<span style='color: red;'>" . str_replace( '-', '', $hours) 
+					. " hours past due.</span></div>";
 				}
 			
 				if ( $hours < -24 ) {
 					if ($display == 0){
-						echo "<td><span style='font-weight: bold;'>" .$project->post_title. "</span></td>";
+						echo "
+						<div class='pdue_title'>
+							<span style='font-weight: bold;'><a class='pdue_tgle' href='javascript:;'>"
+							 .$project->post_title. "</a></span>
+						</div>
+						<div class='pdue_tasks'>
+						";
 					    $display++;
 					}
-					echo "<tr>";
-					echo "<td><a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></td>";
-					echo " <td><span style='color: red; font-weight: bold;'>" 
-					. str_replace( '-', '', $days) . " days past due.</span></td>";
-					echo "</tr>";
+						echo "<div class='task_name'>
+						<a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></div>";
+					echo "<div class='task_remark'><span style='color: red; font-weight: bold;'>" 
+					. str_replace( '-', '', $days) . " days past due.</span></div>";
 				}
-			}
-		}
+			}// if date
+		} // foreach
+		echo '</div><div style="clear:both"></div>';
 	}
-	echo "</table>";
+	echo "</div></table>";
 } 
 
 function Past_Due_Hook() {

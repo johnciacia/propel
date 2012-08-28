@@ -7,7 +7,7 @@
 <script type="text/javascript">
 function _list_authors(){
 	var http_req = new XMLHttpRequest();
-	var module = "<?php echo plugins_url(); ?>/propel2/metaboxes/list-authors_ajax.php";
+	var module = "<?php echo plugins_url(); ?>/propel/metaboxes/list-authors_ajax.php";
 	var user = document.getElementById("users_get").value; 
 	var vars = "user="+ user ; 
 	http_req.open("POST", module, true);
@@ -37,14 +37,14 @@ function _list_authors(){
 		<?php foreach($users as $user) : ?>
 			<li id="propel_user-<?php esc_attr_e($user->ID); ?>" class="popular-category">
 				<label class="selectit">
-				    <?php if( propel_is_coauthor( $user->ID ) ) { ?>
+				
 					<input value="<?php  esc_attr_e($user->user_login); ?>" type="checkbox" name="coauthors[]" id="in-propel_user-<?php echo $user->ID; ?>" <?php 
 				
 					if( propel_is_coauthor( $user->ID ) ) { echo "checked='checked' "; }
 					if( propel_is_parent_coauthor( $user->ID ) ) { echo "disabled='disabled'"; }
 				
 					?>> <?php esc_html_e($user->display_name); 
-					}
+			
 					?>
 					
 					
@@ -84,10 +84,5 @@ function propel_is_parent_coauthor( $user_id ) {
 }?>
 
 
-<input type="text" id="users_get">
-<input type="hidden" id="hidden_post" value="<?php echo $post->ID; ?>">
-<input type="button" id="srch_usrs" onClick="javascript:_list_authors();" value="Search">
-<div style="clear:both"></div>
 
-<div id="result_get"></div>
 
