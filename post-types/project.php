@@ -501,13 +501,14 @@ class Post_Type_Project {
 				}
 
 				var _tdcnt = jQuery('#propel_project_tasks #propel-tasks').find('td').size();
+				
 				if( _tdcnt == 1 ) {
 					jQuery('#propel_project_tasks #propel-tasks tbody tr').remove();
 					jQuery('#propel_project_tasks #propel-tasks tbody').prepend('<tr id="no-data" class="odd">'+ _html +'</tr>');
 					jQuery('#propel_project_tasks #propel-tasks tbody').find('td:eq(3)').find('p').html('No data available');
 				}								
 				
-				var __tdcnt = jQuery('#propel_completed_tasks #propel-tasks').find('td').size();
+				var __tdcnt = jQuery('#propel_completed_tasks #propel-com-tasks').find('td').size();
 				if( __tdcnt == 1 ) {
 					jQuery('#propel_completed_tasks #propel-com-tasks tbody tr').remove();
 					jQuery('#propel_completed_tasks #propel-com-tasks tbody').prepend('<tr id="no-data" class="odd">'+ _html +'</tr>');
@@ -521,7 +522,6 @@ class Post_Type_Project {
 					"bFilter": false,
 					"bPaginate": false,
 					"bRetreive":true,
-					"bDestroy":true,
 					"bInfo": false,
 					"aoColumnDefs": [
 						{ "bSortable": false, "aTargets": [ 0 ] }
@@ -537,7 +537,6 @@ class Post_Type_Project {
 					"bFilter": false,
 					"bPaginate": false,
 					"bRetreive":true,
-					"bDestroy":true,
 					"bInfo": false,
 					"aoColumnDefs": [
 						{ "bSortable": false, "aTargets": [ 0 ] }
@@ -546,21 +545,21 @@ class Post_Type_Project {
 					"aoColumns" : asdf
 				});						
 					
-					$(".date").datepicker();
+					jQuery(".date").datepicker();
 					
-					$('#propel_edit_task').css({ 'display':'none' });
-					$('#propel_add_task').css({ 'display':'block' });
+					jQuery('#propel_edit_task').css({ 'display':'none' });
+					jQuery('#propel_add_task').css({ 'display':'block' });
 					
-					$("#add-task").click(function(e) {				
+					jQuery("#add-task").click(function(e) {				
 						var data = {
 							action: 'add_task',
 							security: '<?php echo wp_create_nonce( "add-task" ); ?>',
 							parent: '<?php echo get_the_ID(); ?>',
-							title: $('input[name=task_title]').val(),
-							description: $('textarea[name=task_description]').val(),
-							end_date: $('input[name=task_end_date]').val(),
-							priority: $('select[name=task_priority]').val(),
-							user: $('#propel_post_author').val()
+							title: jQuery('input[name=task_title]').val(),
+							description: jQuery('textarea[name=task_description]').val(),
+							end_date: jQuery('input[name=task_end_date]').val(),
+							priority: jQuery('select[name=task_priority]').val(),
+							user: jQuery('#propel_post_author').val()
 						};
 		
 						jQuery.post(ajaxurl, data, function(response) {
@@ -574,35 +573,52 @@ class Post_Type_Project {
 					});
 		
 					//rob_eyouth : added this to remove the deleted data from the current task table
-					 $("#propel-tasks tbody td.gen-delete-icon, #propel-com-tasks tbody td.gen-delete-icon").live('click',function(){
-						 var $parent = $(this).parent();
-						 var _href = $(this).find('a').attr('href');								 
-						 jQuery.post(_href,function() {							
-							 $parent.find('td')
+					 jQuery("#propel-tasks tbody td.gen-delete-icon").live('click',function(){
+						 var $parent = jQuery(this).parent();
+						 var _href = jQuery(this).find('a').attr('href');								 
+						 $parent.find('td')
+								 .wrapInner('<div style="display: block;" />')
+								 .parent()
+								 .find('td > div')
+								 .slideUp(700, function(){	
+								  $parent.remove();						 
+						 });	
+						 jQuery.post(_href,function() {	
+							 //$parent.remove();
+						 });
+						 return false;
+					 });
+					 
+					 jQuery("#propel-com-tasks tbody td.gen-delete-icon").live('click',function(){
+						 var $parent = jQuery(this).parent();
+						 var _href = jQuery(this).find('a').attr('href');								 
+						 							
+						 $parent.find('td')
 								 .wrapInner('<div style="display: block;" />')
 								 .parent()
 								 .find('td > div')
 								 .slideUp(700, function(){
-									 $parent.remove();
-							 });
+								  $parent.remove();	 
 						 });	
-						 
+						 jQuery.post(_href,function() {	
+							 //$parent.remove();
+						 });
 						 return false;
 					 });
 					
 					//rob_eyouth : added this to remove the checked data from the current task table
 					// and added to the completed task table
-				  $("#propel_project_tasks #propel-tasks tbody td.gen-unchecked-icon").live('click',function(){
-							var task_id = $(this).parent().attr('id'); 
-							var $parent = $(this).parent();
+				  jQuery("#propel_project_tasks #propel-tasks tbody td.gen-unchecked-icon").live('click',function(){
+							var task_id = jQuery(this).parent().attr('id'); 
+							var $parent = jQuery(this).parent();
 							var data = {
 									action: 'update_task',
 									security: '<?php echo wp_create_nonce( "update-task" ); ?>',
 									postid: task_id,
 									end_date: '<?php echo time(); ?>',
-									priority: $('#propel_edit_prior').val(),
+									priority: jQuery('#propel_edit_prior').val(),
 									complete: 100,
-									propel_post_author: $('#propel_post_author').val()
+									propel_post_author: jQuery('#propel_post_author').val()
 							};
 							
 							jQuery.post(ajaxurl, data, function(response) {	
@@ -615,54 +631,46 @@ class Post_Type_Project {
 											$parent.remove();											
 								});
 								
-								$parentCom = $('#propel_completed_tasks #propel-tasks tbody tr');
+								$parentCom = jQuery('#propel_completed_tasks #propel-tasks tbody tr');
 										
-								get_JSON(response,1);
-									
-//								$parentCom.find('td')
-//								 .wrapInner('<div style="display: none;" />')
-//								 .parent()
-//								 .find('td > div')
-//								 .slideDown(700, function(){
-//								 });
-								 
-//								$('#propel_completed_tasks tbody').prepend(response,function(){
-//									$('#propel_project_tasks #propel-tasks tbody').fadeIn('slow');
-//								});	
+								get_JSON(response,1);	
 
 							});			
 		
 						 return false;
 					 });
 					
-					$("#propel_project_tasks #propel-tasks tbody tr td p").live('click',function(){
+					jQuery("#propel_project_tasks #propel-tasks tbody tr td p").live('click',function(){
 							 
-							var task_id = $(this).closest('tr').attr('id');					
-							var this_id = $(this).attr('id');
+							var task_id = jQuery(this).closest('tr').attr('id');					
+							var this_id = jQuery(this).attr('id');
+							var $this = $(this);
 							var _this_id;
 							this_id === undefined ? _this_id = 0 : _this_id = this_id.substr(0,10);
-							var _tr_before_id = $('#'+task_id).prev('tr').attr('id');
+							var _tr_before_id = jQuery('#'+task_id).prev('tr').attr('id');							
 
 							switch(_this_id){
 								case 'edit_title':	
-									var _val = $('#'+this_id).text();					
-									$('#'+this_id).empty().append('<input type="text" id="propel_edit_title_'+ task_id +'" value="'+ _val +'" size="60">')
-									$('#propel_edit_title_'+ task_id).live('keypress',function(event){
+									var _val = jQuery('#'+this_id).text();					
+									jQuery('#'+this_id).empty().append('<input type="text" id="propel_edit_title_'+ task_id +'" value="'+ _val +'" size="60">');
+									jQuery('#propel_edit_title_'+ task_id).live('keypress',function(event){
 										if ( event.which == 13){
 											var data = {
 													action: 'update_task',
 													security: '<?php echo wp_create_nonce( "update-task" ); ?>',
 													parent: '<?php echo get_the_ID(); ?>',
 													postid: task_id,
-													title: $('#propel_edit_title_'+ task_id).val(),
+													title: jQuery('#propel_edit_title_'+ task_id).val(),
 											};
-							
+											var _data = jQuery('#propel_edit_title_'+ task_id).val();
 											jQuery.post(ajaxurl, data, function(response) {
-												$('tr#'+task_id).fadeOut('slow',function(){
-													var _pos = $(this).index();
-													oTable.fnDeleteRow(_pos);
-													get_JSON(response);
+												jQuery('tr#'+task_id).fadeIn('slow',function(){
+													var aPos = oTable.fnGetPosition( this );
+													oTable.fnUpdate( '<p id="edit_title_"'+ task_id +'>'+ _data +'</p>', aPos, 3 )
+													//var _pos = jQuery(this).index();																								
+													//oTable.fnDeleteRow( _pos, get_JSON( response ));																										
 												});
+
 											});
 											
 											return false;
@@ -670,8 +678,8 @@ class Post_Type_Project {
 									}).live('click',function(){
 										return false;
 									}).live('focusout',function(){									
-										$(this).remove();
-										$('#'+this_id).empty().html(_val);
+										jQuery('#propel_edit_title_'+ task_id).remove();
+										jQuery('#'+this_id).empty().html(_val);
 									});	
 															
 									break;
@@ -684,9 +692,9 @@ class Post_Type_Project {
 										};
 						
 										jQuery.post(ajaxurl, data, function(response) {
-											var _html = $('#'+this_id).html();
-											$('#'+this_id).empty().append(response);	
-											$('#'+this_id +' select').live('click',function(){ 
+											var _html = jQuery('#'+this_id).html();
+											jQuery('#'+this_id).empty().append(response);	
+											jQuery('#'+this_id +' select').live('click',function(){ 
 												return false; 
 											}).live('change',function(){
 
@@ -695,19 +703,32 @@ class Post_Type_Project {
 															security: '<?php echo wp_create_nonce( "update-task" ); ?>',
 															parent: '<?php echo get_the_ID(); ?>',
 															postid: task_id,
-															user: $(this).val(),
+															user: jQuery(this).val(),
 													};
-									
+													
 													jQuery.post(ajaxurl, data, function(response) {
-														$('tr#'+task_id).fadeOut('slow',function(){
-															var _pos = $(this).index();
-															oTable.fnDeleteRow(_pos);
-															get_JSON(response);
-														});											
+														jQuery('tr#'+task_id).fadeIn('slow',function(){
+															var aPos = oTable.fnGetPosition( this );
+															var _obj = jQuery.parseJSON(response);
+															var nTr = oTable.fnSettings().aoData[ aPos ].nTr;
+															if ( _obj.is_start === 1 && _obj.is_end === 0 ) { 																
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 5 );													
+																jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_author);											
+															} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 5 );
+																jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_author);
+															} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 6 );															
+																jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_author);
+															}else {
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 4 );
+																jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_author);
+															}
+														});										
 													});
 											}).live('focusout',function(){									
-												$(this).remove();	
-												$('#'+this_id).html(_html);											
+												jQuery('#propel_edit_title_'+ task_id).remove();	
+												jQuery('#'+this_id).html(_html);											
 											});	
 											
 										});					
@@ -726,30 +747,43 @@ class Post_Type_Project {
 										};
 						
 										jQuery.post(ajaxurl, data, function(response) {
-											var _html = $('#'+this_id).html();
-											$('#'+this_id).empty().append(response);	
-											$('#'+this_id +' select').live('click',function(){ 
+											var _html = jQuery('#'+this_id).html();
+											jQuery('#'+this_id).empty().append(response);	
+											jQuery('#'+this_id +' select').live('click',function(){ 
 												return false; 
 											}).live('change',function(){
-													var _completed = $(this).val();
+													var _completed = jQuery(this).val();
 													var data = {
 															action: 'update_task',
 															security: '<?php echo wp_create_nonce( "update-task" ); ?>',
 															parent: '<?php echo get_the_ID(); ?>',
 															postid: task_id,
-															complete: $(this).val(),
+															complete: jQuery(this).val(),
 													};
-									
+													var _data = jQuery(this).val();
 													jQuery.post(ajaxurl, data, function(response) {
-														$('tr#'+task_id).fadeOut('slow',function(){
-															var _pos = $(this).index();
-															oTable.fnDeleteRow(_pos);																												
-															get_JSON(response);
-														});											
+														jQuery('tr#'+task_id).fadeIn('slow',function(){
+															var aPos = oTable.fnGetPosition( this );
+															var _obj = jQuery.parseJSON(response);
+															var nTr = oTable.fnSettings().aoData[ aPos ].nTr;
+															if ( _obj.is_start === 1 && _obj.is_end === 0 ) { 
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 6 );			
+																jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);																					
+															} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 6 );
+																jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);				
+															} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 7 );
+																jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);				
+															}else {
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 5 );	
+																jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_progress);			
+															}																										
+														});										
 													});
 											}).live('focusout',function(){									
-												$(this).remove();		
-												$('#'+this_id).html(_html);										
+												jQuery('#propel_edit_title_'+ task_id).remove();		
+												jQuery('#'+this_id).html(_html);										
 											});
 											
 										});
@@ -761,16 +795,16 @@ class Post_Type_Project {
 							}//end of switch
 						return false;
 					}).live('mouseenter',function(){
-					   $(this).css({'cursor':'pointer'}); 
+					   jQuery(this).css({'cursor':'pointer'}); 
 					}).live('mouseleave',function(){
-					   $(this).css({'cursor':'normal'}); 
+					   jQuery(this).css({'cursor':'normal'}); 
 					});
 					
-					$("#propel_project_tasks .gen-edit-icon").each(function(index, element) {
+					jQuery("#propel_project_tasks .gen-edit-icon").each(function(index, element) {
                         
 						jQuery(this).live('click',function(event){
 							//console.log('test')	  
-//							var task_id = $(this).attr('id');					
+//							var task_id = jQuery(this).attr('id');					
 //						
 //							if(jQuery('#details-' + task_id).length > 0) {
 //								
@@ -786,8 +820,8 @@ class Post_Type_Project {
 //								};
 //				
 //								jQuery.post(ajaxurl, data, function(response) {
-//									 $("#" + task_id).fadeIn('slow',function(){
-//										 $(this).closest( "tr" ).after(response);																			
+//									 jQuery("#" + task_id).fadeIn('slow',function(){
+//										 jQuery(this).closest( "tr" ).after(response);																			
 //									 });
 //								});
 //
@@ -797,8 +831,27 @@ class Post_Type_Project {
 						});					
 					});	
 					
-					jQuery('form#post').live('keypress',function(event){
+					jQuery('form#post #propel_add_task').live('keypress',function(event){
 						if (event.which === 13){
+							
+							var data = {
+								action: 'add_task',
+								security: '<?php echo wp_create_nonce( "add-task" ); ?>',
+								parent: '<?php echo get_the_ID(); ?>',
+								title: jQuery('input[name=task_title]').val(),
+								description: jQuery('textarea[name=task_description]').val(),
+								end_date: jQuery('input[name=task_end_date]').val(),
+								priority: jQuery('select[name=task_priority]').val(),
+								user: jQuery('#propel_post_author').val()
+							};
+			
+							jQuery.post(ajaxurl, data, function(response) {
+								 //rob_eyouth:added this...
+								 get_JSON(response);			
+								 jQuery('#_task_title').val('');
+								 jQuery('#_task_desc').val('');			 				
+							});
+							
 							return false;
 						}
 					});
@@ -820,7 +873,7 @@ class Post_Type_Project {
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
 				'<p id="edit_sdate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_start +'</p>',			
-				'<p id="edit_progr_'+ _obj.task_id +'"><progress max="100" value="'+ _obj.task_progress +'" style="font-size:10px;color:#999;"></progress></p>'
+				'<p id="edit_progr_'+ _obj.task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'" ></progress></p>'
 			);
 			
 			if (whichTable === 1){
@@ -830,7 +883,7 @@ class Post_Type_Project {
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');
 			}else{
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
-				var a = jQuery('#propel_project_tasks #propel-tasks').dataTable().fnAddData( _json );															
+				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
@@ -840,10 +893,12 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
 			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_start);			
 			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value',_obj.task_author);
-			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);				
+			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);	
+			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
+				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
+			});							
 			
 		} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 	
-
 		
 			var _json = Array(
 				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
@@ -852,7 +907,7 @@ class Post_Type_Project {
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
 				'<p id="edit_edate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_end +'</p>',				
-				'<p id="edit_progr_'+ _obj.task_id +'"><progress max="100" value="'+ _obj.task_progress +'" style="font-size:10px;color:#999;"></progress></p>'
+				'<p id="edit_progr_'+ _obj.task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>'
 			);		
 			
 			if (whichTable === 1){
@@ -862,7 +917,7 @@ class Post_Type_Project {
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');	
 			}else{
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
-				var a = jQuery('#propel_project_tasks #propel-tasks').dataTable().fnAddData( _json );															
+				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
@@ -872,7 +927,10 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
 			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_end);			
 			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value',_obj.task_author);
-			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);				
+			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);	
+			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
+				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
+			});							
 			
 		} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 	
 		
@@ -884,7 +942,7 @@ class Post_Type_Project {
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
 				'<p id="edit_sdate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_start +'</p>',
 				'<p id="edit_edate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_end +'</p>',				
-				'<p id="edit_progr_'+ _obj.task_id +'"><progress max="100" value="'+ _obj.task_progress +'" style="font-size:10px;color:#999;"></progress></p>'
+				'<p id="edit_progr_'+ _obj.task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'" ></progress></p>'
 			);
 			
 			if (whichTable === 1){
@@ -894,7 +952,7 @@ class Post_Type_Project {
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');
 			}else{
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
-				var a = jQuery('#propel_project_tasks #propel-tasks').dataTable().fnAddData( _json );															
+				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
@@ -905,7 +963,10 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_start);
 			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_end);			
 			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value',_obj.task_author);
-			jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);			
+			jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);	
+			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
+				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
+			});		
 			
 		}else {
 			
@@ -915,7 +976,7 @@ class Post_Type_Project {
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',				
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
-				'<p id="edit_progr_'+ _obj.task_id +'"><progress max="100" value="'+ _obj.task_progress +'" style="font-size:10px;color:#999;"></progress></p>'
+				'<p id="edit_progr_'+ _obj.task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'" ></progress></p>'
 				);			
 
 			if (whichTable === 1){
@@ -925,18 +986,21 @@ class Post_Type_Project {
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');
 			}else{
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
-				var a = jQuery('#propel_project_tasks #propel-tasks').dataTable().fnAddData( _json );															
-				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
+				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );	
+				console.log(oTable.fnSettings().aoData[ a[0] ]);														
+				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
 				
-			jQuery(nTr).attr('id',_obj.task_id);
+			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
 			jQuery(nTr).find('td:eq(4)').addClass('owner').attr('data-value',_obj.task_author);
 			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_progress);
-			jQuery(nTr).fadeIn('slow');
+			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
+				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
+			});
 				
 		}//End of if....
 				
