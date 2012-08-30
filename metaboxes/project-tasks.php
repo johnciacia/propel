@@ -10,15 +10,17 @@
 
 			<label>Manager:</label>
 			<?php 
+			/*
 			$current_user = wp_get_current_user();
 			$args = array(
 			'class' => 'metabox-add-task-user',
 			'name' => 'propel_post_author',
 			'show_option_none' => 'Unassigned',
 			'orderby' => 'display_name',
-			'selected' => $current_user->ID
+			'selected' => $current_user->ID			
 			);
 			wp_dropdown_users( $args );
+			*/
 			?>
 			<input class="metabox-add-task-button button-primary" type="button" id="add-task" value="Add Task" />
 		</td>
@@ -82,8 +84,8 @@
 		* rob_eyouth : added by rob to show task for the current user and if user is admin
 		*/
 		//if user is admin
-		$current_user = wp_get_current_user();		
-		if ( $current_user->ID == $userdata->ID || $current_user->ID == 1) { 
+		//$current_user = wp_get_current_user();		
+		//if ( $current_user->ID == $userdata->ID || $current_user->ID == 1) { 
 		?>
 		<tr id="<?php esc_attr_e( $task->ID ); ?>">
 		
@@ -97,7 +99,16 @@
 				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
 				
 			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
-				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($task->post_title); ?></p></td>
+				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($task->post_title); ?></p>
+            	<div style="margin:-8px 0 3px 1px;" class="tooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white">
+				<?php 
+					$len = strlen($task->post_content);
+					if ($len > 75 ) 
+						esc_html_e(substr($task->post_content,0,75).' ...'); 
+					else
+						esc_html_e(substr($task->post_content,0,75)); 
+				?></small></div>
+            </td>
 
 			<td class="owner" data-value="<?php esc_attr_e( $author ); ?>">
 				<p id="edit_owner_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($author); ?></p>
@@ -120,7 +131,7 @@
 			</td>
 		</tr>
 		<?php
-		}
+		//}
 	}
 
 	?>
