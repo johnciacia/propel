@@ -1,31 +1,8 @@
 <?php
+
 /*
  * aps2012
  */
-
-add_filter('admin_title', 'new_admin_title', 10, 2);
-
-function new_admin_title($admin_title, $title)
-{   global $post;
-    if (get_post_type($post->ID)=='propel_project'){ 
-	    $post_def = get_post($post->ID);
-		return 'Propel >' . $post_def->post_title;
-	}
-	if (get_post_type($post->ID)=='propel_task'){ 
-	    $post_def = get_post($post->ID);
-		$post_parent_def = get_post($post_def->post_parent); 
-		return 'Propel > ' . $post_def->post_title . ' > ' .$post_parent_def->post_title ;
-	}
-	
-}
-
-function remove_discussion()
-{  
-	   remove_meta_box( 'commentstatusdiv' , 'propel_project' , 'normal' );
-	   remove_meta_box( 'commentstatusdiv' , 'propel_task' , 'normal' );
-}
-add_filter('admin_menu', 'remove_discussion');
-
 function set_context(){
    	$part1 = "889999999999";
 	$current_user = wp_get_current_user();

@@ -354,7 +354,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);
-		require( dirname(__FILE__) . '/../metaboxes/tasks.php');
+		require( dirname(__FILE__) . '/../metaboxes/project-tasks.php');
 	}
 
 	/**
@@ -373,7 +373,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);		
-		require( dirname(__FILE__) . '/../metaboxes/tasks.php' );
+		require( dirname(__FILE__) . '/../metaboxes/project-tasks.php' );
 	}
 
 	/**
@@ -485,146 +485,527 @@ class Post_Type_Project {
 	 */
 	public static function admin_footer() { ?>
 		<script type="text/javascript">
-		jQuery(document).ready(function($) { 			
-			
-			$(".date").datepicker();
-			
-			$('#propel_edit_task').css({ 'display':'none' });
-			$('#propel_add_task').css({ 'display':'block' });
-			
-			$("#add-task").click(function(e) {				
-				var data = {
-					action: 'add_task',
-					security: '<?php echo wp_create_nonce( "add-task" ); ?>',
-					parent: '<?php echo get_the_ID(); ?>',
-					title: $('input[name=task_title]').val(),
-					description: $('textarea[name=task_description]').val(),
-					end_date: $('input[name=task_end_date]').val(),
-					priority: $('select[name=task_priority]').val(),
-					user: $('#propel_post_author').val()
-				};
+		
+		var oTable;
+		
+		jQuery(document).ready(function($) { 	
 
-				jQuery.post(ajaxurl, data, function(response) {
-					 //rob_eyouth:added this...
-					$('#propel_project_tasks #post_parent_').after(response,function(){
-						$('#propel_project_tasks #propel-tasks tbody').fadeIn('slow');
-					});						 				
-				});
-					
-				return false;			
-			});
-
-			//rob_eyouth : added this to remove the deleted data from the current task table
-			 $("#propel-tasks tbody td.gen-delete-icon").live('click',function(){
-				 var $parent = $(this).parent();
-				 $parent.fadeOut('slow',function(){
-					var _href = $(this).find('a').attr('href');
-					jQuery.post(_href,function() {
-						$parent.remove();	
-					});
-					 
-				 });
-				 return false;
-			 });
-			
-			//rob_eyouth : added this to remove the checked data from the current task table
-			// and added to the completed task table
-		  $("#propel-tasks tbody td.gen-unchecked-icon").live('click',function(){
-					var task_id = $(this).parent().attr('id'); 
-					var $parent = $(this).parent();
-					var data = {
-							action: 'update_task',
-							security: '<?php echo wp_create_nonce( "update-task" ); ?>',
-							postid: task_id,
-							end_date: '<?php echo time(); ?>',
-							priority: $('#propel_edit_prior').val(),
-							complete: 100,
-							propel_post_author: $('#propel_post_author').val()
-					};
-	
-					jQuery.post(ajaxurl, data, function(response) {						 
-						$parent.fadeOut('slow',function(){
-							$parent.remove();
-							$('#propel_completed_tasks #post_parent_').after(response,function(){
-								$('#propel_project_tasks #propel-tasks tbody').fadeIn('slow');
-							});						 																						
-						})																								 				
-					});
-
-				 return false;
-			 });
-			
-			$("#propel_project_tasks #propel-tasks tbody tr.toggle").live('click',function(event){
-					  
- 				    var task_id = $(this).attr('id');					
+				jQuery('#propel_completed_tasks table').attr('id','propel-com-tasks');
 				
-					if(jQuery('#details-' + task_id).length > 0) {
-						
-						jQuery('#details-' + task_id).remove();
-						
-					} else {
+				var cols = jQuery(".tasks-table:first th").size()
+				var asdf = [];
+				var _html='';
+				for(i = 0; i < cols; i++) {
+					asdf.push(null);
+					_html = _html + '<td><p></p></td>';
+				}
 
+				var _tdcnt = jQuery('#propel_project_tasks #propel-tasks').find('td').size();
+				
+				if( _tdcnt == 1 ) {
+					jQuery('#propel_project_tasks #propel-tasks tbody tr').remove();
+					jQuery('#propel_project_tasks #propel-tasks tbody').prepend('<tr id="no-data" class="odd">'+ _html +'</tr>');
+					jQuery('#propel_project_tasks #propel-tasks tbody').find('td:eq(3)').find('p').html('No data available');
+				}								
+				
+				var __tdcnt = jQuery('#propel_completed_tasks #propel-com-tasks').find('td').size();
+				if( __tdcnt == 1 ) {
+					jQuery('#propel_completed_tasks #propel-com-tasks tbody tr').remove();
+					jQuery('#propel_completed_tasks #propel-com-tasks tbody').prepend('<tr id="no-data" class="odd">'+ _html +'</tr>');
+					jQuery('#propel_completed_tasks #propel-com-tasks tbody').find('td:eq(3)').find('p').html('No data available');
+				}												
+			
+				oTable = jQuery('#propel-tasks').dataTable( 
+					{
+					"bStateSave": true,
+					//"sPaginationType": "full_numbers",
+					"bFilter": false,
+					"bPaginate": false,
+					"bRetreive":true,
+					"bInfo": false,
+					"aoColumnDefs": [
+						{ "bSortable": false, "aTargets": [ 0 ] }
+					],
+					"aaSorting": [[1, 'asc']],
+					"aoColumns" : asdf
+				});
+				
+				cTable = jQuery('#propel-com-tasks').dataTable( 
+					{
+					"bStateSave": true,
+					//"sPaginationType": "full_numbers",
+					"bFilter": false,
+					"bPaginate": false,
+					"bRetreive":true,
+					"bInfo": false,
+					"aoColumnDefs": [
+						{ "bSortable": false, "aTargets": [ 0 ] }
+					],
+					"aaSorting": [[1, 'asc']],
+					"aoColumns" : asdf
+				});						
+					
+					jQuery(".date").datepicker();
+					
+					jQuery('#propel_edit_task').css({ 'display':'none' });
+					jQuery('#propel_add_task').css({ 'display':'block' });
+					
+					jQuery("#add-task").click(function(e) {				
 						var data = {
-								action: 'get_task_detail',
-								security: '<?php echo wp_create_nonce( "get-task-detail" ); ?>',
-								postid: task_id,
+							action: 'add_task',
+							security: '<?php echo wp_create_nonce( "add-task" ); ?>',
+							parent: '<?php echo get_the_ID(); ?>',
+							title: jQuery('input[name=task_title]').val(),
+							description: jQuery('textarea[name=task_description]').val(),
+							end_date: jQuery('input[name=task_end_date]').val(),
+							priority: jQuery('select[name=task_priority]').val(),
+							user: jQuery('#propel_post_author').val()
 						};
 		
 						jQuery.post(ajaxurl, data, function(response) {
-							 $("#" + task_id).fadeIn('slow',function(){
-								 $(this).closest( "tr" ).after( response );																			
-							 });
+							 //rob_eyouth:added this...
+							 get_JSON(response);			
+							 jQuery('#_task_title').val('');
+							 jQuery('#_task_desc').val('');			 				
 						});
-					}
-					 
-				return false;
-			}).live('mouseenter',function(){
-               $(this).css({'cursor':'pointer'}); 
-            }).live('mouseleave',function(){
-               $(this).css({'cursor':'default'}); 
-            });
-			
-			$('#propel_task_update').live('click',function(){
-				
-					var _task_id = $.trim($(this).closest('tr').attr('id').substr(8,5));
-					var _tr_id = $(this).closest('tr').attr('id');
-					var _tr_before_id = $('#'+_task_id).prev('tr').attr('id');
-
-					var data = {
-							action: 'update_task',
-							security: '<?php echo wp_create_nonce( "update-task" ); ?>',
-							parent: '<?php echo get_the_ID(); ?>',
-							postid: _task_id,
-							end_date: '<?php echo time(); ?>',
-							title: $('#propel_edit_task').val(),
-							priority: $('#propel_edit_prior').val(),
-							complete: $('#propel_edit_progress').val(),
-							user: $('#propel_edit_author').val()
-					};
-	
-					jQuery.post(ajaxurl, data, function(response) {
-						$('#'+_task_id).fadeOut('slow',function(){
-							$(this).remove();
-							$('#'+_tr_id).fadeOut('slow',function(){
-								$(this).remove();
-							});
-							if ( parseInt($('#propel_edit_progress').val()) < 100 ) {
-								if ( _tr_before_id === undefined )
-									$("#propel_project_tasks #propel-tasks tbody").prepend(response).fadeIn('slow');
-								else
-									$("#" + _tr_before_id).closest( "tr" ).after( response ).fadeIn('slow');
-							} else {
-								$('#propel_completed_tasks #propel-tasks tbody').prepend(response).fadeIn('slow');										
-							}
-						})																								 				
+							
+						return false;			
 					});
+		
+					//rob_eyouth : added this to remove the deleted data from the current task table
+					 jQuery("#propel-tasks tbody td.gen-delete-icon").live('click',function(){
+						 var $parent = jQuery(this).parent();
+						 var _href = jQuery(this).find('a').attr('href');								 
+						 $parent.find('td')
+								 .wrapInner('<div style="display: block;" />')
+								 .parent()
+								 .find('td > div')
+								 .slideUp(700, function(){	
+								  $parent.remove();						 
+						 });	
+						 jQuery.post(_href,function() {	
+							 //$parent.remove();
+						 });
+						 return false;
+					 });
+					 
+					 jQuery("#propel-com-tasks tbody td.gen-delete-icon").live('click',function(){
+						 var $parent = jQuery(this).parent();
+						 var _href = jQuery(this).find('a').attr('href');								 
+						 							
+						 $parent.find('td')
+								 .wrapInner('<div style="display: block;" />')
+								 .parent()
+								 .find('td > div')
+								 .slideUp(700, function(){
+								  $parent.remove();	 
+						 });	
+						 jQuery.post(_href,function() {	
+							 //$parent.remove();
+						 });
+						 return false;
+					 });
+					
+					//rob_eyouth : added this to remove the checked data from the current task table
+					// and added to the completed task table
+				  jQuery("#propel_project_tasks #propel-tasks tbody td.gen-unchecked-icon").live('click',function(){
+							var task_id = jQuery(this).parent().attr('id'); 
+							var $parent = jQuery(this).parent();
+							var data = {
+									action: 'update_task',
+									security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+									postid: task_id,
+									end_date: '<?php echo time(); ?>',
+									priority: jQuery('#propel_edit_prior').val(),
+									complete: 100,
+									propel_post_author: jQuery('#propel_post_author').val()
+							};
+							
+							jQuery.post(ajaxurl, data, function(response) {	
+								
+								$parent.find('td')
+									 .wrapInner('<div style="display: block;" />')
+									 .parent()
+									 .find('td > div')
+									 .slideUp(700, function(){											    				
+											$parent.remove();											
+								});
+								
+								$parentCom = jQuery('#propel_completed_tasks #propel-tasks tbody tr');
+										
+								get_JSON(response,1);	
 
-				 return false;
-			});			
+							});			
+		
+						 return false;
+					 });
+					
+					jQuery("#propel_project_tasks #propel-tasks tbody tr td p").live('click',function(){
+							 
+							var task_id = jQuery(this).closest('tr').attr('id');					
+							var this_id = jQuery(this).attr('id');
+							var $this = $(this);
+							var _this_id;
+							this_id === undefined ? _this_id = 0 : _this_id = this_id.substr(0,10);
+							var _tr_before_id = jQuery('#'+task_id).prev('tr').attr('id');							
+
+							switch(_this_id){
+								case 'edit_title':	
+									var _val = jQuery('#'+this_id).text();					
+									jQuery('#'+this_id).empty().append('<input type="text" id="propel_edit_title_'+ task_id +'" value="'+ _val +'" size="60">');
+									jQuery('#propel_edit_title_'+ task_id).live('keypress',function(event){
+										if ( event.which == 13){
+											var data = {
+													action: 'update_task',
+													security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+													parent: '<?php echo get_the_ID(); ?>',
+													postid: task_id,
+													title: jQuery('#propel_edit_title_'+ task_id).val(),
+											};
+											var _data = jQuery('#propel_edit_title_'+ task_id).val();
+											jQuery.post(ajaxurl, data, function(response) {
+												jQuery('tr#'+task_id).fadeIn('slow',function(){
+													var aPos = oTable.fnGetPosition( this );
+													oTable.fnUpdate( '<p id="edit_title_"'+ task_id +'>'+ _data +'</p>', aPos, 3 )
+													//var _pos = jQuery(this).index();																								
+													//oTable.fnDeleteRow( _pos, get_JSON( response ));																										
+												});
+
+											});
+											
+											return false;
+										}
+									}).live('click',function(){
+										return false;
+									}).live('focusout',function(){									
+										jQuery('#propel_edit_title_'+ task_id).remove();
+										jQuery('#'+this_id).empty().html(_val);
+									});	
+															
+									break;
+								case 'edit_owner':
+										var data = {
+												action: 'get_task_detail',
+												security: '<?php echo wp_create_nonce( "get-task-detail" ); ?>',
+												postid: task_id,
+												retnum: 2
+										};
+						
+										jQuery.post(ajaxurl, data, function(response) {
+											var _html = jQuery('#'+this_id).html();
+											jQuery('#'+this_id).empty().append(response);	
+											jQuery('#'+this_id +' select').live('click',function(){ 
+												return false; 
+											}).live('change',function(){
+
+													var data = {
+															action: 'update_task',
+															security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+															parent: '<?php echo get_the_ID(); ?>',
+															postid: task_id,
+															user: jQuery(this).val(),
+													};
+													
+													jQuery.post(ajaxurl, data, function(response) {
+														jQuery('tr#'+task_id).fadeIn('slow',function(){
+															var aPos = oTable.fnGetPosition( this );
+															var _obj = jQuery.parseJSON(response);
+															var nTr = oTable.fnSettings().aoData[ aPos ].nTr;
+															if ( _obj.is_start === 1 && _obj.is_end === 0 ) { 																
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 5 );													
+																jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_author);											
+															} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 5 );
+																jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_author);
+															} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 6 );															
+																jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_author);
+															}else {
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 4 );
+																jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_author);
+															}
+														});										
+													});
+											}).live('focusout',function(){									
+												jQuery('#propel_edit_title_'+ task_id).remove();	
+												jQuery('#'+this_id).html(_html);											
+											});	
+											
+										});					
+										
+									break;
+								case 'edit_sdate':
+									break;							
+								case 'edit_edate':
+									break;
+								case 'edit_progr':
+										var data = {
+												action: 'get_task_detail',
+												security: '<?php echo wp_create_nonce( "get-task-detail" ); ?>',
+												postid: task_id,
+												retnum: 3
+										};
+						
+										jQuery.post(ajaxurl, data, function(response) {
+											var _html = jQuery('#'+this_id).html();
+											jQuery('#'+this_id).empty().append(response);	
+											jQuery('#'+this_id +' select').live('click',function(){ 
+												return false; 
+											}).live('change',function(){
+													var _completed = jQuery(this).val();
+													var data = {
+															action: 'update_task',
+															security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+															parent: '<?php echo get_the_ID(); ?>',
+															postid: task_id,
+															complete: jQuery(this).val(),
+													};
+													var _data = jQuery(this).val();
+													jQuery.post(ajaxurl, data, function(response) {
+														jQuery('tr#'+task_id).fadeIn('slow',function(){
+															var aPos = oTable.fnGetPosition( this );
+															var _obj = jQuery.parseJSON(response);
+															var nTr = oTable.fnSettings().aoData[ aPos ].nTr;
+															if ( _obj.is_start === 1 && _obj.is_end === 0 ) { 
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 6 );			
+																jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);																					
+															} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 6 );
+																jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);				
+															} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 7 );
+																jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);				
+															}else {
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 5 );	
+																jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_progress);			
+															}																										
+														});										
+													});
+											}).live('focusout',function(){									
+												jQuery('#propel_edit_title_'+ task_id).remove();		
+												jQuery('#'+this_id).html(_html);										
+											});
+											
+										});
+																
+									break;	
+								default:
+									break;	
+														
+							}//end of switch
+						return false;
+					}).live('mouseenter',function(){
+					   jQuery(this).css({'cursor':'pointer'}); 
+					}).live('mouseleave',function(){
+					   jQuery(this).css({'cursor':'normal'}); 
+					});
+					
+					jQuery("#propel_project_tasks .gen-edit-icon").each(function(index, element) {
+                        
+						jQuery(this).live('click',function(event){
+							//console.log('test')	  
+//							var task_id = jQuery(this).attr('id');					
+//						
+//							if(jQuery('#details-' + task_id).length > 0) {
+//								
+//								jQuery('#details-' + task_id).remove();
+//								
+//							} else {
+//		
+//								var data = {
+//										action: 'get_task_detail',
+//										security: '',
+//										postid: task_id,
+//										retnum: 1
+//								};
+//				
+//								jQuery.post(ajaxurl, data, function(response) {
+//									 jQuery("#" + task_id).fadeIn('slow',function(){
+//										 jQuery(this).closest( "tr" ).after(response);																			
+//									 });
+//								});
+//
+//							}
+							 
+							return false;
+						});					
+					});	
+					
+					jQuery('form#post #propel_add_task').live('keypress',function(event){
+						if (event.which === 13){
+							
+							var data = {
+								action: 'add_task',
+								security: '<?php echo wp_create_nonce( "add-task" ); ?>',
+								parent: '<?php echo get_the_ID(); ?>',
+								title: jQuery('input[name=task_title]').val(),
+								description: jQuery('textarea[name=task_description]').val(),
+								end_date: jQuery('input[name=task_end_date]').val(),
+								priority: jQuery('select[name=task_priority]').val(),
+								user: jQuery('#propel_post_author').val()
+							};
 			
-			jQuery('#propel_project_tasks .metaboxes-add-task').css({ 'border':'1px solid #DFDFDF', 'padding':'10px', 'margin':'10px 0' });
-			jQuery('#propel_post_author').addClass('task-priority');
-		})    
+							jQuery.post(ajaxurl, data, function(response) {
+								 //rob_eyouth:added this...
+								 get_JSON(response);			
+								 jQuery('#_task_title').val('');
+								 jQuery('#_task_desc').val('');			 				
+							});
+							
+							return false;
+						}
+					});
+					
+					jQuery('#propel_project_tasks .metaboxes-add-task').css({ 'border':'1px solid #DFDFDF', 'padding':'10px', 'margin':'10px 0' });
+					jQuery('#propel_post_author').addClass('task-priority');
+				})    
+
+	function get_JSON(response,whichTable){
+
+		var _obj = jQuery.parseJSON(response);
+		
+		if ( _obj.is_start === 1 && _obj.is_end === 0 ) { 	
+					
+			var _json = Array(
+				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
+				'<a href="#" title="Edit">Edit</a>',
+				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
+				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
+				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
+				'<p id="edit_sdate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_start +'</p>',			
+				'<p id="edit_progr_'+ _obj.task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'" ></progress></p>'
+			);
+			
+			if (whichTable === 1){
+				jQuery('#propel_completed_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-com-tasks').dataTable().fnAddData( _json );															
+				var nTr = cTable.fnSettings().aoData[ a[0] ].nTr;			
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');
+			}else{
+				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
+			}
+			jQuery(nTr).attr('id',_obj.task_id);
+			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
+			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
+			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_start);			
+			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value',_obj.task_author);
+			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);	
+			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
+				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
+			});							
+			
+		} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 	
+		
+			var _json = Array(
+				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
+				'<a href="#" title="Edit">Edit</a>',
+				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
+				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
+				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
+				'<p id="edit_edate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_end +'</p>',				
+				'<p id="edit_progr_'+ _obj.task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>'
+			);		
+			
+			if (whichTable === 1){
+				jQuery('#propel_completed_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-com-tasks').dataTable().fnAddData( _json );															
+				var nTr = cTable.fnSettings().aoData[ a[0] ].nTr;		
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');	
+			}else{
+				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
+			}
+			jQuery(nTr).attr('id',_obj.task_id);
+			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
+			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
+			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_end);			
+			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value',_obj.task_author);
+			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);	
+			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
+				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
+			});							
+			
+		} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 	
+		
+			var _json = Array(
+				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
+				'<a href="#" title="Edit">Edit</a>',
+				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
+				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
+				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
+				'<p id="edit_sdate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_start +'</p>',
+				'<p id="edit_edate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_end +'</p>',				
+				'<p id="edit_progr_'+ _obj.task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'" ></progress></p>'
+			);
+			
+			if (whichTable === 1){
+				jQuery('#propel_completed_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-com-tasks').dataTable().fnAddData( _json );															
+				var nTr = cTable.fnSettings().aoData[ a[0] ].nTr;			
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');
+			}else{
+				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
+			}
+			jQuery(nTr).attr('id',_obj.task_id);
+			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');
+			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
+			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_start);
+			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_end);			
+			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value',_obj.task_author);
+			jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);	
+			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
+				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
+			});		
+			
+		}else {
+			
+			var _json = Array(
+				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
+				'<a href="#" title="Edit">Edit</a>',
+				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',				
+				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
+				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
+				'<p id="edit_progr_'+ _obj.task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'" ></progress></p>'
+				);			
+
+			if (whichTable === 1){
+				jQuery('#propel_completed_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-com-tasks').dataTable().fnAddData( _json );															
+				var nTr = cTable.fnSettings().aoData[ a[0] ].nTr;			
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');
+			}else{
+				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );	
+				console.log(oTable.fnSettings().aoData[ a[0] ]);														
+				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
+			}
+				
+			jQuery(nTr).attr('id',_obj.task_id);			
+			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
+			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
+			jQuery(nTr).find('td:eq(4)').addClass('owner').attr('data-value',_obj.task_author);
+			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_progress);
+			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
+				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
+			});
+				
+		}//End of if....
+				
+	}
+
     </script>
 	<?php
 		
@@ -658,42 +1039,37 @@ class Post_Type_Project {
 		$x = ($progress == 100) ? "" : "un";
 		$nonce = wp_create_nonce('propel-trash');
 
-		?>        
-		<tr class="toggle" id="<?php esc_attr_e( $task->ID ); ?>">
+	       
+
+		$data->task_id=  $task->ID;
+		$data->task_title = $task->post_title;
+		$data->task_author = $author;
+		$data->task_nonce = $nonce;
+		$data->task_progress = $progress;
+		$data->task_authid = $authid;
+		$data->task_author = $author;
 		
-			<td class="gen-icon gen-delete-icon">
-				<a href="post.php?action=propel-delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
+		if( Propel_Options::option('show_start_date' ) ) :
+			$data->is_start = 1;
+			$data->task_start = $start;
+		else:
+			$data->is_start = 0;
+			$data->task_start = 0;				
+		endif;
+		
+		if( Propel_Options::option('show_end_date' ) ) : 
+			$data->is_end = 1;
+			$data->task_end = $end;
+		else:
+			$data->is_end = 0;
+			$data->task_end = 0;		
+		endif; 		
 
-			<td class="gen-icon gen-edit-icon">
-				<a href="post.php?post=<?php esc_attr_e( $task->ID ); ?>&action=edit" title="Edit">Edit</a></td>
-
-			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
-				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
-				
-			<td class="title" class="toggle" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
-				<p><?php esc_html_e($task->post_title); ?></p></td>
-
-			<td class="owner" data-value="<?php esc_attr_e( $author ); ?>">
-				<p><?php esc_html_e($author); ?></p>
-			</td>
-
-			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
-			<td data-value="<?php esc_attr_e( $start ); ?>">
-				<p style="font-size: 10px; color: #999;"><?php esc_html_e($start); ?></p>
-			</td>
-			<?php endif; ?>
-
-			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
-			<td data-value="<?php esc_attr_e( $end ); ?>">
-				<p style="font-size: 10px; color: #999;"><?php esc_html_e($end); ?></p></td>
-			<?php endif; ?>
-
-			<td data-value="<?php esc_attr_e( $progress ); ?>">
-				<p><?php esc_html_e($progress); ?>%</p></td>
-		</tr>
-        
-		<?php		
+		echo json_encode($data);
+					
 		remove_action( 'project_get_task', array( __CLASS__, 'project_get_task' ) );
+		
+		die();		
 	}	
 	
 	/**
@@ -714,28 +1090,37 @@ class Post_Type_Project {
 				'post_type' => 'propel_task',
 				'post_status' => 'publish'
 			);
+			wp_update_post( $post );
+		}
+		
+		if( isset( $_POST['user'] ) ){
+			$post = array(
+				'ID' => (int)$post_id,
+				'post_author' => (int)$_POST['user']
+			);
 			wp_update_post( $post );		
-		}
+		}	
 			
-		$start = !empty( $_POST['start_date'] ) ? strtotime( $_POST['start_date'] ) : time();
-		
-		update_post_meta( $post_id, '_propel_start_date', $start );
-
-		$end = strtotime($_POST['end_date']);
-		if( empty( $_POST['end_date'] ) && $_POST['complete'] == 100  ) {
-			$end = time();
+		if ( isset($_POST['start']) ){	
+			$start = !empty( $_POST['start_date'] ) ? strtotime( $_POST['start_date'] ) : time();		
+			update_post_meta( $post_id, '_propel_start_date', $start );
 		}
 		
-		update_post_meta( $post_id, '_propel_end_date', $end );
+		if ( isset($_POST['end']) ){	
+			$end = strtotime($_POST['end_date']);
+			if( empty( $_POST['end_date'] ) && $_POST['complete'] == 100  ) {
+				$end = time();
+			}
+			
+			update_post_meta( $post_id, '_propel_end_date', $end );
+		}
 		
-		if ( isset( $_POST['priority'] ) )
+		if ( isset( $_POST['priority'] ) ){
 			update_post_meta( $post_id, '_propel_priority', (int)$_POST['priority'] );
-		
-		if ( isset( $_POST['complete'] ) )
+		}
+		if ( isset( $_POST['complete'] ) ){
 			update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
-		
-		if ( isset( $_POST['user'] ) )
-			update_post_meta( $post_id, '_propel_owner', (int)$_POST['user'] );
+		}
 		
 		do_action('project_get_task',$post_id);
 		
@@ -747,61 +1132,81 @@ class Post_Type_Project {
 	 * rob: added this function..
 	*/
 	public static function wp_ajax_get_task_detail() {
-		$id = $_POST["postid"];
-		$task = get_post($id); 		
-		$nonce = wp_create_nonce('propel-trash');
-		if( $task->post_author ) {
-			$userdata = get_userdata( $task->post_author );
-			$authid = $userdata->ID; 
-			$author = $userdata->display_name;
-		} else {
-			$authid = '-1';
-			$author = "Unassigned";
-		}
-		?>        
-		<tr id="details-<?php esc_attr_e( $task->ID ); ?>">
-			        
-            <td class="gen-icon gen-edit-icon" colspan="3"> <input type="button" class="button-primary" value="Update" id="propel_task_update"> </td>
-			<td data-value="<?php esc_attr_e($task->post_title); ?>" class="propel_editable">
-				<p><input type="text" value="<?php esc_html_e($task->post_title); ?>" id="propel_edit_task"/></p>
-            </td>		
-
-			<td data-value="<?php esc_attr_e( $authid ); ?>" class="propel_editable">
-				<p>
-					 <?php
-						$args = array(
-							'name' => 'propel_edit_author',
+ 		
+		check_ajax_referer( 'get-task-detail', 'security' );
+		
+		if (isset($_POST["postid"])){
+			
+			$id = $_POST["postid"];
+	
+				switch($_POST['retnum']){	
+				
+					case 1:
+							global $wpdb;
+							$parent = get_the_ID(); 
+							//@todo: profile query / use WP_Query?
+							$query = "SELECT `post_id`, `meta_value` AS `progress` 
+									FROM `{$wpdb->postmeta}`
+									WHERE `meta_key` = '_propel_complete' 
+									AND `meta_value` < 100 AND `{$wpdb->postmeta}`.`post_id` 
+										IN (SELECT `ID` FROM {$wpdb->posts}
+										WHERE `post_parent`={$parent} AND `post_status` = 'publish')
+									ORDER BY `meta_value` DESC, `post_id` DESC;";	
+							$posts = $wpdb->get_results($query);					
+							?>
+								<tr id='details-<?php esc_attr_e($id); ?>'>
+                                <td colspan="3"></td>
+                                <td colspan="3"><select>
+                            <?php
+								foreach($posts as $post) {
+									$task = get_post($id);
+									echo $task->ID;
+								}
+							?>
+								</select></td></tr>;		
+							<?php
+                            die();
+							break;
+					case 2:	
+							$task = get_post($id);
+							if( $task->post_author ) {
+								$userdata = get_userdata( $task->post_author );
+								$authid = $userdata->ID; 
+								$author = $userdata->display_name;
+							} else {
+								$authid = '-1';
+								$author = "Unassigned";
+							}
+							$args = array(
+							'class' => 'metabox-add-task-user',
+							'name' => 'propel_post_author',
 							'show_option_none' => 'Unassigned',
 							'orderby' => 'display_name',
-							'name' => 'propel_edit_author', 
-							'selected' => $project->post_author
-						);
-						wp_dropdown_users( $args );
-                    ?>                        
-                </p>
-            </td>
-			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
-                <td></td>
-            <?php endif; ?>
-            
-            <?php if( Propel_Options::option('show_end_date' ) ) : ?>
-                <td></td>
-            <?php endif; ?>
-			<td data-value="<?php esc_attr_e( $progress ); ?>" class="propel_editable">
-				<p>
-				    <select name="complete" id="propel_edit_progress">
-                        <?php
-                        for ($i = 0; $i <= 100; $i = $i+5) :
-                            echo "<option value='$i'".selected($complete, $i).">$i</option>";
-                        endfor;
-                        ?> 
-                    </select>            
-                </p>
-            </td>			           
+							'selected' => $userdata->ID
+							);
+							wp_dropdown_users( $args );
+							die(0);
+							break; 
+					case 3:
+				?>
+						<select name="complete" id="propel_edit_progress">
+							<?php
+							for ($i = 0; $i <= 100; $i = $i+5) :
+								echo "<option value='$i'>$i</option>";
+							endfor;
+							?> 
+						</select>            
+				<?php		
+						die();
+						break;
+						
+					default:
+						die();
+						break;
+			}
 			
-        </tr>	
-        
-		<?php		
+		}
+					
 	}
 	
 		

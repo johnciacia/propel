@@ -112,8 +112,8 @@ class Propel {
 
 		$options = get_option( 'propel_options' );
 		wp_register_style("propel-jquery-ui", $options['theme'] );
-		wp_register_style("genesis-ui", plugins_url( '/propel/gen/ui.css' ) );
-		wp_register_style("propel-ui", plugins_url( '/propel/style.css' ) );
+		wp_register_style("genesis-ui", plugins_url( '/propel/ui/gen/ui.css' ) );
+		wp_register_style("propel-ui", plugins_url( '/propel/ui/style.css' ) );
 
 		wp_enqueue_style('genesis-ui');
 		wp_enqueue_style('propel-jquery-ui');

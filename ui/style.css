@@ -1,0 +1,112 @@
+/* There appears to be a div in the lower left of WordPress that displays with this class, can't tell what it's related to so this should get figured out at some point. */
+#ui-datepicker-div {
+	display: none;
+}
+
+
+/* beginning of metaboxes-project-meta */
+/* beginning of metaboxes-project-meta */
+.metaboxes-project-meta {
+	width: 100%;
+}
+.metaboxes-project-meta .first-column {
+	font-size: 12px;
+	color: #999;
+}
+.metaboxes-project-meta .second-column {
+	width: 100px;
+}
+.metaboxes-project-meta select {
+	float: right;
+	width: 170px;
+}
+.metaboxes-project-meta input {
+	float: right;
+}
+
+
+
+/* beginning of metaboxes-add-task */
+/* beginning of metaboxes-add-task */
+.metaboxes-add-task {
+	width: 100%;
+}
+.metaboxes-add-task .widefat {
+	width: 100% !important;
+}
+.metaboxes-add-task label {
+	float: left;
+	margin: 5px 0 0 0;
+	font-size: 12px;
+	color: #999;
+}
+.metaboxes-add-task .task-priority {
+	width: 200px;
+	float: right;
+}
+.metaboxes-add-task .task-owner {
+	float: right;
+}
+.metabox-add-task-title {
+	width: 270px;
+}
+.metabox-add-task-date {
+	width: 150px;
+}
+.metabox-add-task-description {
+	height: 33px;
+	margin: 5px 0 2px 0;
+	width: 100%;
+}
+
+.tasks-table thead tr th {
+	padding: 0 !important;
+}
+.tasks-table thead p {
+	color: #666;
+	font-weight: bold;
+	text-shadow: 1px 1px #fff;
+}
+.tasks-table .start-date, .tasks-table .end-date {
+	font-size: 10px;
+	color: #999;
+}
+.tasks-table p {
+	margin: 5px 0;
+}
+.tasks-table td {
+	padding: 0 0 0 1px;
+	min-width: auto;
+	color: #666;
+	text-shadow: 1px 1px #fff;
+}
+.tasks-table .title {
+	padding: 0 15px 0 0;
+}
+.tasks-table .author {
+	font-size: 10px;
+}
+.tasks-table .odd {
+	background: #fdfdfd;
+}
+.gen-icon {
+	margin: 0;
+	padding: 0;
+}
+#propel_add_task .inside p {
+	margin:0;
+}
+#propel_project_tasks .inside table, #propel_completed_tasks .inside table {
+	border: none;
+}
+#propel_project_tasks .inside, #propel_completed_tasks .inside {
+	margin: 0;
+	padding: 0;
+}
+.dataTables_empty p {
+	color: #999;
+	padding: 0 0 0 5px;
+}
+#propel_project_tasks input[type='text'] {
+	width: 100%;
+}

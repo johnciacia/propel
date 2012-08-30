@@ -1,0 +1,115 @@
+.gen-table {
+	background-color: #F9F9F9;
+	border-color: #DFDFDF;
+	border-radius: 3px;
+	border-spacing: 0;
+	border-style: solid;
+	border-width: 1px;
+	text-align: left;
+}
+
+.gen-table thead tr {
+	background-color: #F1F1F1;	
+}
+
+.gen-table .gen-hidden {
+	display: none;
+}
+/*
+.gen-table tbody:hover {
+	background-color: #F1F1F1;
+	cursor: pointer;
+}
+*/
+
+.gen-table td {
+	border-top: 1px solid #DFDFDF;
+	padding-left: 10px;
+}
+
+.gen-icon {
+	width: 24px;
+	text-align: center;
+}
+
+.gen-icon a:hover {
+	opacity: 1;
+}
+
+.gen-icon a {
+	text-align: center;
+	height: 16px;
+	margin-top: 1px;
+	opacity: 0.5;
+	text-indent: -9999px;
+	width: 16px;
+	display: block;
+	background-position: center;
+}
+
+.gen-delete-icon a {
+	background: url('images/delete.png') no-repeat;
+}
+
+.gen-edit-icon a {
+	background: url('images/edit.png') no-repeat;
+}
+
+.gen-unchecked-icon a {
+	background: url('images/unchecked.png') no-repeat;
+}
+
+.gen-checked-icon a {
+	background: url('images/checked.png') no-repeat;
+}
+
+.gen-table th.sortable {
+	color: #000;
+	cursor: pointer;
+	text-decoration: underline;
+	padding-left: 10px;
+}
+
+
+.dataTables_length {
+	width: 40%;
+	float: left;
+	margin: 5px;
+}
+
+.dataTables_filter {
+	width:30%;
+	float: right;
+	text-align: right;
+	margin: 5px;
+}
+
+.dataTables_info {
+	width:40%;
+	float: left;
+	margin: 5px;
+	margin-top: 15px;
+}
+
+.dataTables_paginate {
+	float: right;
+	text-align: right;
+	margin: 5px;
+	margin-top: 15px;
+}
+
+.paginate_active, .paginate_button {
+	margin: 2px;
+	border: 1px solid lightGrey;
+	font-weight: normal;
+	color: #555;
+	padding: 4px;
+	cursor: pointer;
+	background: #E6E6E6;
+}
+
+.paginate_active {
+	font-weight: bold;
+	border: 1px solid darkGrey;
+	
+}
