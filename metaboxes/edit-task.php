@@ -5,7 +5,7 @@
 <script type="text/javascript">
 function _list_owners(){
 	var http_req = new XMLHttpRequest();
-	var module = "<?php echo plugins_url(); ?>/propel2/metaboxes/owner_ajax.php";
+	var module = "<?php echo plugins_url(); ?>/propel/metaboxes/owner_ajax.php";
 	var user = document.getElementById("propel_post_author2").value; 
 	var vars = "user="+ user ; 
 	http_req.open("POST", module, true);
@@ -25,9 +25,24 @@ $state(document).ready(function(){
 		$state("#propel_post_author").live('change',function(){
 			document.getElementById('propel_post_author2').value = $state("#propel_post_author option:selected").text();
 		});
+		$state("#srbtn").hover(function(){
+			$state("#ttip").toggle();	
+		});
 });
 </script>
-
+<style>
+#ttip{
+background: #f0f9ff; /* Old browsers */
+background: -moz-linear-gradient(top,  #f0f9ff 0%, #cbebff 47%, #a1dbff 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0f9ff), color-stop(47%,#cbebff), color-stop(100%,#a1dbff)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top,  #f0f9ff 0%,#cbebff 47%,#a1dbff 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top,  #f0f9ff 0%,#cbebff 47%,#a1dbff 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top,  #f0f9ff 0%,#cbebff 47%,#a1dbff 100%); /* IE10+ */
+background: linear-gradient(to bottom,  #f0f9ff 0%,#cbebff 47%,#a1dbff 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f0f9ff', endColorstr='#a1dbff',GradientType=0 ); /* IE6-9 */
+position:absolute;left:-122px; top:240px; width:200px; height:150px;border:1px solid #333;display:none; z-index:999;
+}
+</style>
 <table width="100%">
 	<?php
 		$projects = get_posts( array( 'post_type' => 'propel_project', 'numberposts' => -1 ) );
@@ -112,8 +127,16 @@ $state(document).ready(function(){
 		<td><p>Manager</p></td>
 		<td style="position:relative">
 		<?php $user_info = get_userdata($post->post_author); ?>
-			<input type="text" name="propel_post_author2" id="propel_post_author2" value="<?php echo $user_info->user_login;  ?>" >
-			<input type="button" value="search" style="position:absolute; left:223px;" onClick="_list_owners();">
+			<input type="text" name="propel_post_author2" id="propel_post_author2" value="<?php echo $user_info->user_login;  ?>" ><div style="clear:both">
+			<input id="srbtn" type="button" value="search" class="button-primary" onClick="_list_owners();">
+			<div id="ttip">
+			  <h3>Search Tips</h3>
+			  <div style="margin:12px">
+			  	1.) Type in combination of letters that can be found in the Users Login; <br/>
+				2.) Leave it to blanks to search for all available Users; <br/>
+			  </p>
+			
+			</div>
 		</td>
 	</tr>
 		<tr id="owner_result">
