@@ -3,6 +3,26 @@
 /*
  * aps2012
  */
+function set_page_title($admin_title, $title){
+	global $post;
+	if(get_post_type($post->ID) == 'propel_project' ){
+		return 'Propel > ' . $post->post_title;
+	}
+	if(get_post_type($post->ID) == 'propel_task' ){
+		$parent = get_post($post->post_parent);
+		return 'Propel > ' . $parent->post_title . ' > ' . $post->post_title;
+	}
+}
+
+add_filter('admin_title','set_page_title',10,2);
+
+function remove_box(){
+       remove_meta_box('commentstatusdiv', 'propel_project','normal');
+       remove_meta_box('commentstatusdiv', 'propel_task','normal');
+}
+
+add_filter('add_meta_boxes','remove_box');
+
 function set_context(){
    	$part1 = "889999999999";
 	$current_user = wp_get_current_user();

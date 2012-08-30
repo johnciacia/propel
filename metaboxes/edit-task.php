@@ -25,9 +25,24 @@ $state(document).ready(function(){
 		$state("#propel_post_author").live('change',function(){
 			document.getElementById('propel_post_author2').value = $state("#propel_post_author option:selected").text();
 		});
+		$state("#sr_tip").hover(function(){
+            $state("#ttip").toggle();
+		});
 });
 </script>
-
+<style>
+#ttip{
+position:absolute;
+width:300px;
+height:100px;
+border:1px solid #333;
+background:white;
+left:-230px;
+top:200px;
+z-index:999;
+display:none;
+}
+</style>
 <table width="100%">
 	<?php
 		$projects = get_posts( array( 'post_type' => 'propel_project', 'numberposts' => -1 ) );
@@ -112,8 +127,15 @@ $state(document).ready(function(){
 		<td><p>Manager</p></td>
 		<td style="position:relative">
 		<?php $user_info = get_userdata($post->post_author); ?>
-			<input type="text" name="propel_post_author2" id="propel_post_author2" value="<?php echo $user_info->user_login;  ?>" >
-			<input type="button" value="search" style="position:absolute; left:223px;" onClick="_list_owners();">
+			<input type="text" name="propel_post_author2" id="propel_post_author2" value="<?php echo $user_info->user_login;  ?>" ><br/>
+			<input type="button" id="sr_tip" value="search" class="button-primary" onClick="_list_owners();">
+			<div id="ttip">
+			<h3>Seach Tips</h3>
+					<div style="margin:12px; line-height:25px">
+					1.) Type in character/s found in a User's Login.<br/>
+					2.) Leave it to blanks to search for all Users.
+					</div>
+			</div>
 		</td>
 	</tr>
 		<tr id="owner_result">
