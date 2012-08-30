@@ -5,8 +5,8 @@
 <script type="text/javascript">
 function _list_owners(){
 	var http_req = new XMLHttpRequest();
-	var module = "<?php echo plugins_url(); ?>/propel/metaboxes/owner_ajax.php";
-	var user = document.getElementById("propel_post_author2").value; 
+	var module = "<?php echo plugins_url(); ?>/propel-live/metaboxes/owner_ajax.php";
+	var user = document.getElementById("propel_post_author_display").value; 
 	var vars = "user="+ user ; 
 	http_req.open("POST", module, true);
 	http_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -14,19 +14,32 @@ function _list_owners(){
 		if (http_req.readyState == 4 && http_req.status == 200){
 			var return_info = http_req.responseText;
 			document.getElementById("owner_result").innerHTML = return_info;
+			$state("#owner_result").show();
 		}
 	}
 	http_req.send(vars); 	
 	document.getElementById("owner_result").innerHTML = "..searching";
 }
 
+if(typeof String.prototype.trim !== 'function') {
+  String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, ''); 
+  }
+}
+
 var $state = jQuery.noConflict();
 $state(document).ready(function(){
-		$state("#propel_post_author").live('change',function(){
-			document.getElementById('propel_post_author2').value = $state("#propel_post_author option:selected").text();
-		});
-		$state("#sr_tip").hover(function(){
+		$state("#propel_post_author_display").hover(function(){
             $state("#ttip").toggle();
+		});
+		$state(".search_itm").live('hover',function(){
+			$state(".search_itm").css({background:"none"});
+			$state(this).css({background:"#CCC"});
+		});
+		$state(".search_itm").live('click',function(){
+		   document.getElementById("propel_post_author_display").value = $state(this).text().trim();	
+		   $state("#propel_post_author").val($state(this).attr('id'));
+		   $state(this).parent().parent().hide();	
 		});
 });
 </script>
@@ -37,11 +50,24 @@ width:300px;
 height:100px;
 border:1px solid #333;
 background:white;
-left:-230px;
-top:200px;
+left:-80px;
+top:160px;
 z-index:999;
 display:none;
 }
+#owner_result{
+position:absolute;
+width:200px;
+height:120px;
+overflow:auto;
+border:1px solid #333;
+background:white;
+left:20px;
+top:290px;
+z-index:9999;
+display:none;
+}
+
 </style>
 <table width="100%">
 	<?php
@@ -127,8 +153,9 @@ display:none;
 		<td><p>Manager</p></td>
 		<td style="position:relative">
 		<?php $user_info = get_userdata($post->post_author); ?>
-			<input type="text" name="propel_post_author2" id="propel_post_author2" value="<?php echo $user_info->user_login;  ?>" ><br/>
-			<input type="button" id="sr_tip" value="search" class="button-primary" onClick="_list_owners();">
+			<input type="text" name="propel_post_author_display" id="propel_post_author_display" value="<?php echo $user_info->user_login ?>" onKeyUp="_list_owners()" >
+			<input type="hidden" name = "propel_post_author" id="propel_post_author" value="<?php echo $user_info->ID ?>">
+			
 			<div id="ttip">
 			<h3>Seach Tips</h3>
 					<div style="margin:12px; line-height:25px">
@@ -136,11 +163,8 @@ display:none;
 					2.) Leave it to blanks to search for all Users.
 					</div>
 			</div>
+			<div id="owner_result"></div>
 		</td>
 	</tr>
-		<tr id="owner_result">
-
-	</tr>
-	
 	
 </table>
