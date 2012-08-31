@@ -82,8 +82,8 @@
 		* rob_eyouth : added by rob to show task for the current user and if user is admin
 		*/
 		//if user is admin
-		$current_user = wp_get_current_user();		
-		if ( $current_user->ID == $userdata->ID || $current_user->ID == 1) { 
+		//$current_user = wp_get_current_user();		
+		//if ( $current_user->ID == $userdata->ID || $current_user->ID == 1) { 
 		?>
 		<tr id="<?php esc_attr_e( $task->ID ); ?>">
 		
@@ -120,7 +120,7 @@
 			</td>
 		</tr>
 		<?php
-		}
+		//}
 	}
 
 	?>
