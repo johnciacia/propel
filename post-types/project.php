@@ -735,14 +735,14 @@ class Post_Type_Project {
 															var _obj = jQuery.parseJSON(response);
 															var nTr = oTable.fnSettings().aoData[ aPos ].nTr;
 															if ( _obj.is_start === 1 && _obj.is_end === 0 ) { 																
-																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 5 );													
-																jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_author);											
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 4 );													
+																jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_author);											
 															} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 
-																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 5 );
-																jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_author);
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 4 );
+																jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_author);
 															} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 
-																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 6 );															
-																jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_author);
+																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 4 );															
+																jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_author);
 															}else {
 																oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 4 );
 																jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_author);
