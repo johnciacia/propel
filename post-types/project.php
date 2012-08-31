@@ -24,6 +24,7 @@ class Post_Type_Project {
 		add_action( 'wp_ajax_update_task', array( __CLASS__, 'wp_ajax_update_task' ) );
 		add_action( 'wp_ajax_get_task_detail', array( __CLASS__, 'wp_ajax_get_task_detail' ) );
 		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
+		add_action( 'admin_head', array( __CLASS__, 'tooltip_css' ) );
 		add_filter( 'request', array( __CLASS__, 'request' ) );
 	}
 
@@ -648,11 +649,14 @@ class Post_Type_Project {
 							var _this_id;
 							this_id === undefined ? _this_id = 0 : _this_id = this_id.substr(0,10);
 							var _tr_before_id = jQuery('#'+task_id).prev('tr').attr('id');							
-
+							
+							
+							
 							switch(_this_id){
 								case 'edit_title':	
 									var _val = jQuery('#'+this_id).text();					
 									jQuery('#'+this_id).empty().append('<input type="text" id="propel_edit_title_'+ task_id +'" value="'+ _val +'" size="60">');
+									jQuery('#propel_edit_title_'+ task_id).focus();	
 									jQuery('#propel_edit_title_'+ task_id).live('keypress',function(event){
 										if ( event.which == 13){
 											var data = {
@@ -664,18 +668,36 @@ class Post_Type_Project {
 											};
 											var _data = jQuery('#propel_edit_title_'+ task_id).val();
 											jQuery.post(ajaxurl, data, function(response) {
+												var _obj = jQuery.parseJSON(response);
 												jQuery('tr#'+task_id).fadeIn('slow',function(){
 													var aPos = oTable.fnGetPosition( this );
-													oTable.fnUpdate( '<p id="edit_title_"'+ task_id +'>'+ _data +'</p>', aPos, 3 )
-													//var _pos = jQuery(this).index();																								
-													//oTable.fnDeleteRow( _pos, get_JSON( response ));																										
+													var _html ="";
+													var len = _obj.task_content.length;
+													if (len > 75 ) {
+														var _content = _obj.task_content.substr(0,75)+' ...';
+														_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+													}else{
+														var _content = _obj.task_content.substr(0,75);
+														_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+													}			
+
+													oTable.fnUpdate( '<p id="edit_title_'+ task_id +'">'+ _obj.task_title +'</p>'+_html, aPos, 3 )
+														jQuery('.tooltip').each(function(){
+															var _content = jQuery(this).attr('title');
+															var _id = jQuery(this).attr('id');
+															jQuery(this).tooltip({
+																id		: _id,
+																content : _content							
+															});
+														});
+																			
 												});
 
 											});
 											
 											return false;
 										}
-									}).live('click',function(){
+									}).live('click',function(){										
 										return false;
 									}).live('focusout',function(){									
 										jQuery('#propel_edit_title_'+ task_id).remove();
@@ -694,6 +716,7 @@ class Post_Type_Project {
 										jQuery.post(ajaxurl, data, function(response) {
 											var _html = jQuery('#'+this_id).html();
 											jQuery('#'+this_id).empty().append(response);	
+											jQuery('#'+this_id +' select').focus();
 											jQuery('#'+this_id +' select').live('click',function(){ 
 												return false; 
 											}).live('change',function(){
@@ -749,6 +772,7 @@ class Post_Type_Project {
 										jQuery.post(ajaxurl, data, function(response) {
 											var _html = jQuery('#'+this_id).html();
 											jQuery('#'+this_id).empty().append(response);	
+											jQuery('#'+this_id +' select').focus();
 											jQuery('#'+this_id +' select').live('click',function(){ 
 												return false; 
 											}).live('change',function(){
@@ -858,7 +882,17 @@ class Post_Type_Project {
 					
 					jQuery('#propel_project_tasks .metaboxes-add-task').css({ 'border':'1px solid #DFDFDF', 'padding':'10px', 'margin':'10px 0' });
 					jQuery('#propel_post_author').addClass('task-priority');
-				})    
+					
+					jQuery('.tooltip').each(function(){
+						var _content = jQuery(this).attr('title');
+						var _id = jQuery(this).attr('id');
+						jQuery(this).tooltip({
+							id		: _id,
+							content : _content							
+						});
+					});
+										
+	});//End of document.ready    
 
 	function get_JSON(response,whichTable){
 
@@ -887,10 +921,21 @@ class Post_Type_Project {
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
-			jQuery(nTr).attr('id',_obj.task_id);
+			var _html = "";
+			var len = _obj.task_content.length;
+			if (len > 75 ) {
+				var _content = _obj.task_content.substr(0,75)+' ...';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+			}else{
+				var _content = _obj.task_content.substr(0,75);
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+			}
+			
+				
+			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
-			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
+			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
 			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_start);			
 			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value',_obj.task_author);
 			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);	
@@ -921,10 +966,21 @@ class Post_Type_Project {
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
-			jQuery(nTr).attr('id',_obj.task_id);
+			var _html = "";
+			var len = _obj.task_content.length;
+			if (len > 75 ) {
+				var _content = _obj.task_content.substr(0,75)+' ...';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+			}else{
+				var _content = _obj.task_content.substr(0,75);
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+			}
+			
+				
+			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
-			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
+			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
 			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_end);			
 			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value',_obj.task_author);
 			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);	
@@ -956,10 +1012,22 @@ class Post_Type_Project {
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
-			jQuery(nTr).attr('id',_obj.task_id);
+			
+			var _html = "";
+			var len = _obj.task_content.length;
+			if (len > 75 ) {
+				var _content = _obj.task_content.substr(0,75)+' ...';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+			}else{
+				var _content = _obj.task_content.substr(0,75);
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+			}
+			
+				
+			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');
-			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
+			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);				
 			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_start);
 			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_end);			
 			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value',_obj.task_author);
@@ -991,11 +1059,22 @@ class Post_Type_Project {
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
+						
+			var _html = "";
+			var len = _obj.task_content.length;
+			if (len > 75 ) {
+				var _content = _obj.task_content.substr(0,75)+' ...';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+			}else{
+				var _content = _obj.task_content.substr(0,75);
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+			}
+			
 				
 			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
-			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"});					
+			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
 			jQuery(nTr).find('td:eq(4)').addClass('owner').attr('data-value',_obj.task_author);
 			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_progress);
 			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
@@ -1003,13 +1082,178 @@ class Post_Type_Project {
 			});
 				
 		}//End of if....
+		
+		jQuery('.tooltip').each(function(){
+			var _content = jQuery(this).attr('title');
+			var _id = jQuery(this).attr('id');
+			jQuery(this).tooltip({
+				id		: _id,
+				content : _content							
+			});
+		});				
 				
 	}
-
-    </script>
-	<?php
+	
+	jQuery.fn.tooltip = function(settings){
+	
+		var xOffset = 30;
+		var yOffset = 20;
+		var _title="";
+		var task_id;
+		var _divtooltip;
 		
+		var opts = jQuery.extend({ id : '', content : '' },settings);
+		
+		//return this.each(function() {
+			
+			var $this = jQuery(this);
+					
+			$this.live('mouseenter',function(e){
+				
+				_title = opts.content;
+				$this.attr('title',"");
+					
+				jQuery("body").append("<p id='tooltip'><span class='arrow'></span>"+ _title +"</p>");
+			
+				e.pageX > 750 ?  e.pageX = 600 : e.pageX;
+			
+				jQuery("#tooltip")
+					.css("top",(e.pageY - xOffset) + "px")
+					.css("left",(e.pageX + yOffset + 10) + "px")
+					.fadeIn("slow");
+					
+			});
+			
+			$this.live('mouseleave',function(){
+					$this.attr('title',_title);
+					jQuery("#tooltip").fadeOut('fast');
+					jQuery("#tooltip").remove();
+			});
+			
+			$this.live('mousemove',function(e){		
+					jQuery("#tooltip")
+					.css("top",(e.pageY - 30) + "px")
+					.css("left",(e.pageX + (yOffset)) + "px");
+					
+			}).live('click',function(){
+	
+					_divtooltip = $this.attr('id');
+					task_id = jQuery.trim(_divtooltip.substr(5,10));
+	
+					jQuery("#tooltip").fadeOut('slow',function(){
+						jQuery("#tooltip").remove();
+						jQuery("#"+_divtooltip).find('small').hide('fast','linear',function(){
+							
+							jQuery("#"+_divtooltip).removeClass('tooltip').append('<textarea id="desc_edit_'+ task_id +'" style="width:400px; height:50px; margin-top:5px;font-size:10px;padding:5px;">'+ _title +'</textarea>');
+						
+						jQuery('#desc_edit_'+task_id).focus();	
+							
+						jQuery('#desc_edit_'+task_id).live('mouseleave',function(e) {
+							jQuery('#desc_edit_'+task_id).fadeOut('fast',function(){
+								jQuery('#desc_edit_'+task_id).remove();							
+							});
+							jQuery("#"+_divtooltip).addClass('tooltip').find('small').css("display","block").fadeIn('slow');
+							
+						})
+						
+						jQuery('#desc_edit_'+task_id).live('focusin',function(e) {
+							jQuery("#tooltip").fadeOut('slow');
+						});
+						
+						jQuery('#desc_edit_'+task_id).live('keypress',function(event){
+							if ( event.which === 13 ){
+										var data = {
+												action: 'update_task',
+												security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+												parent: '<?php echo get_the_ID(); ?>',
+												postid: task_id,
+												content: jQuery('#desc_edit_'+task_id).val(),
+										};
+			
+										jQuery.post(ajaxurl, data, function(response) {
+											var _obj = jQuery.parseJSON(response);
+											jQuery('tr#'+task_id).fadeIn('slow',function(){
+												var aPos = oTable.fnGetPosition( this );
+												var _html ="";
+												var len = _obj.task_content.length;
+												if (len > 75 ) {
+													var _content = _obj.task_content.substr(0,75)+' ...';
+													_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+												}else{
+													var _content = _obj.task_content.substr(0,75);
+													_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+												}			
+												oTable.fnUpdate( '<p id="edit_title_'+ task_id +'">'+ _obj.task_title +'</p>'+_html, aPos, 3 );
+												jQuery('.tooltip').each(function(){
+														var _content = jQuery(this).attr('title');
+														var _id = jQuery(this).attr('id');
+														jQuery(this).tooltip({
+															id		: _id,
+															content : _content							
+														});
+													});
+												});
+				
+										});
+								
+								jQuery("#"+_divtooltip).addClass('tooltip').find('small').css("display","block").fadeIn('slow');
+								
+							}//end of event == 13
+							
+						});//end of desc_edit
+							
+						});												
+					});										
+			});										   						 	
+		   
+		  //});//end of each
+		  
+		}; 		
+
+    </script>    
+    
+	<?php
+	
 	}
+
+	public static function tooltip_css(){ ?>
+		 <style>
+			#tooltip {
+				text-align:start;
+				text-shadow: 1px 1px #EEE;
+				text-wrap:normal !important;
+				background: #DFDFDF;
+				color: #555;
+				display: block;
+				padding: 10px;
+				border : 1px solid #DDD;
+				border-radius : 7px;
+				-moz-border-radius : 7px;
+				-webkit-border-radius : 7px;
+				position: absolute;
+				z-index:9999999999;
+				height:auto;
+				min-height:50px;
+				width:auto;
+				min-width:100px;
+				max-width:300px;
+				box-sizing:border-box;
+				box-shadow: 1px 1px #CCC;
+				overflow:none;
+			}
+			.arrow{
+				width: 0; 
+				height: 0; 
+				top:10px;
+				left:-10px;
+				position:absolute;
+				border-top: 10px solid transparent;
+				border-bottom: 10px solid transparent; 				
+				border-right:10px solid #DFDFDF; 	
+			}
+		 </style>
+	<?php             
+     }    
 
 	/**
 	 * @since 2.0
@@ -1048,6 +1292,7 @@ class Post_Type_Project {
 		$data->task_progress = $progress;
 		$data->task_authid = $authid;
 		$data->task_author = $author;
+		$data->task_content = $task->post_content;
 		
 		if( Propel_Options::option('show_start_date' ) ) :
 			$data->is_start = 1;
@@ -1082,15 +1327,32 @@ class Post_Type_Project {
 		
 		$post_id = $_POST['postid'];
 
-		if ( isset($_POST["title"]) ){
+		if ( isset($_POST["title"]) && isset($_POST["content"]) ){
+			$post = array(
+					'ID' => (int)$post_id,
+					'post_title' => $_POST['title'],
+					'post_content' => $_POST['content'],
+					'post_parent' => $_POST['parent'],
+				);
+
+			wp_update_post( $post );
+			
+		}else if ( isset($_POST["title"]) && !isset($_POST["content"]) ) {
 			$post = array(
 				'ID' => (int)$post_id,
 				'post_title' => $_POST['title'],
 				'post_parent' => $_POST['parent'],
-				'post_type' => 'propel_task',
-				'post_status' => 'publish'
 			);
 			wp_update_post( $post );
+			
+		}else if ( !isset($_POST["title"]) && isset($_POST["content"]) ) {
+			$post = array(
+				'ID' => (int)$post_id,
+				'post_content' => $_POST['content'],
+				'post_parent' => $_POST['parent'],
+			);
+			wp_update_post( $post );
+			
 		}
 		
 		if( isset( $_POST['user'] ) ){
