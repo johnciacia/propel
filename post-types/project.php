@@ -757,9 +757,64 @@ class Post_Type_Project {
 										});					
 										
 									break;
-								case 'edit_sdate':
+								case 'edit_sdate':	
+										var _val = jQuery('#'+this_id).text();
+										jQuery('#'+this_id).empty().append('<input class="metabox-add-task-date widefat sdate" type="text" placeholder="End Date" />');									 
+										jQuery('#'+this_id+' input.sdate').datepicker({
+											dateFormat: 'MM dd, yy',
+											onClose: function(dates) { 
+												var data = {
+													action: 'update_task',
+													security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+													postid: task_id,
+													start_date : dates
+												};								
+												jQuery.post(ajaxurl, data, function(response) {
+													var _obj = jQuery.parseJSON(response);
+													jQuery('#'+this_id+' input.sdate').remove();
+													jQuery('#'+this_id).html(_obj.task_start);
+												});
+											} 
+										});
+										jQuery('#'+this_id+' input.sdate').live('focus',function(){
+											return false;
+										});	
+										jQuery('#'+this_id+' input').focus();									
+										jQuery('#'+this_id+' input').live('click',function(){ 
+
+										}).live('focusout',function(){								
+												jQuery('#end_date_'+ task_id).remove();	
+												jQuery('#'+this_id).html(_val);											
+										});																		
 									break;							
 								case 'edit_edate':
+										var _val = jQuery('#'+this_id).text();
+										jQuery('#'+this_id).empty().append('<input class="metabox-add-task-date widefat enddate" type="text" placeholder="End Date" />');									 
+										jQuery('#'+this_id+' input.enddate').datepicker({
+											dateFormat: 'MM dd, yy',
+											onClose: function(dates) { 
+												var data = {
+													action: 'update_task',
+													security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+													postid: task_id,
+													end_date : dates
+												};								
+												jQuery.post(ajaxurl, data, function(response) {
+													var _obj = jQuery.parseJSON(response);
+													jQuery('#'+this_id+' input.enddate').remove();
+													jQuery('#'+this_id).html(_obj.task_end);
+												});
+											} 
+										});
+										jQuery('#'+this_id+' input.enddate').live('focus',function(){
+											return false;
+										});	
+										jQuery('#'+this_id+' input').focus();									
+										jQuery('#'+this_id+' input').live('click',function(){ 
+										}).live('focusout',function(){								
+												jQuery('#end_date_'+ task_id).remove();	
+												jQuery('#'+this_id).html(_val);											
+										});	
 									break;
 								case 'edit_progr':
 										var data = {
@@ -1363,12 +1418,12 @@ class Post_Type_Project {
 			wp_update_post( $post );		
 		}	
 			
-		if ( isset($_POST['start']) ){	
+		if ( isset($_POST['start_date']) ){	
 			$start = !empty( $_POST['start_date'] ) ? strtotime( $_POST['start_date'] ) : time();		
 			update_post_meta( $post_id, '_propel_start_date', $start );
 		}
 		
-		if ( isset($_POST['end']) ){	
+		if ( isset($_POST['end_date']) ){	
 			$end = strtotime($_POST['end_date']);
 			if( empty( $_POST['end_date'] ) && $_POST['complete'] == 100  ) {
 				$end = time();

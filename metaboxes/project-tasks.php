@@ -97,7 +97,16 @@
 				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
 				
 			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
-				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($task->post_title); ?></p></td>
+				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($task->post_title); ?></p>
+                <?php 
+					$len = strlen($task->post_content);
+					if ( $len > 75 ) :
+				 ?>
+	            <div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="tooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e( substr($task->post_content,0,75).' ...'); ?></small></div>
+                <?php else : ?>
+				<div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="tooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e($task->post_content); ?></small></div               
+                <?php endif  ?>
+            </td>
 
 			<td class="owner" data-value="<?php esc_attr_e( $author ); ?>">
 				<p id="edit_owner_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($author); ?></p>
