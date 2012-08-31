@@ -5,7 +5,7 @@
 <script type="text/javascript">
 function _list_owners(){
 	var http_req = new XMLHttpRequest();
-	var module = "<?php echo plugins_url(); ?>/propel-live/metaboxes/owner_ajax.php";
+	var module = "<?php echo plugins_url(); ?>/propel/metaboxes/owner_ajax.php";
 	var user = document.getElementById("propel_post_author_display").value; 
 	var vars = "user="+ user ; 
 	http_req.open("POST", module, true);
