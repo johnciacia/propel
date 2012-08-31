@@ -1,15 +1,14 @@
 <table width="100%" class="gen-table tasks-table" id="propel-tasks">
 	<thead>
 		<tr>
-			<!--Change back to elements instead of colspan. The datables will raise an error using colspan when initialize-->
-            <th></th>
-            <th></th>
-            <th></th>
-			<th class="sortable"><p>Title</p></th>
-			<th class="sortable"><p>Contributors</p></th>
+			<th></th>
+			<th></th>
+			<th></th>
+			<th class="sortable"><p>Name</p></th>
+			<th class="sortable"><p>Owner</p></th>
 			
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
-				<th class="sortable"><p>Started</p></th>
+				<th class="sortable"><p>Start</p></th>
 			<?php endif; ?>
 			
 			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
@@ -19,6 +18,30 @@
 			<th class="sortable"><p>Progress</p></th>
 		</tr>
 	</thead>
+
+    <tr id="post_parent_">
+        <td>
+        	<p style="font-weight:bold;padding-left:5px;">
+				<?php 
+                    $parent = get_post($post->post_parent); 
+                    $parent_obj = get_post($parent);
+                    esc_html_e($parent_obj->post_title);
+                ?>
+            </p>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+		<?php if( Propel_Options::option('show_start_date' ) ) : ?>
+            <td></td>
+        <?php endif; ?>
+        
+        <?php if( Propel_Options::option('show_end_date' ) ) : ?>
+            <td></td>
+        <?php endif; ?>
+        <td></td>            
+    </tr>
 	
 	<?php
 	foreach($posts as $post) {
@@ -50,55 +73,53 @@
 		* rob_eyouth : added by rob to show task for the current user and if user is admin
 		*/
 		//if user is admin
-		//$current_user = wp_get_current_user();		
-		//if ( $current_user->ID == $userdata->ID || $current_user->ID == 1) { 
+		$current_user = wp_get_current_user();		
+		if ( $current_user->ID == $userdata->ID || $current_user->ID == 1) { 
 		?>
-		<tr id="<?php esc_attr_e( $task->ID ); ?>">
+		<tr class="toggle" id="<?php esc_attr_e( $task->ID ); ?>">
 		
 			<td class="gen-icon gen-delete-icon">
 				<a href="post.php?action=propel-delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
 
 			<td class="gen-icon gen-edit-icon">
-				<a href="#" title="Edit">Edit</a></td>
+				<a href="post.php?post=<?php esc_attr_e( $task->ID ); ?>&action=edit" title="Edit">Edit</a></td>
 
 			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
 				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
 				
-			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
-				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($task->post_title); ?></p>
-                <?php 
-					$len = strlen($task->post_content);
-					if ( $len > 75 ) :
-				 ?>
-	            <div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="tooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e( substr($task->post_content,0,75).' ...'); ?></small></div>
-                <?php else : ?>
-				<div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="tooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e($task->post_content); ?></small></div               
-                <?php endif  ?>
-            </td>
+			<td class="title" class="toggle" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
+				<p><?php esc_html_e($task->post_title); ?></p></td>
 
 			<td class="owner" data-value="<?php esc_attr_e( $author ); ?>">
-				<p id="edit_owner_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($author); ?></p>
+				<p><?php esc_html_e($author); ?></p>
 			</td>
 
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
 			<td data-value="<?php esc_attr_e( $start ); ?>">
-				<p style="font-size: 10px; color: #999;" id="edit_sdate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($start); ?></p>
+				<p style="font-size: 10px; color: #999;"><?php esc_html_e($start); ?></p>
 			</td>
 			<?php endif; ?>
 
 			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
 			<td data-value="<?php esc_attr_e( $end ); ?>">
-				<p style="font-size: 10px; color: #999;" id="edit_edate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($end); ?></p></td>
+				<p style="font-size: 10px; color: #999;"><?php esc_html_e($end); ?></p></td>
 			<?php endif; ?>
 
 			<td data-value="<?php esc_attr_e( $progress ); ?>">
-				<p style="font-size: 10px; color: #999;" id="edit_progr_<?php esc_attr_e( $task->ID ); ?>"><progress max="100" value="<?php esc_html_e($progress); ?>">
-				</progress></p>
-			</td>
+				<p><?php esc_html_e($progress); ?>%</p></td>
 		</tr>
 		<?php
-		//}
+		}
 	}
 
 	?>
+
 </table>
+<div style="clear:both;"></div>
+<script type="text/JavaScript">
+
+	function gen_expand(elem) {
+		jQuery('#gen-row-' + elem.id).toggle();
+	}
+	
+</script>

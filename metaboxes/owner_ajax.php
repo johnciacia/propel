@@ -15,11 +15,11 @@ require_once("../../../../wp-load.php");
         <td>Select Owner</td>
 		<td>
 
-				<select name="propel_post_author" id="propel_post_author">
+				<div id="propel_post_author_select">
 					<?php foreach($users as $user) : ?>
-						 <option value="<?php echo $user->ID; ?> "><?php esc_html_e($user->display_name); ?></option>
+						 <div class="search_itm" style="width:100%" id="<?php echo $user->ID; ?>">&nbsp;&nbsp;<?php esc_html_e($user->display_name); ?></div>
 					<?php endforeach; ?>
-				</select>
+				</div>
 		</td>
 <?php } else {
    echo "No User Found.";	
