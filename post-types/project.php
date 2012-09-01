@@ -485,6 +485,7 @@ class Post_Type_Project {
 	 * @since 2.0
 	 */
 	public static function admin_footer() { ?>
+
 		<script type="text/javascript">
 		
 		var oTable;
@@ -546,12 +547,13 @@ class Post_Type_Project {
 					"aoColumns" : asdf
 				});						
 					
-					jQuery(".date").datepicker();
+					jQuery(".date").datepicker({ dateFormat: 'MM dd, yy' });
 					
 					jQuery('#propel_edit_task').css({ 'display':'none' });
 					jQuery('#propel_add_task').css({ 'display':'block' });
 					
-					jQuery("#add-task").click(function(e) {				
+					jQuery("#add-task").click(function(e) {	
+								
 						var data = {
 							action: 'add_task',
 							security: '<?php echo wp_create_nonce( "add-task" ); ?>',
@@ -562,10 +564,68 @@ class Post_Type_Project {
 							priority: jQuery('select[name=task_priority]').val(),
 							user: jQuery('#propel_post_author').val()
 						};
+
+						var task_id = "<?php echo get_the_ID(); ?>";
+						var task_authid = jQuery('#propel_post_author').val();
+						var task_author = jQuery('#propel_post_author option:selected').text();
+						var task_title = jQuery('input[name=task_title]').val();
+						var task_content = jQuery('textarea[name=task_description]').val();
+						var today = "<?php echo date("F j, Y"); ?>";
+						var task_end = jQuery('input[name=task_end_date]').val();						
+						
+						var _img = "<?php echo get_admin_url(); ?>";
+						
+						var _json = Array(
+							'<a href="#" title="Delete">Delete</a>',
+							'<a href="#" title="Edit">Edit</a>',
+							'<a href="#" title="Mark as complete">Complete</a>',
+							'<p id="edit_title_'+ task_id +'">'+ task_title +'</p>',
+							'<p id="edit_owner_'+ task_id +'">'+ task_author +'</p>',
+							'<p id="edit_sdate_'+ task_id +'" style="font-size: 10px; color: #999;">'+ today +'</p>',
+							'<p id="edit_edate_'+ task_id +'" style="font-size: 10px; color: #999;">'+ task_end +'</p>',				
+							'<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+						);						
+										
+						jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+						var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+						var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
+
+						
+						var _html = "";
+						var len = task_content.length;
+						if (len > 75 ) {
+							var _content = task_content.substr(0,75)+' ...';
+							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+						}else{
+							var _content = task_content.substr(0,75);
+							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+						}
+							
+						jQuery(nTr).attr('id',task_id);			
+						jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+						jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');	
+						jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+						jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+						jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });
+						jQuery(nTr).find('td:eq(4)').attr('data-value', today );
+						jQuery(nTr).find('td:eq(5)').attr('data-value', task_end);			
+						jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
+						jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
+						jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+							jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+						});								
+						
 		
 						jQuery.post(ajaxurl, data, function(response) {
 							 //rob_eyouth:added this...
-							 get_JSON(response);			
+							var _obj = jQuery.parseJSON(response);  
+							var nonce = "<?php echo wp_create_nonce('propel-trash'); ?>";
+							jQuery('.saving').fadeOut('slow',function(){
+								jQuery(this).remove();			
+								jQuery(nTr).find('td:eq(0)').find('a').attr('href','post.php?action=propel-delete&post='+ _obj.task_id +'&_wpnonce='+nonce);	
+								jQuery(nTr).find('td:eq(2)').find('a').attr('href','post.php?action=complete&post='+ _obj.task_id);						
+								jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');																	
+							});			
 							 jQuery('#_task_title').val('');
 							 jQuery('#_task_desc').val('');			 				
 						});
@@ -576,6 +636,7 @@ class Post_Type_Project {
 					//rob_eyouth : added this to remove the deleted data from the current task table
 					 jQuery("#propel-tasks tbody td.gen-delete-icon").live('click',function(){
 						 var $parent = jQuery(this).parent();
+						 var aPos = oTable.fnGetPosition( this );
 						 var _href = jQuery(this).find('a').attr('href');								 
 						 $parent.find('td')
 								 .wrapInner('<div style="display: block;" />')
@@ -585,7 +646,7 @@ class Post_Type_Project {
 								  $parent.remove();						 
 						 });	
 						 jQuery.post(_href,function() {	
-							 //$parent.remove();
+							 oTable.fnDeleteRow(aPos[0]);
 						 });
 						 return false;
 					 });
@@ -763,6 +824,7 @@ class Post_Type_Project {
 										jQuery('#'+this_id+' input.sdate').datepicker({
 											dateFormat: 'MM dd, yy',
 											onClose: function(dates) { 
+											  if ( dates !== "" ){
 												var data = {
 													action: 'update_task',
 													security: '<?php echo wp_create_nonce( "update-task" ); ?>',
@@ -774,6 +836,9 @@ class Post_Type_Project {
 													jQuery('#'+this_id+' input.sdate').remove();
 													jQuery('#'+this_id).html(_obj.task_start);
 												});
+											  }else{
+											  	jQuery('#'+this_id).html(_val);
+											  }	
 											} 
 										});
 										jQuery('#'+this_id+' input.sdate').live('focus',function(){
@@ -793,6 +858,7 @@ class Post_Type_Project {
 										jQuery('#'+this_id+' input.enddate').datepicker({
 											dateFormat: 'MM dd, yy',
 											onClose: function(dates) { 
+											  if (dates !== "" ){
 												var data = {
 													action: 'update_task',
 													security: '<?php echo wp_create_nonce( "update-task" ); ?>',
@@ -804,6 +870,9 @@ class Post_Type_Project {
 													jQuery('#'+this_id+' input.enddate').remove();
 													jQuery('#'+this_id).html(_obj.task_end);
 												});
+											  }else{
+											  	jQuery('#'+this_id).html(_val);
+											  }
 											} 
 										});
 										jQuery('#'+this_id+' input.enddate').live('focus',function(){
@@ -912,26 +981,85 @@ class Post_Type_Project {
 					
 					jQuery('form#post #propel_add_task').live('keypress',function(event){
 						if (event.which === 13){
+
+						var data = {
+							action: 'add_task',
+							security: '<?php echo wp_create_nonce( "add-task" ); ?>',
+							parent: '<?php echo get_the_ID(); ?>',
+							title: jQuery('input[name=task_title]').val(),
+							description: jQuery('textarea[name=task_description]').val(),
+							end_date: jQuery('input[name=task_end_date]').val(),
+							priority: jQuery('select[name=task_priority]').val(),
+							user: jQuery('#propel_post_author').val()
+						};
+
+						var task_id = "<?php echo get_the_ID(); ?>";
+						var task_authid = jQuery('#propel_post_author').val();
+						var task_author = jQuery('#propel_post_author option:selected').text();
+						var task_title = jQuery('input[name=task_title]').val();
+						var task_content = jQuery('textarea[name=task_description]').val();
+						var today = "<?php echo date("F j, Y"); ?>";
+						var task_end = jQuery('input[name=task_end_date]').val();						
+						
+						var _img = "<?php echo get_admin_url(); ?>";
+						
+						var _json = Array(
+							'<a href="#" title="Delete">Delete</a>',
+							'<a href="#" title="Edit">Edit</a>',
+							'<a href="#" title="Mark as complete">Complete</a>',
+							'<p id="edit_title_'+ task_id +'">'+ task_title +'</p>',
+							'<p id="edit_owner_'+ task_id +'">'+ task_author +'</p>',
+							'<p id="edit_sdate_'+ task_id +'" style="font-size: 10px; color: #999;">'+ today +'</p>',
+							'<p id="edit_edate_'+ task_id +'" style="font-size: 10px; color: #999;">'+ task_end +'</p>',				
+							'<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+						);						
+										
+						jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+						var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+						var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
+
+						
+						var _html = "";
+						var len = task_content.length;
+						if (len > 75 ) {
+							var _content = task_content.substr(0,75)+' ...';
+							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+						}else{
+							var _content = task_content.substr(0,75);
+							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+						}
 							
-							var data = {
-								action: 'add_task',
-								security: '<?php echo wp_create_nonce( "add-task" ); ?>',
-								parent: '<?php echo get_the_ID(); ?>',
-								title: jQuery('input[name=task_title]').val(),
-								description: jQuery('textarea[name=task_description]').val(),
-								end_date: jQuery('input[name=task_end_date]').val(),
-								priority: jQuery('select[name=task_priority]').val(),
-								user: jQuery('#propel_post_author').val()
-							};
-			
-							jQuery.post(ajaxurl, data, function(response) {
-								 //rob_eyouth:added this...
-								 get_JSON(response);			
-								 jQuery('#_task_title').val('');
-								 jQuery('#_task_desc').val('');			 				
-							});
+						jQuery(nTr).attr('id',task_id);			
+						jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+						jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');	
+						jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+						jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+						jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });
+						jQuery(nTr).find('td:eq(4)').attr('data-value', today );
+						jQuery(nTr).find('td:eq(5)').attr('data-value', task_end);			
+						jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
+						jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
+						jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+							jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+						});								
+						
+		
+						jQuery.post(ajaxurl, data, function(response) {
+							 //rob_eyouth:added this...
+							var _obj = jQuery.parseJSON(response);  
+							var nonce = "<?php echo wp_create_nonce('propel-trash'); ?>";
+							jQuery('.saving').fadeOut('slow',function(){
+								jQuery(this).remove();			
+								jQuery(nTr).find('td:eq(0)').find('a').attr('href','post.php?action=propel-delete&post='+ _obj.task_id +'&_wpnonce='+nonce);	
+								jQuery(nTr).find('td:eq(2)').find('a').attr('href','post.php?action=complete&post='+ _obj.task_id);						
+								jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');																	
+							});			
+							 jQuery('#_task_title').val('');
+							 jQuery('#_task_desc').val('');			 				
+						});
 							
-							return false;
+						return false;			
+					
 						}
 					});
 					
@@ -1265,12 +1393,13 @@ class Post_Type_Project {
 		  
 		}; 		
 
-    </script>    
+    </script> 
     
 	<?php
 	
 	}
-
+	
+	//rob tooltip css
 	public static function tooltip_css(){ ?>
 		 <style>
 			#tooltip {
