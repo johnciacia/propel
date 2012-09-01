@@ -1416,6 +1416,8 @@ class Post_Type_Project {
 				'post_author' => (int)$_POST['user']
 			);
 			wp_update_post( $post );		
+			//aps
+			self::auto_notify($post_id,'assign');
 		}	
 			
 		if ( isset($_POST['start_date']) ){	
@@ -1437,12 +1439,80 @@ class Post_Type_Project {
 		}
 		if ( isset( $_POST['complete'] ) ){
 			update_post_meta( $post_id, '_propel_complete', (int)$_POST['complete'] );
+			// aps
+		 	if (isset( $_POST['complete'] ) && ($_POST['complete'] == 100)){
+				self::auto_notify($post_id,'complete');
+	 	  	}
 		}
 		
 		do_action('project_get_task',$post_id);
 		
 		die($post_id);
 	}
+
+	/**
+	* aps
+	* notify users when complete
+	*/
+	public static function auto_notify($post_id, $type ) {
+    global $post, $wpdb;
+		if( Propel_Options::get_option('email_notifications') ) { 
+			$post = get_post( $post_id );
+			$parent = get_post( $post->post_parent );
+			$domain =  preg_replace('/^www\./','',$_SERVER['HTTP_HOST']); 
+			$current_user = wp_get_current_user();
+			$post_owner = get_userdata( $post->post_author );
+			$headers = "From: $current_user->display_name <donotreply@$domain_name>" . "\r\n";
+			if($type == 'complete'){
+			$subject = "Task is Completed ($parent->post_title): $post->post_title";
+		    $message .= "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>$current_user->display_name has updated the project as 100% complete &#34;$parent->post_title&#34; project:</h3>
+					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
+				</div>
+			";
+			} elseif($type == 'assign'){
+			  $subject = " - Task is Re-Assigned ($parent->post_title): $post->post_title";
+			$message = "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>$current_user->display_name re-assigned the following to $post_owner->user_login on the &#34;$post->post_title&#34; project:</h3>
+					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
+				</div>
+			";
+			}
+            
+   		  if($post_id) {
+			$coauthors = array();
+			$defaults = array( 'orderby' => 'term_order', 'order' => 'ASC' );
+		    $args = wp_parse_args( $args, $defaults );
+			$coauthor_terms = wp_get_post_terms( $post_id, 'author', $args );
+
+			if(is_array($coauthor_terms) && !empty($coauthor_terms)) {
+				foreach($coauthor_terms as $coauthor) {
+					$post_author =  get_user_by( 'login', $coauthor->name );
+					// In case the user has been deleted while plugin was deactivated
+					if(!empty($post_author)) $coauthors[] = $post_author->ID;
+				}
+			} else {
+				if($post) {
+					$post_author = get_userdata($post->post_author);
+				} else {
+					$post_author = get_userdata($wpdb->get_var($wpdb->prepare("SELECT post_author FROM $wpdb->posts WHERE ID = %d", $post_id)));
+				}
+				if(!empty($post_author)) $coauthors[] = $post_author;
+			}
+		  }
+			
+   			foreach(array_unique($coauthors) as $login ) {
+						$user = get_userdata( $login );
+						add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
+						wp_mail($user->user_email, $subject, $message, $headers);
+					}
+		}
+	}
+	
 	
 	/**
 	 * @since 2.0
