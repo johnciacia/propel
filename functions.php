@@ -46,6 +46,14 @@ function mytheme_admin_bar_render() {
 	$current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; 
 	$current_url = str_replace("&context=personal", "", $current_url);
 	$current_url = str_replace("&context=admin", "", $current_url);
+	$current_url = str_replace("?context=personal", "", $current_url);
+	$current_url = str_replace("?context=admin", "", $current_url);
+	$last_char = strrpos($current_url, '&');
+	if ($last_char === false) { 
+         $con = '?';
+    } else {
+	     $con = '&';
+    }
 	$wp_admin_bar->remove_menu('updates');
 	$part1 = "889999999999";
 	$current_user = wp_get_current_user();
@@ -72,7 +80,7 @@ function mytheme_admin_bar_render() {
 		'parent' => 'customer_support',
 		'id' => 'adminpref',
 		'title' => __('Admin'),
-		'href' => $current_url ."&context=admin"
+		'href' => $current_url . $con ."context=admin"
 	)); 
 	
 	$contactUsURL = $current_url;
@@ -80,7 +88,7 @@ function mytheme_admin_bar_render() {
 		'parent' => 'customer_support',
 		'id' => 'personalpref',
 		'title' => __('Personal'),
-		'href' =>  $current_url ."&context=personal"
+		'href' =>  $current_url .$con ."context=personal"
 	));
 }
 
