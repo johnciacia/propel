@@ -25,12 +25,16 @@
 		$task = get_post($post->post_id);
 		$progress = get_post_meta( $task->ID, '_propel_complete', true );
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
-		if( $start )
-			$start = date( get_option( 'date_format' ), $start );
+		if( $start ){
+			//$start = date( get_option( 'date_format' ), $start );
+			$start = date("m-d-y H:i", $start);
+		}
 
 		$end = get_post_meta( $task->ID, '_propel_end_date', true );
-		if( $end )
-			$end = date( get_option( 'date_format' ), $end);
+		if( $end ){
+			//$end = date( get_option( 'date_format' ), $end);
+			$end = date("m-d-y H:i", $end);
+		}
 
 		if( $task->post_author ) {
 			$userdata = get_userdata( $task->post_author );
@@ -73,7 +77,7 @@
 	            <div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="tooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e( substr($task->post_content,0,75).' ...'); ?></small></div>
                 <?php else : ?>
 				<div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="tooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e($task->post_content); ?></small></div               
-                <?php endif  ?>
+                ><?php endif  ?>
             </td>
 
 			<td class="owner" data-value="<?php esc_attr_e( $author ); ?>">

@@ -820,9 +820,10 @@ class Post_Type_Project {
 									break;
 								case 'edit_sdate':	
 										var _val = jQuery('#'+this_id).text();
-										jQuery('#'+this_id).empty().append('<input class="metabox-add-task-date widefat sdate" type="text" placeholder="End Date" />');									 
-										jQuery('#'+this_id+' input.sdate').datepicker({
-											dateFormat: 'MM dd, yy',
+										jQuery('#'+this_id).empty().append('<input class="metabox-add-task-date widefat sdate" type="text" placeholder="Start Date" />');									 
+										jQuery('#'+this_id+' input.sdate').datetimepicker({
+											addSliderAccess: true,
+											sliderAccessArgs: { touchonly: false },
 											onClose: function(dates) { 
 											  if ( dates !== "" ){
 												var data = {
@@ -855,8 +856,7 @@ class Post_Type_Project {
 								case 'edit_edate':
 										var _val = jQuery('#'+this_id).text();
 										jQuery('#'+this_id).empty().append('<input class="metabox-add-task-date widefat enddate" type="text" placeholder="End Date" />');									 
-										jQuery('#'+this_id+' input.enddate').datepicker({
-											dateFormat: 'MM dd, yy',
+										jQuery('#'+this_id+' input.enddate').datetimepicker({
 											onClose: function(dates) { 
 											  if (dates !== "" ){
 												var data = {
@@ -865,6 +865,7 @@ class Post_Type_Project {
 													postid: task_id,
 													end_date : dates
 												};								
+												
 												jQuery.post(ajaxurl, data, function(response) {
 													var _obj = jQuery.parseJSON(response);
 													jQuery('#'+this_id+' input.enddate').remove();
@@ -1393,7 +1394,7 @@ class Post_Type_Project {
 		  
 		}; 		
 
-    </script> 
+    </script>
     
 	<?php
 	
@@ -1435,6 +1436,13 @@ class Post_Type_Project {
 				border-bottom: 10px solid transparent; 				
 				border-right:10px solid #DFDFDF; 	
 			}
+			.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+			.ui-timepicker-div dl { text-align: left; }
+			.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+			.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+			.ui-timepicker-div td { font-size: 90%; }
+			.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+			
 		 </style>
 	<?php             
      }    
@@ -1448,12 +1456,12 @@ class Post_Type_Project {
 		$progress = get_post_meta( $task->ID, '_propel_complete', true );
 		$priority = get_post_meta( $task->ID, '_propel_priority', true );
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
-		if( $start )
-			$start = date( get_option( 'date_format' ), $start );
+		//if( $start )
+			//$start = date( get_option( 'date_format' ), $start );
 
 		$end = get_post_meta( $task->ID, '_propel_end_date', true );
-		if( $end )
-			$end = date( get_option( 'date_format' ), $end);
+		//if( $end )
+			//$end = date( get_option( 'date_format' ), $end);
 
 		if( $task->post_author ) {
 			$userdata = get_userdata( $task->post_author );
@@ -1480,7 +1488,7 @@ class Post_Type_Project {
 		
 		if( Propel_Options::option('show_start_date' ) ) :
 			$data->is_start = 1;
-			$data->task_start = $start;
+			$data->task_start = date("m-d-y H:i", $start);
 		else:
 			$data->is_start = 0;
 			$data->task_start = 0;				
@@ -1488,7 +1496,7 @@ class Post_Type_Project {
 		
 		if( Propel_Options::option('show_end_date' ) ) : 
 			$data->is_end = 1;
-			$data->task_end = $end;
+			$data->task_end = date("m-d-y H:m", $end);
 		else:
 			$data->is_end = 0;
 			$data->task_end = 0;		
