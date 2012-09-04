@@ -44,8 +44,9 @@ function mytheme_admin_bar_render() {
 	global $url_curr;
 	global $wp;
 	$current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; 
+	$current_url = str_replace("&context=personal", "", $current_url);
+	$current_url = str_replace("&context=admin", "", $current_url);
 	$wp_admin_bar->remove_menu('updates');
-	$customerSupportURL = $current_url;
 	$part1 = "889999999999";
 	$current_user = wp_get_current_user();
 	$part2 = $current_user->ID;
@@ -71,8 +72,7 @@ function mytheme_admin_bar_render() {
 		'parent' => 'customer_support',
 		'id' => 'adminpref',
 		'title' => __('Admin'),
-		'href' => parse_url(get_admin_url(),PHP_URL_PATH)."?context=admin",
-		'meta' => array( 'onclick' => 'ajax_update("admin")' )
+		'href' => $current_url ."&context=admin"
 	)); 
 	
 	$contactUsURL = $current_url;
@@ -80,8 +80,7 @@ function mytheme_admin_bar_render() {
 		'parent' => 'customer_support',
 		'id' => 'personalpref',
 		'title' => __('Personal'),
-		'href' => parse_url(get_admin_url(),PHP_URL_PATH)."?context=personal",
-		'meta' => array( 'onclick' => 'ajax_update("personal")' )
+		'href' =>  $current_url ."&context=personal"
 	));
 }
 
