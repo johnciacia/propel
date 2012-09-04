@@ -107,6 +107,10 @@ class Propel {
 		wp_enqueue_script('jquery-ui-tabs');
 		wp_enqueue_script('jquery-ui-datepicker', 
 			plugins_url( '/propel/js/jquery.ui.datepicker.min.js' ), array('jquery', 'jquery-ui-core') );
+		wp_enqueue_script('jquery-ui-sliderAccess', 
+			plugins_url( '/propel/js/jquery-ui-sliderAccess.js' ), array('jquery', 'jquery-ui-core') );
+		wp_enqueue_script('jquery-ui-timepicker-addon', 
+			plugins_url( '/propel/js/jquery-ui-timepicker-addon.js' ), array('jquery', 'jquery-ui-core', 'jquery-ui-datepicker', 'jquery-ui-slider'));						
 		wp_enqueue_script('jquery-ui-progressbar', 
 			plugins_url( '/propel/js/jquery.ui.progressbar.min.js' ), array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
 
