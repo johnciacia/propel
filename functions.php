@@ -290,57 +290,59 @@ function Past_Due_Function() {
 		    
 			$progress = get_post_meta( $task->ID, '_propel_complete', true );
 			$date = get_post_meta( $task->ID, '_propel_end_date', true );
-			
-			if($date) {
-			
-				//echo date( get_option( 'date_format' ) , $date ); // Project's actual due date.
-				
-				$day   = date('d'); // Day of the countdown
-				$month = date('m'); // Month of the countdown
-				$year  = date('Y'); // Year of the countdown
-				$hour  = date('H'); // Hour of the day (east coast time)
-				
-				$calculation = ( $date - time() ) / 3600;
-				$hours = (int)$calculation + 24;
-				$days  = (int)( $hours / 24 ) - 1;
-				
-				$hours_remaining = $hours-($days*24)-24;
-				
-				if ( $hours < 0 && $hours > -24 ) {
-					if ($display == 0){
-						echo "
-						<div class='pdue_title'>
-							<span style='font-weight: bold;'><a class='pdue_tgle' href='javascript:;'>"
-							 .$project->post_title. "</a></span>
-						</div>
-						<div class='pdue_tasks'>
-						";
-					    $display++;
-					}
-					echo "<div class='task_name'>
-					<a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></div>";
-					echo "<div class='task_remark'>
-					<span style='color: red;'>" . str_replace( '-', '', $hours) 
-					. " hours past due.</span></div>";
-				}
-			
-				if ( $hours < -24 ) {
-					if ($display == 0){
-						echo "
-						<div class='pdue_title'>
-							<span style='font-weight: bold;'><a class='pdue_tgle' href='javascript:;'>"
-							 .$project->post_title. "</a></span>
-						</div>
-						<div class='pdue_tasks'>
-						";
-					    $display++;
-					}
-						echo "<div class='task_name'>
-						<a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></div>";
-					echo "<div class='task_remark'><span style='color: red; font-weight: bold;'>" 
-					. str_replace( '-', '', $days) . " days past due.</span></div>";
-				}
-			}// if date
+			// check if complete
+			if ($progress != 100){
+					if($date) {
+					
+						//echo date( get_option( 'date_format' ) , $date ); // Project's actual due date.
+						
+						$day   = date('d'); // Day of the countdown
+						$month = date('m'); // Month of the countdown
+						$year  = date('Y'); // Year of the countdown
+						$hour  = date('H'); // Hour of the day (east coast time)
+						
+						$calculation = ( $date - time() ) / 3600;
+						$hours = (int)$calculation + 24;
+						$days  = (int)( $hours / 24 ) - 1;
+						
+						$hours_remaining = $hours-($days*24)-24;
+						
+						if ( $hours < 0 && $hours > -24 ) {
+							if ($display == 0){
+								echo "
+								<div class='pdue_title'>
+									<span style='font-weight: bold;'><a class='pdue_tgle' href='javascript:;'>"
+									 .$project->post_title. "</a></span>
+								</div>
+								<div class='pdue_tasks'>
+								";
+								$display++;
+							}
+							echo "<div class='task_name'>
+							<a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></div>";
+							echo "<div class='task_remark'>
+							<span style='color: red;'>" . str_replace( '-', '', $hours) 
+							. " hours past due.</span></div>";
+						}
+					
+						if ( $hours < -24 ) {
+							if ($display == 0){
+								echo "
+								<div class='pdue_title'>
+									<span style='font-weight: bold;'><a class='pdue_tgle' href='javascript:;'>"
+									 .$project->post_title. "</a></span>
+								</div>
+								<div class='pdue_tasks'>
+								";
+								$display++;
+							}
+								echo "<div class='task_name'>
+								<a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></div>";
+							echo "<div class='task_remark'><span style='color: red; font-weight: bold;'>" 
+							. str_replace( '-', '', $days) . " days past due.</span></div>";
+						}
+					}// if date
+			}// if complete
 		} // foreach
 		echo '</div><div style="clear:both"></div>';
 	}
