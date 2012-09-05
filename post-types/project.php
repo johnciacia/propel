@@ -547,7 +547,7 @@ class Post_Type_Project {
 					"aoColumns" : asdf
 				});						
 					
-					jQuery(".date").datepicker({ dateFormat: 'MM dd, yy' });
+					jQuery(".date").datepicker();
 					
 					jQuery('#propel_edit_task').css({ 'display':'none' });
 					jQuery('#propel_add_task').css({ 'display':'block' });
@@ -570,7 +570,7 @@ class Post_Type_Project {
 						var task_author = jQuery('#propel_post_author option:selected').text();
 						var task_title = jQuery('input[name=task_title]').val();
 						var task_content = jQuery('textarea[name=task_description]').val();
-						var today = "<?php echo date("F j, Y"); ?>";
+						var today = "<?php echo date("m-d-y H:i", time()); ?>";
 						var task_end = jQuery('input[name=task_end_date]').val();						
 						
 						var _img = "<?php echo get_admin_url(); ?>";
@@ -624,12 +624,22 @@ class Post_Type_Project {
 								jQuery(this).remove();			
 								jQuery(nTr).find('td:eq(0)').find('a').attr('href','post.php?action=propel-delete&post='+ _obj.task_id +'&_wpnonce='+nonce);	
 								jQuery(nTr).find('td:eq(2)').find('a').attr('href','post.php?action=complete&post='+ _obj.task_id);						
-								jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');																	
+								jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');			
+								jQuery('#edit_edate_'+ task_id).html(_obj.task_end);														
 							});			
 							 jQuery('#_task_title').val('');
 							 jQuery('#_task_desc').val('');			 				
 						});
 							
+						jQuery('.propeltooltip').each(function(){
+							var _content = jQuery(this).attr('title');
+							var _id = jQuery(this).attr('id');
+							jQuery(this).propeltooltip({
+								id		: _id,
+								content : _content							
+							});
+						});
+	
 						return false;			
 					});
 		
@@ -980,6 +990,12 @@ class Post_Type_Project {
 						});					
 					});	
 					
+					jQuery('#propel_add_task input, #propel_add_task textarea, #propel_add_task select').live('focus',function(){
+						jQuery('#div_task').fadeIn('slow');	
+					}).live('focusout',function(){
+						jQuery('#div_task').fadeOut('slow');	
+					});
+					
 					jQuery('form#post #propel_add_task').live('keypress',function(event){
 						if (event.which === 13){
 
@@ -999,7 +1015,7 @@ class Post_Type_Project {
 						var task_author = jQuery('#propel_post_author option:selected').text();
 						var task_title = jQuery('input[name=task_title]').val();
 						var task_content = jQuery('textarea[name=task_description]').val();
-						var today = "<?php echo date("F j, Y"); ?>";
+						var today = "<?php echo date("m-d-y H:i", time()); ?>";
 						var task_end = jQuery('input[name=task_end_date]').val();						
 						
 						var _img = "<?php echo get_admin_url(); ?>";
@@ -1053,10 +1069,20 @@ class Post_Type_Project {
 								jQuery(this).remove();			
 								jQuery(nTr).find('td:eq(0)').find('a').attr('href','post.php?action=propel-delete&post='+ _obj.task_id +'&_wpnonce='+nonce);	
 								jQuery(nTr).find('td:eq(2)').find('a').attr('href','post.php?action=complete&post='+ _obj.task_id);						
-								jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');																	
+								jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');
+								jQuery('#edit_edate_'+ task_id).html(_obj.task_end);																	
 							});			
 							 jQuery('#_task_title').val('');
 							 jQuery('#_task_desc').val('');			 				
+						});
+						
+						jQuery('.propeltooltip').each(function(){
+							var _content = jQuery(this).attr('title');
+							var _id = jQuery(this).attr('id');
+							jQuery(this).propeltooltip({
+								id		: _id,
+								content : _content							
+							});
 						});
 							
 						return false;			
@@ -1462,7 +1488,6 @@ class Post_Type_Project {
 		$end = get_post_meta( $task->ID, '_propel_end_date', true );
 		//if( $end )
 			//$end = date( get_option( 'date_format' ), $end);
-
 		if( $task->post_author ) {
 			$userdata = get_userdata( $task->post_author );
 			$authid = $userdata->ID; 
