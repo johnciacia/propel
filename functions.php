@@ -48,10 +48,12 @@ function mytheme_admin_bar_render() {
 	$current_url = str_replace("&context=admin", "", $current_url);
 	$current_url = str_replace("?context=personal", "", $current_url);
 	$current_url = str_replace("?context=admin", "", $current_url);
-	$last_char = strrpos($current_url, '&');
-	if ($last_char === false) { 
+	$and_char = strrpos($current_url, '&');
+	$quest_char = strrpos($current_url, '?');
+	if (($and_char === false) && ($quest_char === false)) { 
          $con = '?';
-    } else {
+    } elseif ((($and_char === false) && ($quest_char !== false)) ||
+	 (($and_char !== false) && ($quest_char !== false))) {
 	     $con = '&';
     }
 	$wp_admin_bar->remove_menu('updates');
