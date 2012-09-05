@@ -3,14 +3,32 @@
 /*
  * aps2012
  */
+function update_toggle() {
+    global $wpdb;
+
+			$part1 = "8877779999999";
+			$current_user = wp_get_current_user();
+			$part2 = $current_user->ID;
+			$id = $part1 . $part2;
+			$static_id = (int)($id);
+			$postID = $_POST['postid'];
+			echo "ok!";
+			update_post_meta($static_id,'_propel_toggle',$postID);
+
+}
+
+add_action('wp_ajax_update_toggle',  'update_toggle' );
+ 
 function set_page_title($admin_title, $title){
 	global $post;
-	if(get_post_type($post->ID) == 'propel_project' ){
-		return 'Propel > ' . $post->post_title;
-	}
-	if(get_post_type($post->ID) == 'propel_task' ){
-		$parent = get_post($post->post_parent);
-		return 'Propel > ' . $parent->post_title . ' > ' . $post->post_title;
+	if($post){
+			if(get_post_type($post->ID) == 'propel_project' ){
+				return 'Propel > ' . $post->post_title;
+			}
+			if(get_post_type($post->ID) == 'propel_task' ){
+				$parent = get_post($post->post_parent);
+				return 'Propel > ' . $parent->post_title . ' > ' . $post->post_title;
+			}
 	}
 }
 
@@ -230,9 +248,7 @@ function Past_Due_Function() {
 	);
 	
 	
-	$projects = get_posts( $args );
-	
-	echo "
+	$projects = get_posts( $args );?>
 	<table width='100%'>
 	<div>
 	<style>
@@ -240,23 +256,44 @@ function Past_Due_Function() {
 	 .pdue_title a{text-decoration:none; border:0px; font-weight:bold; color: #000;}
 	 .task_name{ float:left; width:480px; }
 	 .task_remark{ float:left; width:100px; }
+	 .taskhide{ display:none; }
 	 </style>
 	 <script type='text/javascript'>
 	  var togl = jQuery.noConflict();
+
 	  togl(document).ready(function(){
-	      togl('.pdue_title a').click(function(){
-			  togl(this).parent().parent().nextAll('.pdue_tasks').eq(0).toggle();
-			  });
-		  togl('.pdue_title a').hover(function(){
-			  togl(this).css({'border':'1px solid #CCC', padding:'3px'});
-		  });	  
-		  togl('.pdue_title a').mouseout(function(){
-			  togl(this).css({'border':'none', padding:'0px'});
-		  });
+		  
+				  togl('.pdue_title a').click(function(){
+						 togl(this).parent().parent().nextAll('.pdue_tasks').eq(0).toggle();
+						 if(togl(this).parent().parent().nextAll('.pdue_tasks').eq(0).hasClass('taskhide')){
+						       togl(this).parent().parent().nextAll('.pdue_tasks').eq(0).removeClass('taskhide');
+						 } else {
+						 	   togl(this).parent().parent().nextAll('.pdue_tasks').eq(0).addClass('taskhide');
+						 }
+						 var pid = "";
+						 togl('.taskhide').each(function(){
+							   pid = pid +  "/" + togl(this).attr('id'); 
+						 });
+							var data = {
+									action: 'update_toggle',
+									security: '"+<?php echo wp_create_nonce( "update_toggle" ); ?>+"',
+									postid: pid
+							};
+					 togl.post(ajaxurl, data, function(output){});			
+					 return false;
+				  });
+				  
+				  togl('.pdue_title a').hover(function(){
+					  togl(this).css({'border':'1px solid #CCC', padding:'3px'});
+				  });	  
+				  
+				  togl('.pdue_title a').mouseout(function(){
+					  togl(this).css({'border':'none', padding:'0px'});
+				  });
 	  });
 	 </script> 
-	";
-	
+
+    <?php	
 	foreach( $projects as $project ) {
 		$display = 0;
 		if($profile == "personal"){
@@ -309,16 +346,32 @@ function Past_Due_Function() {
 						
 						if ( $hours < 0 && $hours > -24 ) {
 							if ($display == 0){
+								$part1 = "8877779999999";
+								$current_user = wp_get_current_user();
+								$part2 = $current_user->ID;
+								$id = $part1 . $part2;
+								$static_id = (int)($id);
+								if ($taskhide = explode("/" , get_post_meta($static_id, _propel_toggle, true))){
+										if (in_array($project->ID, $taskhide)) {
+											$pdtask = "class='pdue_tasks taskhide'";
+										} else {
+											$pdtask = "class='pdue_tasks'";
+										}
+								} else {
+											$pdtask = "class='pdue_tasks'";
+								}
+		 
 								echo "
-								<div class='pdue_title'>
+								<div class='pdue_title' id='".$project->ID."'>
 									<span style='font-weight: bold;'><a class='pdue_tgle' href='javascript:;'>"
 									 .$project->post_title. "</a></span>
 								</div>
-								<div class='pdue_tasks'>
+								
+								<div ".$pdtask." id='".$project->ID."'>
 								";
 								$display++;
 							}
-							echo "<div class='task_name'>
+							echo "<div class='task_name' >
 							<a href='".get_edit_post_link(  $task->ID,'&amp;')."'>" . $task->post_title . "</a></div>";
 							echo "<div class='task_remark'>
 							<span style='color: red;'>" . str_replace( '-', '', $hours) 
@@ -327,12 +380,26 @@ function Past_Due_Function() {
 					
 						if ( $hours < -24 ) {
 							if ($display == 0){
+								$part1 = "8877779999999";
+								$current_user = wp_get_current_user();
+								$part2 = $current_user->ID;
+								$id = $part1 . $part2;
+								$static_id = (int)($id);
+								if ($taskhide = explode("/" , get_post_meta($static_id, '_propel_toggle', true))){
+										if (in_array($project->ID, $taskhide)) {
+											$pdtask = "class='pdue_tasks taskhide'";
+										} else {
+											$pdtask = "class='pdue_tasks'";
+										}
+								} else {
+											$pdtask = "class='pdue_tasks'";
+								}
 								echo "
-								<div class='pdue_title'>
+								<div class='pdue_title' id='".$project->ID."'>
 									<span style='font-weight: bold;'><a class='pdue_tgle' href='javascript:;'>"
 									 .$project->post_title. "</a></span>
 								</div>
-								<div class='pdue_tasks'>
+								<div ".$pdtask." id='".$project->ID."'>
 								";
 								$display++;
 							}
