@@ -29,13 +29,13 @@ function set_context(){
 	$part2 = $current_user->ID;
 	$id = $part1 . $part2;
 	$static_id = (int)($id);
-
-	if ($_REQUEST['context'] == 'admin'){
-		update_post_meta( $static_id, '_propel_preference',"admin");
-	} elseif ($_REQUEST['context'] == 'personal'){
-		update_post_meta( $static_id, '_propel_preference',"personal");
+    if(isset($_REQUEST['context'])){
+			if ($_REQUEST['context'] == 'admin'){
+				update_post_meta( $static_id, '_propel_preference',"admin");
+			} elseif ($_REQUEST['context'] == 'personal'){
+				update_post_meta( $static_id, '_propel_preference',"personal");
+			}
 	}
-	
 }
 add_action( 'admin_init', 'set_context' ); 
 
