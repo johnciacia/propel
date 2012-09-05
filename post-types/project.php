@@ -703,8 +703,7 @@ class Post_Type_Project {
 											$parent.remove();											
 								});
 								
-								$parentCom = jQuery('#propel_completed_tasks #propel-tasks tbody tr');
-										
+								$parentCom = jQuery('#propel_completed_tasks #propel-tasks tbody tr');	
 								get_JSON(response,1);	
 
 							});			
