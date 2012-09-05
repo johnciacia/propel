@@ -595,10 +595,10 @@ class Post_Type_Project {
 						var len = task_content.length;
 						if (len > 75 ) {
 							var _content = task_content.substr(0,75)+' ...';
-							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 						}else{
 							var _content = task_content.substr(0,75);
-							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 						}
 							
 						jQuery(nTr).attr('id',task_id);			
@@ -736,17 +736,17 @@ class Post_Type_Project {
 													var len = _obj.task_content.length;
 													if (len > 75 ) {
 														var _content = _obj.task_content.substr(0,75)+' ...';
-														_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+														_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 													}else{
 														var _content = _obj.task_content.substr(0,75);
-														_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+														_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 													}			
 
 													oTable.fnUpdate( '<p id="edit_title_'+ task_id +'">'+ _obj.task_title +'</p>'+_html, aPos, 3 )
-														jQuery('.tooltip').each(function(){
+														jQuery('.propeltooltip').each(function(){
 															var _content = jQuery(this).attr('title');
 															var _id = jQuery(this).attr('id');
-															jQuery(this).tooltip({
+															jQuery(this).propeltooltip({
 																id		: _id,
 																content : _content							
 															});
@@ -1024,10 +1024,10 @@ class Post_Type_Project {
 						var len = task_content.length;
 						if (len > 75 ) {
 							var _content = task_content.substr(0,75)+' ...';
-							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 						}else{
 							var _content = task_content.substr(0,75);
-							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 						}
 							
 						jQuery(nTr).attr('id',task_id);			
@@ -1067,10 +1067,10 @@ class Post_Type_Project {
 					jQuery('#propel_project_tasks .metaboxes-add-task').css({ 'border':'1px solid #DFDFDF', 'padding':'10px', 'margin':'10px 0' });
 					jQuery('#propel_post_author').addClass('task-priority');
 					
-					jQuery('.tooltip').each(function(){
+					jQuery('.propeltooltip').each(function(){
 						var _content = jQuery(this).attr('title');
 						var _id = jQuery(this).attr('id');
-						jQuery(this).tooltip({
+						jQuery(this).propeltooltip({
 							id		: _id,
 							content : _content							
 						});
@@ -1109,10 +1109,10 @@ class Post_Type_Project {
 			var len = _obj.task_content.length;
 			if (len > 75 ) {
 				var _content = _obj.task_content.substr(0,75)+' ...';
-				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 			}else{
 				var _content = _obj.task_content.substr(0,75);
-				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 			}
 			
 				
@@ -1154,10 +1154,10 @@ class Post_Type_Project {
 			var len = _obj.task_content.length;
 			if (len > 75 ) {
 				var _content = _obj.task_content.substr(0,75)+' ...';
-				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 			}else{
 				var _content = _obj.task_content.substr(0,75);
-				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 			}
 			
 				
@@ -1201,10 +1201,10 @@ class Post_Type_Project {
 			var len = _obj.task_content.length;
 			if (len > 75 ) {
 				var _content = _obj.task_content.substr(0,75)+' ...';
-				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 			}else{
 				var _content = _obj.task_content.substr(0,75);
-				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 			}
 			
 				
@@ -1248,10 +1248,10 @@ class Post_Type_Project {
 			var len = _obj.task_content.length;
 			if (len > 75 ) {
 				var _content = _obj.task_content.substr(0,75)+' ...';
-				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 			}else{
 				var _content = _obj.task_content.substr(0,75);
-				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+				_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 			}
 			
 				
@@ -1267,10 +1267,10 @@ class Post_Type_Project {
 				
 		}//End of if....
 		
-		jQuery('.tooltip').each(function(){
+		jQuery('.propeltooltip').each(function(){
 			var _content = jQuery(this).attr('title');
 			var _id = jQuery(this).attr('id');
-			jQuery(this).tooltip({
+			jQuery(this).propeltooltip({
 				id		: _id,
 				content : _content							
 			});
@@ -1278,7 +1278,7 @@ class Post_Type_Project {
 				
 	}
 	
-	jQuery.fn.tooltip = function(settings){
+	jQuery.fn.propeltooltip = function(settings){
 	
 		var xOffset = 30;
 		var yOffset = 20;
@@ -1297,11 +1297,11 @@ class Post_Type_Project {
 				_title = opts.content;
 				$this.attr('title',"");
 					
-				jQuery("body").append("<p id='tooltip'><span class='arrow'></span>"+ _title +"</p>");
+				jQuery("body").append("<p id='tooltips'><span class='arrow'></span>"+ _title +"</p>");
 			
 				e.pageX > 750 ?  e.pageX = 600 : e.pageX;
 			
-				jQuery("#tooltip")
+				jQuery("#tooltips")
 					.css("top",(e.pageY - xOffset) + "px")
 					.css("left",(e.pageX + yOffset + 10) + "px")
 					.fadeIn("slow");
@@ -1310,12 +1310,12 @@ class Post_Type_Project {
 			
 			$this.live('mouseleave',function(){
 					$this.attr('title',_title);
-					jQuery("#tooltip").fadeOut('fast');
-					jQuery("#tooltip").remove();
+					jQuery("#tooltips").fadeOut('fast');
+					jQuery("#tooltips").remove();
 			});
 			
 			$this.live('mousemove',function(e){		
-					jQuery("#tooltip")
+					jQuery("#tooltips")
 					.css("top",(e.pageY - 30) + "px")
 					.css("left",(e.pageX + (yOffset)) + "px");
 					
@@ -1324,11 +1324,11 @@ class Post_Type_Project {
 					_divtooltip = $this.attr('id');
 					task_id = jQuery.trim(_divtooltip.substr(5,10));
 	
-					jQuery("#tooltip").fadeOut('slow',function(){
-						jQuery("#tooltip").remove();
+					jQuery("#tooltips").fadeOut('slow',function(){
+						jQuery("#tooltips").remove();
 						jQuery("#"+_divtooltip).find('small').hide('fast','linear',function(){
 							
-							jQuery("#"+_divtooltip).removeClass('tooltip').append('<textarea id="desc_edit_'+ task_id +'" style="width:400px; height:50px; margin-top:5px;font-size:10px;padding:5px;">'+ _title +'</textarea>');
+							jQuery("#"+_divtooltip).removeClass('propeltooltip').append('<textarea id="desc_edit_'+ task_id +'" style="width:400px; height:50px; margin-top:5px;font-size:10px;padding:5px;">'+ _title +'</textarea>');
 						
 						jQuery('#desc_edit_'+task_id).focus();	
 							
@@ -1336,12 +1336,12 @@ class Post_Type_Project {
 							jQuery('#desc_edit_'+task_id).fadeOut('fast',function(){
 								jQuery('#desc_edit_'+task_id).remove();							
 							});
-							jQuery("#"+_divtooltip).addClass('tooltip').find('small').css("display","block").fadeIn('slow');
+							jQuery("#"+_divtooltip).addClass('propeltooltip').find('small').css("display","block").fadeIn('slow');
 							
 						})
 						
 						jQuery('#desc_edit_'+task_id).live('focusin',function(e) {
-							jQuery("#tooltip").fadeOut('slow');
+							jQuery("#tooltips").fadeOut('slow');
 						});
 						
 						jQuery('#desc_edit_'+task_id).live('keypress',function(event){
@@ -1362,16 +1362,16 @@ class Post_Type_Project {
 												var len = _obj.task_content.length;
 												if (len > 75 ) {
 													var _content = _obj.task_content.substr(0,75)+' ...';
-													_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+													_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 												}else{
 													var _content = _obj.task_content.substr(0,75);
-													_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="tooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+													_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 												}			
 												oTable.fnUpdate( '<p id="edit_title_'+ task_id +'">'+ _obj.task_title +'</p>'+_html, aPos, 3 );
-												jQuery('.tooltip').each(function(){
+												jQuery('.propeltooltip').each(function(){
 														var _content = jQuery(this).attr('title');
 														var _id = jQuery(this).attr('id');
-														jQuery(this).tooltip({
+														jQuery(this).propeltooltip({
 															id		: _id,
 															content : _content							
 														});
@@ -1380,7 +1380,7 @@ class Post_Type_Project {
 				
 										});
 								
-								jQuery("#"+_divtooltip).addClass('tooltip').find('small').css("display","block").fadeIn('slow');
+								jQuery("#"+_divtooltip).addClass('propeltooltip').find('small').css("display","block").fadeIn('slow');
 								
 							}//end of event == 13
 							
@@ -1400,10 +1400,10 @@ class Post_Type_Project {
 	
 	}
 	
-	//rob tooltip css
+	//rob propeltooltip css
 	public static function tooltip_css(){ ?>
 		 <style>
-			#tooltip {
+			#tooltips {
 				text-align:start;
 				text-shadow: 1px 1px #EEE;
 				text-wrap:normal !important;

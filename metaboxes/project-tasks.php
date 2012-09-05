@@ -1,3 +1,35 @@
+<!-- Spencer tried adding this but adding tasks simply doesn't work. It also appears in the "completed" list.
+<table>
+	<tr>
+		<td>
+			<input class="metabox-add-task-title" type="text" name="task_title" id="_task_title" placeholder="Title" class="widefat" />
+
+			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
+			<input class="metabox-add-task-title" type="text" name="task_end_date" placeholder="End Date" class="widefat date" />
+			<?php endif; ?>
+
+			<label>Manager:</label>
+			<?php 
+			$current_user = wp_get_current_user();
+			$args = array(
+			'class' => 'metabox-add-task-user',
+			'name' => 'propel_post_author',
+			'show_option_none' => 'Unassigned',
+			'orderby' => 'display_name',
+			'selected' => $current_user->ID
+			);
+			wp_dropdown_users( $args );
+			?>
+			<input class="metabox-add-task-button button-primary" type="button" id="add-task" value="Add Task" />
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<textarea class="metabox-add-task-description widefat" name="task_description" id="_task_desc" placeholder="Description"></textarea>
+		</td>
+	</tr>
+</table>
+-->
 <table width="100%" class="gen-table tasks-table" id="propel-tasks">
 	<thead>
 		<tr>
@@ -74,9 +106,9 @@
 					$len = strlen($task->post_content);
 					if ( $len > 75 ) :
 				 ?>
-	            <div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="tooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e( substr($task->post_content,0,75).' ...'); ?></small></div>
+	            <div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e( substr($task->post_content,0,75).' ...'); ?></small></div>
                 <?php else : ?>
-				<div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="tooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e($task->post_content); ?></small></div               
+				<div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e($task->post_content); ?></small></div               
                 ><?php endif  ?>
             </td>
 
@@ -105,4 +137,5 @@
 	}
 
 	?>
+
 </table>
