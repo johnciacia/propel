@@ -59,13 +59,33 @@
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
 		if( $start ){
 			//$start = date( get_option( 'date_format' ), $start );
-			$start = date("m-d-y H:i", $start);
+			$start = date("m-d-y h:i", $start);
 		}
 
 		$end = get_post_meta( $task->ID, '_propel_end_date', true );
 		if( $end ){
-			//$end = date( get_option( 'date_format' ), $end);
-			$end = date("m-d-y H:i", $end);
+
+			$day   = date('d'); // Day of the countdown
+			$month = date('m'); // Month of the countdown
+			$year  = date('Y'); // Year of the countdown
+			$hour  = date('H'); // Hour of the day (east coast time)
+			
+			$calculation = ( $end - time() ) / 3600;
+			$hours = (int)$calculation + 24;
+			$days  = (int)( $hours / 24 ) - 1;
+			
+			$hours_remaining = $hours-($days*24)-24;
+			
+			if ( $hours < 0 && $hours > -24 ) {
+				$status = "due";
+			}else if ( $hours < -24 ) {
+				$status = "past-due";
+			}else{
+				$status = "published";
+			}
+			
+			$end = date("m-d-y h:i", $end);
+			
 		}
 
 		if( $task->post_author ) {
@@ -79,8 +99,7 @@
 							
 		$x = ($progress == 100) ? "" : "un";
 		$nonce = wp_create_nonce('propel-trash');
-		
-		
+		$completed = ($progress == 100) ? "style='width:0;margin:0;padding:0;'" : "";
 		
 		/*
 		* rob_eyouth : added by rob to show task for the current user and if user is admin
@@ -93,9 +112,9 @@
 		
 			<td class="gen-icon gen-delete-icon">
 				<a href="post.php?action=propel-delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
-
-			<td class="gen-icon gen-edit-icon">
-				<a href="#" title="Edit">Edit</a></td>
+			
+			<td class="gen-icon gen-<?php echo $status; ?>-icon" <?php $completed; ?> >
+				<p class="propeltooltip" <?php $completed; ?> title="<?php echo $status; ?>"></p></td>
 
 			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
 				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
@@ -117,13 +136,13 @@
 			</td>
 
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
-			<td data-value="<?php esc_attr_e( $start ); ?>">
+			<td data-value="<?php esc_attr_e( date("m-d-y H:i",(int)$start) ); ?>">
 				<p style="font-size: 10px; color: #999;" id="edit_sdate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($start); ?></p>
 			</td>
 			<?php endif; ?>
 
 			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
-			<td data-value="<?php esc_attr_e( $end ); ?>">
+			<td data-value="<?php  esc_attr_e( date("m-d-y H:i",(int)$end) ); ?>">
 				<p style="font-size: 10px; color: #999;" id="edit_edate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($end); ?></p></td>
 			<?php endif; ?>
 

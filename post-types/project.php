@@ -547,7 +547,11 @@ class Post_Type_Project {
 					"aoColumns" : asdf
 				});						
 					
-					jQuery(".date").datepicker();
+					jQuery(".date").datetimepicker({
+						ampm: true,
+						addSliderAccess: true,
+						sliderAccessArgs: { touchonly: false },					
+					});
 					
 					jQuery('#propel_edit_task').css({ 'display':'none' });
 					jQuery('#propel_add_task').css({ 'display':'block' });
@@ -577,7 +581,7 @@ class Post_Type_Project {
 						
 						var _json = Array(
 							'<a href="#" title="Delete">Delete</a>',
-							'<a href="#" title="Edit">Edit</a>',
+							'<p class="propeltooltip" title="published"></p>',
 							'<a href="#" title="Mark as complete">Complete</a>',
 							'<p id="edit_title_'+ task_id +'">'+ task_title +'</p>',
 							'<p id="edit_owner_'+ task_id +'">'+ task_author +'</p>',
@@ -603,7 +607,7 @@ class Post_Type_Project {
 							
 						jQuery(nTr).attr('id',task_id);			
 						jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-						jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');	
+						jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
 						jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
 						jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
 						jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });
@@ -831,6 +835,7 @@ class Post_Type_Project {
 										var _val = jQuery('#'+this_id).text();
 										jQuery('#'+this_id).empty().append('<input class="metabox-add-task-date widefat sdate" type="text" placeholder="Start Date" />');									 
 										jQuery('#'+this_id+' input.sdate').datetimepicker({
+											ampm: true,
 											addSliderAccess: true,
 											sliderAccessArgs: { touchonly: false },
 											onClose: function(dates) { 
@@ -845,6 +850,10 @@ class Post_Type_Project {
 													var _obj = jQuery.parseJSON(response);
 													jQuery('#'+this_id+' input.sdate').remove();
 													jQuery('#'+this_id).html(_obj.task_start);
+													jQuery('#'+task_id).find('td:eq(1)').removeClass('gen-due-icon');
+													jQuery('#'+task_id).find('td:eq(1)').removeClass('gen-past-due-icon');
+													jQuery('#'+task_id).find('td:eq(1)').removeClass('gen-published-icon');		
+													jQuery('#'+task_id).find('td:eq(1)').addClass('gen-'+ _obj.task_status +'-icon');													
 												});
 											  }else{
 											  	jQuery('#'+this_id).html(_val);
@@ -866,6 +875,9 @@ class Post_Type_Project {
 										var _val = jQuery('#'+this_id).text();
 										jQuery('#'+this_id).empty().append('<input class="metabox-add-task-date widefat enddate" type="text" placeholder="End Date" />');									 
 										jQuery('#'+this_id+' input.enddate').datetimepicker({
+											ampm: true,
+											addSliderAccess: true,
+											sliderAccessArgs: { touchonly: false },
 											onClose: function(dates) { 
 											  if (dates !== "" ){
 												var data = {
@@ -879,6 +891,10 @@ class Post_Type_Project {
 													var _obj = jQuery.parseJSON(response);
 													jQuery('#'+this_id+' input.enddate').remove();
 													jQuery('#'+this_id).html(_obj.task_end);
+													jQuery('#'+task_id).find('td:eq(1)').removeClass('gen-due-icon');
+													jQuery('#'+task_id).find('td:eq(1)').removeClass('gen-past-due-icon');
+													jQuery('#'+task_id).find('td:eq(1)').removeClass('gen-published-icon');		
+													jQuery('#'+task_id).find('td:eq(1)').addClass('gen-'+ _obj.task_status +'-icon');																																					
 												});
 											  }else{
 											  	jQuery('#'+this_id).html(_val);
@@ -957,38 +973,7 @@ class Post_Type_Project {
 					}).live('mouseleave',function(){
 					   jQuery(this).css({'cursor':'normal'}); 
 					});
-					
-					jQuery("#propel_project_tasks .gen-edit-icon").each(function(index, element) {
-                        
-						jQuery(this).live('click',function(event){
-							//console.log('test')	  
-//							var task_id = jQuery(this).attr('id');					
-//						
-//							if(jQuery('#details-' + task_id).length > 0) {
-//								
-//								jQuery('#details-' + task_id).remove();
-//								
-//							} else {
-//		
-//								var data = {
-//										action: 'get_task_detail',
-//										security: '',
-//										postid: task_id,
-//										retnum: 1
-//								};
-//				
-//								jQuery.post(ajaxurl, data, function(response) {
-//									 jQuery("#" + task_id).fadeIn('slow',function(){
-//										 jQuery(this).closest( "tr" ).after(response);																			
-//									 });
-//								});
-//
-//							}
-							 
-							return false;
-						});					
-					});	
-					
+														
 					jQuery('#propel_add_task input, #propel_add_task textarea, #propel_add_task select').live('focus',function(){
 						jQuery('#div_task').fadeIn('slow');	
 					}).live('focusout',function(){
@@ -1021,7 +1006,7 @@ class Post_Type_Project {
 						
 						var _json = Array(
 							'<a href="#" title="Delete">Delete</a>',
-							'<a href="#" title="Edit">Edit</a>',
+							'<p class="propeltooltip" title="published"></p>',
 							'<a href="#" title="Mark as complete">Complete</a>',
 							'<p id="edit_title_'+ task_id +'">'+ task_title +'</p>',
 							'<p id="edit_owner_'+ task_id +'">'+ task_author +'</p>',
@@ -1047,7 +1032,7 @@ class Post_Type_Project {
 							
 						jQuery(nTr).attr('id',task_id);			
 						jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-						jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');	
+						jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
 						jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
 						jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
 						jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });
@@ -1100,6 +1085,8 @@ class Post_Type_Project {
 							content : _content							
 						});
 					});
+					
+					jQuery('#propel_completed_task tbody tr').find('td:eq(1)').css({'width':0});
 										
 	});//End of document.ready    
 
@@ -1111,7 +1098,7 @@ class Post_Type_Project {
 					
 			var _json = Array(
 				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
-				'<a href="#" title="Edit">Edit</a>',
+				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
@@ -1143,7 +1130,7 @@ class Post_Type_Project {
 				
 			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');			
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
 			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_start);			
 			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value',_obj.task_author);
@@ -1156,7 +1143,7 @@ class Post_Type_Project {
 		
 			var _json = Array(
 				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
-				'<a href="#" title="Edit">Edit</a>',
+				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
@@ -1188,7 +1175,7 @@ class Post_Type_Project {
 				
 			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');			
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
 			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_end);			
 			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value',_obj.task_author);
@@ -1201,7 +1188,7 @@ class Post_Type_Project {
 		
 			var _json = Array(
 				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
-				'<a href="#" title="Edit">Edit</a>',
+				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
@@ -1235,7 +1222,7 @@ class Post_Type_Project {
 				
 			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');			
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);				
 			jQuery(nTr).find('td:eq(4)').attr('data-value',_obj.task_start);
 			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_end);			
@@ -1249,7 +1236,7 @@ class Post_Type_Project {
 			
 			var _json = Array(
 				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
-				'<a href="#" title="Edit">Edit</a>',
+				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',				
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
@@ -1282,7 +1269,7 @@ class Post_Type_Project {
 				
 			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-edit-icon');			
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');			
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
 			jQuery(nTr).find('td:eq(4)').addClass('owner').attr('data-value',_obj.task_author);
 			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_progress);
@@ -1443,9 +1430,8 @@ class Post_Type_Project {
 				position: absolute;
 				z-index:9999999999;
 				height:auto;
-				min-height:50px;
+				min-height:30px;
 				width:auto;
-				min-width:100px;
 				max-width:300px;
 				box-sizing:border-box;
 				box-shadow: 1px 1px #CCC;
@@ -1461,12 +1447,47 @@ class Post_Type_Project {
 				border-bottom: 10px solid transparent; 				
 				border-right:10px solid #DFDFDF; 	
 			}
+			
+			/*TimePicker*/
 			.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
 			.ui-timepicker-div dl { text-align: left; }
 			.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
 			.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
 			.ui-timepicker-div td { font-size: 90%; }
 			.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+			
+			.gen-past-due-icon p {
+				width: 0; 
+				height: 0; 
+				margin-left:3px;
+				margin-top:3px;
+				border-left: 6px solid transparent;
+				border-right: 6px solid transparent;				
+				border-bottom: 10px solid red;
+				background:none;
+			}
+			
+			.gen-published-icon p {
+				width: 10px; 
+				height: 10px; 
+				margin-left:3px;
+				margin-top:3px;
+				background:#0F0;
+				border-radius:2px;
+				-moz-border-radius:2px;
+				-webkit-border-radius:2px;				
+			}	
+			
+			.gen-due-icon p {
+				width: 10px; 
+				height: 10px; 
+				margin-left:3px;
+				margin-top:3px;
+				background:#F60;
+				border-radius:5px;
+				-moz-border-radius:5px;
+				-webkit-border-radius:5px;
+			}		
 			
 		 </style>
 	<?php             
@@ -1482,11 +1503,31 @@ class Post_Type_Project {
 		$priority = get_post_meta( $task->ID, '_propel_priority', true );
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
 		//if( $start )
-			//$start = date( get_option( 'date_format' ), $start );
+		//$start = date( get_option( 'date_format' ), $start );
 
 		$end = get_post_meta( $task->ID, '_propel_end_date', true );
-		//if( $end )
-			//$end = date( get_option( 'date_format' ), $end);
+		
+		if( $end ){								
+			$day   = date('d'); // Day of the countdown
+			$month = date('m'); // Month of the countdown
+			$year  = date('Y'); // Year of the countdown
+			$hour  = date('H'); // Hour of the day (east coast time)
+			
+			$calculation = ( $end - time() ) / 3600;
+			$hours = (int)$calculation + 24;
+			$days  = (int)( $hours / 24 ) - 1;
+			
+			$hours_remaining = $hours-($days*24)-24;
+			
+			if ( $hours < 0 && $hours > -24 ) {
+				$data->task_status = "due";
+			}else if ( $hours < -24 ) {
+				$data->task_status = "past-due";
+			}else{
+				$data->task_status = "published";
+			}			
+		}
+
 		if( $task->post_author ) {
 			$userdata = get_userdata( $task->post_author );
 			$authid = $userdata->ID; 
@@ -1498,9 +1539,7 @@ class Post_Type_Project {
 			
 		$x = ($progress == 100) ? "" : "un";
 		$nonce = wp_create_nonce('propel-trash');
-
-	       
-
+		
 		$data->task_id=  $task->ID;
 		$data->task_title = $task->post_title;
 		$data->task_author = $author;
@@ -1512,7 +1551,7 @@ class Post_Type_Project {
 		
 		if( Propel_Options::option('show_start_date' ) ) :
 			$data->is_start = 1;
-			$data->task_start = date("m-d-y H:i", (int)$start);
+			$data->task_start = date("m-d-y h:i", (int)$start);
 		else:
 			$data->is_start = 0;
 			$data->task_start = 0;				
@@ -1520,7 +1559,7 @@ class Post_Type_Project {
 		
 		if( Propel_Options::option('show_end_date' ) ) : 
 			$data->is_end = 1;
-			$data->task_end = date("m-d-y H:m", (int)$end);
+			$data->task_end = date("m-d-y h:i", (int)$end);
 		else:
 			$data->is_end = 0;
 			$data->task_end = 0;		
