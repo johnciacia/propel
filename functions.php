@@ -1,4 +1,15 @@
 <?php
+/*
+ * aps2012
+ */
+add_filter( 'option_mailer', 'set_mailer_options' );
+function set_mailer_options( $value ) {
+	if ( 'localhost' == $_SERVER['HTTP_HOST'] ) {
+		return 'smtp';
+	} else {
+		return 'mail';
+	}
+}
 
 /*
  * aps2012
