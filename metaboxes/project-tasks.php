@@ -59,7 +59,7 @@
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
 		if( $start ){
 			//$start = date( get_option( 'date_format' ), $start );
-			$start = date("m-d-y h:i", $start);
+			$start = date("m-d-y h:i a", $start);
 		}
 
 		$end = get_post_meta( $task->ID, '_propel_end_date', true );
@@ -84,7 +84,7 @@
 				$status = "published";
 			}
 			
-			$end = date("m-d-y h:i", $end);
+			$end = date("m-d-y h:i a", $end);
 			
 		}
 
@@ -114,20 +114,24 @@
 				<a href="post.php?action=propel-delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
 			
 			<td class="gen-icon gen-<?php echo $status; ?>-icon" <?php $completed; ?> >
+            	<?php $status == 'due' ? $status = 'Due today or tomorrow' : $status; ?>
 				<p class="propeltooltip" <?php $completed; ?> title="<?php echo $status; ?>"></p></td>
 
 			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
 				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
 				
 			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
-				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($task->post_title); ?></p>
-                <?php 
+            	<?php 
 					$len = strlen($task->post_content);
+					$len <= 0 ? $pad = "style='padding-bottom:10px;'" : $pad ='';
+				?>
+				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>" <?php echo $pad; ?>><?php esc_html_e($task->post_title); ?></p>
+                <?php 					
 					if ( $len > 75 ) :
 				 ?>
-	            <div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e( substr($task->post_content,0,75).' ...'); ?></small></div>
+	            <div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white;padding-bottom:5px;"><?php esc_html_e( substr($task->post_content,0,75).' ...'); ?></small></div>
                 <?php else : ?>
-				<div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white"><?php esc_html_e($task->post_content); ?></small></div               
+				<div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white;padding-bottom:5px;"><?php esc_html_e($task->post_content); ?></small></div               
                 ><?php endif  ?>
             </td>
 
@@ -136,14 +140,14 @@
 			</td>
 
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
-			<td data-value="<?php esc_attr_e( date("m-d-y H:i",(int)$start) ); ?>">
-				<p style="font-size: 10px; color: #999;" id="edit_sdate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($start); ?></p>
+			<td data-value="<?php esc_attr_e( $start ); ?>">
+				<p style="font-size: 10px; color: #999;" id="edit_sdate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_attr_e( $start ); ?></p>
 			</td>
 			<?php endif; ?>
 
 			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
-			<td data-value="<?php  esc_attr_e( date("m-d-y H:i",(int)$end) ); ?>">
-				<p style="font-size: 10px; color: #999;" id="edit_edate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($end); ?></p></td>
+			<td data-value="<?php  esc_attr_e( $end ); ?>">
+				<p style="font-size: 10px; color: #999;" id="edit_edate_<?php esc_attr_e( $task->ID ); ?>"><?php esc_attr_e( $end ); ?></p></td>
 			<?php endif; ?>
 
 			<td data-value="<?php esc_attr_e( $progress ); ?>">

@@ -1483,7 +1483,7 @@ class Post_Type_Project {
 				height: 10px; 
 				margin-left:3px;
 				margin-top:3px;
-				background:#F60;
+				background:#FFA800;
 				border-radius:5px;
 				-moz-border-radius:5px;
 				-webkit-border-radius:5px;
@@ -1551,7 +1551,7 @@ class Post_Type_Project {
 		
 		if( Propel_Options::option('show_start_date' ) ) :
 			$data->is_start = 1;
-			$data->task_start = date("m-d-y h:i", (int)$start);
+			$data->task_start = date("m-d-y h:i a", (int)$start);
 		else:
 			$data->is_start = 0;
 			$data->task_start = 0;				
@@ -1559,7 +1559,7 @@ class Post_Type_Project {
 		
 		if( Propel_Options::option('show_end_date' ) ) : 
 			$data->is_end = 1;
-			$data->task_end = date("m-d-y h:i", (int)$end);
+			$data->task_end = date("m-d-y h:i a", (int)$end);
 		else:
 			$data->is_end = 0;
 			$data->task_end = 0;		
