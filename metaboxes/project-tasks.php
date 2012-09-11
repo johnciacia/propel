@@ -113,7 +113,7 @@
 			<td class="gen-icon gen-delete-icon">
 				<a href="post.php?action=propel-delete&post=<?php esc_attr_e( $task->ID ); ?>&_wpnonce=<?php echo $nonce; ?>" title="Delete">Delete</a></td>
 			
-			<td class="gen-icon gen-<?php echo $status; ?>-icon" <?php $completed; ?> >
+			<td class="gen-icon db-updated gen-<?php echo $status; ?>-icon" <?php $completed; ?> >
             	<?php $status == 'due' ? $status = 'Due today or tomorrow' : $status; ?>
 				<p class="propeltooltip" <?php $completed; ?> title="<?php echo $status; ?>"></p></td>
 
