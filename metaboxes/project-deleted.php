@@ -1,36 +1,13 @@
-<!-- Spencer tried adding this but adding tasks simply doesn't work. It also appears in the "completed" list.
-<table>
-	<tr>
-		<td>
-			<input class="metabox-add-task-title" type="text" name="task_title" id="_task_title" placeholder="Title" class="widefat" />
-
-			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
-			<input class="metabox-add-task-title" type="text" name="task_end_date" placeholder="End Date" class="widefat date" />
-			<?php endif; ?>
-
-			<label>Manager:</label>
-			<?php 
-			$current_user = wp_get_current_user();
-			$args = array(
-			'class' => 'metabox-add-task-user',
-			'name' => 'propel_post_author',
-			'show_option_none' => 'Unassigned',
-			'orderby' => 'display_name',
-			'selected' => $current_user->ID
-			);
-			wp_dropdown_users( $args );
-			?>
-			<input class="metabox-add-task-button button-primary" type="button" id="add-task" value="Add Task" />
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<textarea class="metabox-add-task-description widefat" name="task_description" id="_task_desc" placeholder="Description"></textarea>
-		</td>
-	</tr>
-</table>
--->
-<table width="100%" class="gen-table tasks-table" id="propel-tasks">
+<style>
+#propel_deleted_tasks .inside {
+	margin: 0;
+	padding: 0;
+}
+.propel_restore{
+background:url(<?php echo plugins_url('/propel/ui/gen/images/unchecked.png'); ?>) no-repeat !important;
+}
+</style>
+<table width="100%" class="gen-table tasks-table" id="propel-deleted">
 	<thead>
 		<tr>
 			<!--Change back to elements instead of colspan. The datables will raise an error using colspan when initialize-->
@@ -54,7 +31,7 @@
 	
 	<?php
 	foreach($posts as $post) {
-		$task = get_post($post->post_id);
+		$task = get_post($post->ID);
 		$progress = get_post_meta( $task->ID, '_propel_complete', true );
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
 		if( $start ){
@@ -84,6 +61,10 @@
 				$status = "published";
 			}
 			
+			if ($task->post_status == 'trash'){
+				$status = "deleted";
+			}
+			
 			$end = date("m-d-y h:i a", $end);
 			
 		}
@@ -111,14 +92,17 @@
 		<tr id="<?php esc_attr_e( $task->ID ); ?>">
 		
 			<td class="gen-icon gen-delete-icon">
-				<a href="javascript:;" class = "propel_trashtask" alt="<?php esc_attr_e( $task->ID ); ?>" title="Delete">Delete</a></td>
+			 <!-- aps2012 -->
+			    <a href="javascript:;" class = "propel_trashtask" alt="<?php esc_attr_e( $task->ID ); ?>" title="Delete">Delete</a> 
+				<!--
+				<a href="post.php?action=propel-delete&post=<?php//esc_attr_e( $task->ID ); ?>&_wpnonce=<?php// echo $nonce; ?>" title="Delete">Delete</a>--></td>
 			
-			<td class="gen-icon db-updated gen-<?php echo $status; ?>-icon" <?php $completed; ?> >
+			<td class="gen-icon gen-deleted-icon" <?php $completed; ?> >
             	<?php $status == 'due' ? $status = 'Due today or tomorrow' : $status; ?>
-				<p class="propeltooltip" <?php $completed; ?> title="<?php echo $status; ?>"></p></td>
+				<p class="propeltooltip" <?php $completed; ?> title="deleted"></p></td>
 
-			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
-				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
+			<td class="gen-icon">
+				<a href="javascript:;" class="propel_restore" alt=<?php esc_attr_e( $task->ID ); ?>" title="Restore">Restore</a></td>
 				
 			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
             	<?php 

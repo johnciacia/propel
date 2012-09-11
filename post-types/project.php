@@ -25,6 +25,9 @@ class Post_Type_Project {
 		add_action( 'wp_ajax_check_update', array( __CLASS__, 'wp_ajax_check_update' ) );
 		add_action( 'wp_ajax_update_task', array( __CLASS__, 'wp_ajax_update_task' ) );
 		add_action( 'wp_ajax_get_task_detail', array( __CLASS__, 'wp_ajax_get_task_detail' ) );
+		add_action( 'wp_ajax_restore_task', array( __CLASS__, 'wp_ajax_restore_task' ) ); // aps2012
+		add_action( 'wp_ajax_delete_task', array( __CLASS__, 'wp_ajax_delete_task' ) );  // aps2012
+		add_action( 'wp_ajax_trash_task', array( __CLASS__, 'wp_ajax_trash_task' ) );  // aps2012
 		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
 		add_action( 'admin_head', array( __CLASS__, 'tooltip_css' ) );
 		add_filter( 'request', array( __CLASS__, 'request' ) );
@@ -74,9 +77,10 @@ class Post_Type_Project {
 		if( isset($_GET['_wpnonce'], $_GET['action'], $_GET['post'] ) && $_GET['action'] == "propel-delete" ) {
 			if ( !wp_verify_nonce($_GET['_wpnonce'], 'propel-trash') ) die('Security check');
 
-			wp_delete_post($_GET['post']);
-			wp_redirect( $_SERVER['HTTP_REFERER'] );
-			die();
+		    // aps2012 : deleted because ajax submit is used instead
+			//wp_delete_post($_GET['post']);
+			//wp_redirect( $_SERVER['HTTP_REFERER'] );
+			//die();
 		}
 		
 	 }
@@ -338,6 +342,7 @@ class Post_Type_Project {
 			add_meta_box('propel_add_task', __('Add Task', 'propel'), array( __CLASS__, 'add_task' ), 'propel_project', 'normal', 'high', 10, 2);
 			add_meta_box('propel_project_tasks', __('Project Tasks', 'propel'),	array( __CLASS__, 'project_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
 			add_meta_box('propel_completed_tasks', __('Completed Tasks', 'propel'), array( __CLASS__, 'completed_tasks'), 'propel_project', 'normal', 'high', 10, 2 );
+			add_meta_box('propel_deleted_tasks', __('Deleted Tasks', 'propel'), array( __CLASS__, 'deleted_tasks'), 'propel_project', 'normal', 'high', 10, 2 ); // aps2012 deleted meta box
 		}
 	}
 
@@ -378,7 +383,20 @@ class Post_Type_Project {
 		$posts = $wpdb->get_results($query);		
 		require( dirname(__FILE__) . '/../metaboxes/project-tasks.php' );
 	}
+/**
+* aps2012 : select deleted task under a parent ID
+*/
+	public static function deleted_tasks( $post, $id ) {
+		global $wpdb;
+		$parent = get_the_ID(); 
+		//@todo: profile query / use WP_Query
+		$query = "SELECT * FROM {$wpdb->posts}
+		        	WHERE `post_parent`={$parent} AND `post_status` = 'trash'
+		        ORDER BY `ID` DESC;";
 
+		$posts = $wpdb->get_results($query);
+		require( dirname(__FILE__) . '/../metaboxes/project-deleted.php');
+	}	
 	/**
 	 * @since 2.0
 	 */
@@ -520,7 +538,17 @@ class Post_Type_Project {
 					jQuery('#propel_completed_tasks #propel-com-tasks tbody tr').remove();
 					jQuery('#propel_completed_tasks #propel-com-tasks tbody').prepend('<tr id="no-data" class="odd">'+ _html +'</tr>');
 					jQuery('#propel_completed_tasks #propel-com-tasks tbody').find('td:eq(3)').find('p').html('No data available');
-				}												
+				}
+				
+				// aps2012 : enable datatable for deleted tasks
+				//$('#propel-deleted tr').find('td:eq(2) a').css('display','none');
+				var _tdcntd = jQuery('#propel_project_tasks #propel-deleted').find('td').size();
+				if( _tdcntd == 1 ) {
+					jQuery('#propel_deleted_tasks #propel-deleted tbody tr').remove();
+					jQuery('#propel_deleted_tasks #propel-deleted tbody').prepend('<tr id="no-data" class="odd">'+ _html +'</tr>');
+					jQuery('#propel_deleted_tasks #propel-deleted tbody').find('td:eq(3)').find('p').html('No data available');
+				}			
+				dTable = jQuery('#propel-deleted').dataTable();														
 			
 				oTable = jQuery('#propel-tasks').dataTable( 
 					{
@@ -566,38 +594,99 @@ class Post_Type_Project {
 						return false;			
 					});
 		
-					//rob_eyouth : added this to remove the deleted data from the current task table
-					 jQuery("#propel-tasks tbody td.gen-delete-icon").live('click',function(){
-						 var $parent = jQuery(this).parent();
-						 var aPos = oTable.fnGetPosition( this );
-						 var _href = jQuery(this).find('a').attr('href');								 
-						 $parent.find('td')
-								 .wrapInner('<div style="display: block;" />')
-								 .parent()
-								 .find('td > div')
-								 .slideUp(700, function(){	
-								  $parent.remove();						 
-						 });	
-						 jQuery.post(_href,function() {	
-							 oTable.fnDeleteRow(aPos[0]);
-						 });
+	   	            //
+					// aps 2012 : added for trashing task.
+					//
+				   jQuery(".propel_trashtask").live('click',function(){ 
+					    var task_id = jQuery(this).attr('alt'); 
+						 var $parent = jQuery(this).parent().parent();
+						 var data = {
+									action: 'trash_task',
+									security: '<?php echo wp_create_nonce( "trash-task" ); ?>',
+									postid: task_id
+							};
+							
+						  jQuery.post(ajaxurl, data, function(response) {	
+								
+								$parent.find('td')
+									 .wrapInner('<div style="display: block;" />')
+									 .parent()
+									 .find('td > div')
+									 .slideUp(700, function(){											    				
+											$parent.remove();											
+								});
+								
+								$parentCom = jQuery('#propel_deleted_tasks #propel-deleted tbody tr');
+										
+								get_JSON(response,2);	
+								
+                                $('#propel-deleted tr').find('td:eq(0) a').attr('class','propel_deltask');
+								$('#propel-deleted tr').find('td:eq(1)').attr('class','gen-icon gen-deleted-icon');
+								$('#propel-deleted tr').find('td:eq(2) a').attr('class','propel_restore');
+								$('#propel-deleted tr').find('td:eq(2) a').attr('href','javascript:;');
+								$('#propel-deleted tr').find('td:eq(2) a').attr('alt',task_id);
+								$('#propel-deleted tr').find('td:eq(2) a').attr('title','Restore');
+
+							});	
+						 						 
+     					 return false;
+					 });
+		             //
+					// aps 2012 : added for physical delete task
+					//
+					jQuery(".propel_deltask").live('click',function(){
+							var task_id = jQuery(this).attr('alt'); 
+							var $parent = jQuery(this).parent().parent();
+							var data = {
+									action: 'delete_task',
+									security: '<?php echo wp_create_nonce( "delete-task" ); ?>',
+									postid: task_id
+							};
+							
+							$parent.find('td')
+									 .wrapInner('<div style="display: block;" />')
+									 .parent()
+									 .find('td > div')
+									 .slideUp(700, function(){											    				
+											$parent.remove();											
+							 });
+							
+							jQuery.post(ajaxurl, data, function(response) {});			
+		
 						 return false;
 					 });
-					 
-					 jQuery("#propel-com-tasks tbody td.gen-delete-icon").live('click',function(){
-						 var $parent = jQuery(this).parent();
-						 var _href = jQuery(this).find('a').attr('href');								 
-						 							
-						 $parent.find('td')
-								 .wrapInner('<div style="display: block;" />')
-								 .parent()
-								 .find('td > div')
-								 .slideUp(700, function(){
-								  $parent.remove();	 
-						 });	
-						 jQuery.post(_href,function() {	
-							 //$parent.remove();
-						 });
+					
+					//
+					// aps 2012 : added for restoring task
+					//
+					 jQuery(".propel_restore").live('click',function(){
+							var task_id = jQuery(this).attr('alt'); 
+							var $parent = jQuery(this).parent().parent();
+							 var prog_ress = $parent.find('td:eq(7)').attr('data-value');
+							var data = {
+									action: 'restore_task',
+									security: '<?php echo wp_create_nonce( "restore-task" ); ?>',
+									postid: task_id
+							};
+							
+							jQuery.post(ajaxurl, data, function(response) {	
+								
+								$parent.find('td')
+									 .wrapInner('<div style="display: block;" />')
+									 .parent()
+									 .find('td > div')
+									 .slideUp(700, function(){											    				
+											$parent.remove();											
+								});
+								
+								if(prog_ress == 100){
+									get_JSON(response, 1);
+								} else {
+									get_JSON(response);
+								}
+
+							});			
+		
 						 return false;
 					 });
 					
@@ -1002,9 +1091,9 @@ class Post_Type_Project {
 		var _obj = jQuery.parseJSON(response);
 		
 		if ( _obj.is_start === 1 && _obj.is_end === 0 ) { 	
-					
+			//aps2012		
 			var _json = Array(
-				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
+				'<a href="javascript:;" class="propel_trashtask"  alt="'+ _obj.task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
@@ -1018,7 +1107,15 @@ class Post_Type_Project {
 				var a = jQuery('#propel-com-tasks').dataTable().fnAddData( _json );															
 				var nTr = cTable.fnSettings().aoData[ a[0] ].nTr;			
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');
-			}else{
+			}
+			//aps2012 added deleted table 
+			else if (whichTable === 2){
+				jQuery('#propel_deleted_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-deleted').dataTable().fnAddData( _json );															
+				var nTr = dTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-deleted-icon');
+			}
+			else{
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
@@ -1046,10 +1143,15 @@ class Post_Type_Project {
 				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
 			});							
 			
+			// aps2012
+			if(whichTable === 2){
+				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');								
+			} 
+			
 		} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 	
-		
+		    // aps2012
 			var _json = Array(
-				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
+				'<a href="javascript:;" class="propel_trashtask"  alt="'+ _obj.task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
@@ -1063,7 +1165,17 @@ class Post_Type_Project {
 				var a = jQuery('#propel-com-tasks').dataTable().fnAddData( _json );															
 				var nTr = cTable.fnSettings().aoData[ a[0] ].nTr;		
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');	
-			}else{
+			}
+			
+			//aps2012 added deleted table
+			else if (whichTable === 2){
+				jQuery('#propel_deleted_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-deleted').dataTable().fnAddData( _json );															
+				var nTr = dTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-deleted-icon');
+			}
+			
+			else{
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
@@ -1089,12 +1201,17 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);	
 			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
-			});							
+			});		
+			
+			// aps2012
+			if(whichTable === 2){
+				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');								
+			} 									
 			
 		} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 	
 		
 			var _json = Array(
-				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
+				'<a href="javascript:;" class="propel_trashtask"  alt="'+ _obj.task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
@@ -1109,7 +1226,17 @@ class Post_Type_Project {
 				var a = jQuery('#propel-com-tasks').dataTable().fnAddData( _json );															
 				var nTr = cTable.fnSettings().aoData[ a[0] ].nTr;			
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');
-			}else{
+			}
+			
+			//aps2012 added deleted table
+			else if (whichTable === 2){
+				jQuery('#propel_deleted_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-deleted').dataTable().fnAddData( _json );															
+				var nTr = dTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-deleted-icon');
+			}			
+			
+			else{
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
@@ -1139,10 +1266,15 @@ class Post_Type_Project {
 				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
 			});		
 			
-		}else {
+			// aps2012
+			if(whichTable === 2){
+				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');								
+			} 
 			
+		}else {
+			//aps2012
 			var _json = Array(
-				'<a href="post.php?action=propel-delete&post='+_obj.task_id+'&_wpnonce='+_obj.task_nonce+'" title="Delete">Delete</a>',
+				'<a href="javascript:;" class="propel_trashtask"  alt="'+ _obj.task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',				
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
@@ -1155,7 +1287,17 @@ class Post_Type_Project {
 				var a = jQuery('#propel-com-tasks').dataTable().fnAddData( _json );															
 				var nTr = cTable.fnSettings().aoData[ a[0] ].nTr;			
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-checked-icon');
-			}else{
+			}
+			
+			//aps2012 added deleted table
+			else if (whichTable === 2){
+				jQuery('#propel_deleted_tasks tbody #no-data').css('border','none').hide();	
+				var a = jQuery('#propel-deleted').dataTable().fnAddData( _json );															
+				var nTr = dTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-deleted-icon');
+			}
+			
+			else{
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );	
 				console.log(oTable.fnSettings().aoData[ a[0] ]);														
@@ -1183,6 +1325,11 @@ class Post_Type_Project {
 			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
 			});
+			
+			// aps2012
+			if(whichTable === 2){
+				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');								
+			} 
 				
 		}//End of if....
 				
@@ -1234,8 +1381,9 @@ class Post_Type_Project {
 		}
 		
 		if ( is_start == 1 && is_end != 1 ){
+			//aps2012
 			var _json = Array(
-				'<a href="#" title="Delete">Delete</a>',
+				'<a href="javascript:;" class="propel_trashtask"  alt="'+ task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="#" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_">'+ task_title +'</p>',
@@ -1259,8 +1407,9 @@ class Post_Type_Project {
 				jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
 			});									
 		}else if ( is_start != 1 && is_end == 1 ){
+			//aps2012
 			var _json = Array(
-				'<a href="#" title="Delete">Delete</a>',
+				'<a href="javascript:;" class="propel_trashtask"  alt="'+ task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="#" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_">'+ task_title +'</p>',
@@ -1284,8 +1433,9 @@ class Post_Type_Project {
 				jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
 			});								
 		}else if( is_start == 1 && is_end == 1 ){
+			//aps2012
 			var _json = Array(
-				'<a href="#" title="Delete">Delete</a>',
+				'<a href="javascript:;" class="propel_trashtask"  alt="'+ task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="#" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_">'+ task_title +'</p>',
@@ -1311,8 +1461,9 @@ class Post_Type_Project {
 				jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
 			});										
 		}else {
+			//aps2012
 			var _json = Array(
-				'<a href="#" title="Delete">Delete</a>',
+				'<a href="javascript:;" class="propel_trashtask"  alt="'+ task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="#" title="Mark as complete">Complete</a>',
 				'<p id="edit_title_">'+ task_title +'</p>',
@@ -1342,7 +1493,9 @@ class Post_Type_Project {
 			jQuery('.saving').fadeOut('slow',function(){
 				jQuery(this).remove();			
 				jQuery(nTr).attr('id',_obj.task_id);	
-				jQuery(nTr).find('td:eq(0)').find('a').attr('href','post.php?action=propel-delete&post='+ _obj.task_id +'&_wpnonce='+nonce);	
+			   //aps2012 change
+				jQuery(nTr).find('td:eq(0)').find('a').attr('href','javascript:;');
+				jQuery(nTr).find('td:eq(0)').find('a').attr('alt', _obj.task_id);	
 				jQuery(nTr).find('td:eq(2)').find('a').attr('href','post.php?action=complete&post='+ _obj.task_id);						
 				jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');
 				jQuery(nTr).find('td:eq(3)').find('p').attr('id','edit_title_'+_obj.task_id);
@@ -1635,6 +1788,18 @@ class Post_Type_Project {
 				-webkit-border-radius:5px;
 			}		
 			
+			/* aps2012 for deleted task */
+			.gen-deleted-icon p {
+				width: 10px; 
+				height: 10px; 
+				margin-left:3px;
+				margin-top:3px;
+				background:red;
+				border-radius:5px;
+				-moz-border-radius:5px;
+				-webkit-border-radius:5px;
+			}	
+			
 		 </style>
 	<?php             
      }    
@@ -1722,7 +1887,38 @@ class Post_Type_Project {
 		
 		die();		
 	}	
-	
+	/**
+	 * aps2012 
+	 */
+	public static function wp_ajax_restore_task() {
+		
+		$postval = array();
+		$postval['ID'] =  $_POST['postid'];
+		$postval['post_status'] = 'publish';
+		wp_update_post($postval);
+		do_action( 'project_get_task', $_POST['postid']);	
+		
+	}
+		/**
+	 * aps2012 
+	 */
+	public static function wp_ajax_trash_task() {
+		
+		$postval = array();
+		$postval['ID'] =  $_POST['postid'];
+		$postval['post_status'] = 'trash';
+		wp_update_post($postval);
+		do_action( 'project_get_task', $_POST['postid']);	
+		
+	}
+	/**
+	 * aps2012 physical delete
+	 */
+	public static function wp_ajax_delete_task() {
+		
+		wp_delete_post($_POST['postid']);
+		
+	}		
 	/**
 	 * @since 2.0
 	 * added by rob : 
