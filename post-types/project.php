@@ -21,6 +21,7 @@ class Post_Type_Project {
 		add_filter( 'parse_query', array( __CLASS__, 'parse_query' ) );
 		add_action( 'project_get_task', array( __CLASS__, 'project_get_task' ) );
 		add_action( 'wp_ajax_add_task', array( __CLASS__, 'wp_ajax_add_task' ) );
+		add_action( 'wp_ajax_get_update', array( __CLASS__, 'wp_ajax_get_update' ) );
 		add_action( 'wp_ajax_update_task', array( __CLASS__, 'wp_ajax_update_task' ) );
 		add_action( 'wp_ajax_get_task_detail', array( __CLASS__, 'wp_ajax_get_task_detail' ) );
 		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
@@ -468,7 +469,7 @@ class Post_Type_Project {
 			'post_status' => 'publish'
 		);
 
-		$id = wp_insert_post( $post );
+		$id = wp_insert_post( stripslashes_deep($post) );
 		if( !$id ) die(0);
 
 		update_post_meta( $id, '_propel_start_date', time() );
@@ -546,7 +547,7 @@ class Post_Type_Project {
 					"aaSorting": [[1, 'asc']],
 					"aoColumns" : asdf
 				});						
-					
+								
 					jQuery(".date").datetimepicker({
 						ampm: true,
 						addSliderAccess: true,
@@ -578,47 +579,120 @@ class Post_Type_Project {
 						var task_end = jQuery('input[name=task_end_date]').val();						
 						
 						var _img = "<?php echo get_admin_url(); ?>";
-						
-						var _json = Array(
-							'<a href="#" title="Delete">Delete</a>',
-							'<p class="propeltooltip" title="published"></p>',
-							'<a href="#" title="Mark as complete">Complete</a>',
-							'<p id="edit_title_'+ task_id +'">'+ task_title +'</p>',
-							'<p id="edit_owner_'+ task_id +'">'+ task_author +'</p>',
-							'<p id="edit_sdate_'+ task_id +'" style="font-size: 10px; color: #999;">'+ today +'</p>',
-							'<p id="edit_edate_'+ task_id +'" style="font-size: 10px; color: #999;">'+ task_end +'</p>',				
-							'<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
-						);						
-										
-						jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
-						var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
-						var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
+						var is_start = "<?php echo Propel_Options::option('show_start_date' ); ?>";
+						var is_end = "<?php echo Propel_Options::option('show_end_date' ); ?>";			
 
-						
 						var _html = "";
 						var len = task_content.length;
 						if (len > 75 ) {
 							var _content = task_content.substr(0,75)+' ...';
-							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+							_html = '<div id="desc_" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 						}else{
 							var _content = task_content.substr(0,75);
-							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+							_html = '<div id="desc_" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 						}
-							
-						jQuery(nTr).attr('id',task_id);			
-						jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-						jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
-						jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
-						jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-						jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });
-						jQuery(nTr).find('td:eq(4)').attr('data-value', today );
-						jQuery(nTr).find('td:eq(5)').attr('data-value', task_end);			
-						jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
-						jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
-						jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
-							jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
-						});								
 						
+						if ( is_start == 1 && is_end != 1 ){
+							var _json = Array(
+								'<a href="#" title="Delete">Delete</a>',
+								'<p class="propeltooltip" title="published"></p>',
+								'<a href="#" title="Mark as complete">Complete</a>',
+								'<p id="edit_title_">'+ task_title +'</p>',
+								'<p id="edit_owner_">'+ task_author +'</p>',
+								'<p id="edit_sdate_" style="font-size: 10px; color: #999;">'+ today +'</p>',			
+								'<p id="edit_progr_" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+							);		
+							jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+							var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+							var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
+							jQuery(nTr).attr('id',task_id);			
+							jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+							jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+							jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+							jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+							jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+							jQuery(nTr).find('td:eq(4)').attr('data-value', today );			
+							jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value', task_author);
+							jQuery(nTr).find('td:eq(6)').attr('data-value', 0 );	
+							jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+								jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+							});									
+						}else if ( is_start != 1 && is_end == 1 ){
+							var _json = Array(
+								'<a href="#" title="Delete">Delete</a>',
+								'<p class="propeltooltip" title="published"></p>',
+								'<a href="#" title="Mark as complete">Complete</a>',
+								'<p id="edit_title_">'+ task_title +'</p>',
+								'<p id="edit_owner_">'+ task_author +'</p>',
+								'<p id="edit_edate_" style="font-size: 10px; color: #999;">'+ task_end +'</p>',			
+								'<p id="edit_progr_" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+							);
+							jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+							var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+							var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;													
+							jQuery(nTr).attr('id',task_id);			
+							jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+							jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+							jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+							jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+							jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+							jQuery(nTr).find('td:eq(4)').attr('data-value', task_end);			
+							jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value', task_author);
+							jQuery(nTr).find('td:eq(6)').attr('data-value', 0 );	
+							jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+								jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+							});								
+						}else if( is_start == 1 && is_end == 1 ){
+							var _json = Array(
+								'<a href="#" title="Delete">Delete</a>',
+								'<p class="propeltooltip" title="published"></p>',
+								'<a href="#" title="Mark as complete">Complete</a>',
+								'<p id="edit_title_">'+ task_title +'</p>',
+								'<p id="edit_owner_">'+ task_author +'</p>',
+								'<p id="edit_sdate_" style="font-size: 10px; color: #999;">'+ today +'</p>',
+								'<p id="edit_edate_" style="font-size: 10px; color: #999;">'+ task_end +'</p>',				
+								'<p id="edit_progr_" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+							);	
+							jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+							var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+							var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;										
+							jQuery(nTr).attr('id',task_id);			
+							jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+							jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+							jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+							jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+							jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+							jQuery(nTr).find('td:eq(4)').attr('data-value', today );
+							jQuery(nTr).find('td:eq(5)').attr('data-value', task_end);			
+							jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
+							jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
+							jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+								jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+							});										
+						}else {
+							var _json = Array(
+								'<a href="#" title="Delete">Delete</a>',
+								'<p class="propeltooltip" title="published"></p>',
+								'<a href="#" title="Mark as complete">Complete</a>',
+								'<p id="edit_title_">'+ task_title +'</p>',
+								'<p id="edit_owner_">'+ task_author +'</p>',			
+								'<p id="edit_progr_" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+							);	
+							jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+							var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+							var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;										
+							jQuery(nTr).attr('id',task_id);			
+							jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+							jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+							jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+							jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+							jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });									
+							jQuery(nTr).find('td:eq(4)').addClass('owner').attr('data-value', task_author);
+							jQuery(nTr).find('td:eq(5)').attr('data-value', 0 );	
+							jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+								jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+							});										
+						}																
 		
 						jQuery.post(ajaxurl, data, function(response) {
 							 //rob_eyouth:added this...
@@ -626,9 +700,28 @@ class Post_Type_Project {
 							var nonce = "<?php echo wp_create_nonce('propel-trash'); ?>";
 							jQuery('.saving').fadeOut('slow',function(){
 								jQuery(this).remove();			
+								jQuery(nTr).attr('id',_obj.task_id);	
 								jQuery(nTr).find('td:eq(0)').find('a').attr('href','post.php?action=propel-delete&post='+ _obj.task_id +'&_wpnonce='+nonce);	
 								jQuery(nTr).find('td:eq(2)').find('a').attr('href','post.php?action=complete&post='+ _obj.task_id);						
-								jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');			
+								jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');
+								jQuery(nTr).find('td:eq(3)').find('p').attr('id','edit_title_'+_obj.task_id);
+								if ( is_start == 1 && is_end != 1 ){
+									jQuery(nTr).find('td:eq(4)').find('p').attr('id','edit_owner_'+_obj.task_id);											
+									jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_sdate_'+_obj.task_id);																
+									jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_progr_'+_obj.task_id);								
+								}else if( is_start != 1 && is_end == 1 ){
+									jQuery(nTr).find('td:eq(4)').find('p').attr('id','edit_owner_'+_obj.task_id);																		
+									jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_edate_'+_obj.task_id);								
+									jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_progr_'+_obj.task_id);																	
+								}else if( is_start == 1 && is_end == 1 ){
+									jQuery(nTr).find('td:eq(4)').find('p').attr('id','edit_owner_'+_obj.task_id);											
+									jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_sdate_'+_obj.task_id);								
+									jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_edate_'+_obj.task_id);								
+									jQuery(nTr).find('td:eq(7)').find('p').attr('id','edit_progr_'+_obj.task_id);																	
+								}else{
+									jQuery(nTr).find('td:eq(4)').find('p').attr('id','edit_owner_'+_obj.task_id);																			
+									jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_progr_'+_obj.task_id);								
+								}
 								jQuery('#edit_edate_'+ task_id).html(_obj.task_end);														
 							});			
 							 jQuery('#_task_title').val('');
@@ -982,7 +1075,7 @@ class Post_Type_Project {
 					
 					jQuery('form#post #propel_add_task').live('keypress',function(event){
 						if (event.which === 13){
-
+							
 						var data = {
 							action: 'add_task',
 							security: '<?php echo wp_create_nonce( "add-task" ); ?>',
@@ -1003,47 +1096,120 @@ class Post_Type_Project {
 						var task_end = jQuery('input[name=task_end_date]').val();						
 						
 						var _img = "<?php echo get_admin_url(); ?>";
-						
-						var _json = Array(
-							'<a href="#" title="Delete">Delete</a>',
-							'<p class="propeltooltip" title="published"></p>',
-							'<a href="#" title="Mark as complete">Complete</a>',
-							'<p id="edit_title_'+ task_id +'">'+ task_title +'</p>',
-							'<p id="edit_owner_'+ task_id +'">'+ task_author +'</p>',
-							'<p id="edit_sdate_'+ task_id +'" style="font-size: 10px; color: #999;">'+ today +'</p>',
-							'<p id="edit_edate_'+ task_id +'" style="font-size: 10px; color: #999;">'+ task_end +'</p>',				
-							'<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
-						);						
-										
-						jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
-						var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
-						var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
+						var is_start = "<?php echo Propel_Options::option('show_start_date' ); ?>";
+						var is_end = "<?php echo Propel_Options::option('show_end_date' ); ?>";			
 
-						
 						var _html = "";
 						var len = task_content.length;
 						if (len > 75 ) {
 							var _content = task_content.substr(0,75)+' ...';
-							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+							_html = '<div id="desc_" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 						}else{
 							var _content = task_content.substr(0,75);
-							_html = '<div id="desc_'+ task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+							_html = '<div id="desc_" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 						}
-							
-						jQuery(nTr).attr('id',task_id);			
-						jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-						jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
-						jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
-						jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-						jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });
-						jQuery(nTr).find('td:eq(4)').attr('data-value', today );
-						jQuery(nTr).find('td:eq(5)').attr('data-value', task_end);			
-						jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
-						jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
-						jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
-							jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
-						});								
 						
+						if ( is_start == 1 && is_end != 1 ){
+							var _json = Array(
+								'<a href="#" title="Delete">Delete</a>',
+								'<p class="propeltooltip" title="published"></p>',
+								'<a href="#" title="Mark as complete">Complete</a>',
+								'<p id="edit_title_">'+ task_title +'</p>',
+								'<p id="edit_owner_">'+ task_author +'</p>',
+								'<p id="edit_sdate_" style="font-size: 10px; color: #999;">'+ today +'</p>',			
+								'<p id="edit_progr_" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+							);		
+							jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+							var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+							var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
+							jQuery(nTr).attr('id',task_id);			
+							jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+							jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+							jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+							jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+							jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+							jQuery(nTr).find('td:eq(4)').attr('data-value', today );			
+							jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value', task_author);
+							jQuery(nTr).find('td:eq(6)').attr('data-value', 0 );	
+							jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+								jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+							});									
+						}else if ( is_start != 1 && is_end == 1 ){
+							var _json = Array(
+								'<a href="#" title="Delete">Delete</a>',
+								'<p class="propeltooltip" title="published"></p>',
+								'<a href="#" title="Mark as complete">Complete</a>',
+								'<p id="edit_title_">'+ task_title +'</p>',
+								'<p id="edit_owner_">'+ task_author +'</p>',
+								'<p id="edit_edate_" style="font-size: 10px; color: #999;">'+ task_end +'</p>',			
+								'<p id="edit_progr_" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+							);
+							jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+							var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+							var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;													
+							jQuery(nTr).attr('id',task_id);			
+							jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+							jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+							jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+							jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+							jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+							jQuery(nTr).find('td:eq(4)').attr('data-value', task_end);			
+							jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value', task_author);
+							jQuery(nTr).find('td:eq(6)').attr('data-value', 0 );	
+							jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+								jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+							});								
+						}else if( is_start == 1 && is_end == 1 ){
+							var _json = Array(
+								'<a href="#" title="Delete">Delete</a>',
+								'<p class="propeltooltip" title="published"></p>',
+								'<a href="#" title="Mark as complete">Complete</a>',
+								'<p id="edit_title_">'+ task_title +'</p>',
+								'<p id="edit_owner_">'+ task_author +'</p>',
+								'<p id="edit_sdate_" style="font-size: 10px; color: #999;">'+ today +'</p>',
+								'<p id="edit_edate_" style="font-size: 10px; color: #999;">'+ task_end +'</p>',				
+								'<p id="edit_progr_" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+							);	
+							jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+							var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+							var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;										
+							jQuery(nTr).attr('id',task_id);			
+							jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+							jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+							jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+							jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+							jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+							jQuery(nTr).find('td:eq(4)').attr('data-value', today );
+							jQuery(nTr).find('td:eq(5)').attr('data-value', task_end);			
+							jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
+							jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
+							jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+								jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+							});										
+						}else {
+							var _json = Array(
+								'<a href="#" title="Delete">Delete</a>',
+								'<p class="propeltooltip" title="published"></p>',
+								'<a href="#" title="Mark as complete">Complete</a>',
+								'<p id="edit_title_">'+ task_title +'</p>',
+								'<p id="edit_owner_">'+ task_author +'</p>',			
+								'<p id="edit_progr_" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
+							);	
+							jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
+							var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
+							var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;										
+							jQuery(nTr).attr('id',task_id);			
+							jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
+							jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+							jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
+							jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+							jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });									
+							jQuery(nTr).find('td:eq(4)').addClass('owner').attr('data-value', task_author);
+							jQuery(nTr).find('td:eq(5)').attr('data-value', 0 );	
+							jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
+								jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
+							});										
+						}																
 		
 						jQuery.post(ajaxurl, data, function(response) {
 							 //rob_eyouth:added this...
@@ -1051,15 +1217,34 @@ class Post_Type_Project {
 							var nonce = "<?php echo wp_create_nonce('propel-trash'); ?>";
 							jQuery('.saving').fadeOut('slow',function(){
 								jQuery(this).remove();			
+								jQuery(nTr).attr('id',_obj.task_id);	
 								jQuery(nTr).find('td:eq(0)').find('a').attr('href','post.php?action=propel-delete&post='+ _obj.task_id +'&_wpnonce='+nonce);	
 								jQuery(nTr).find('td:eq(2)').find('a').attr('href','post.php?action=complete&post='+ _obj.task_id);						
 								jQuery(nTr).find('td:eq(3)').animate({ 'padding-left' : 0 },'slow');
-								jQuery('#edit_edate_'+ task_id).html(_obj.task_end);																	
+								jQuery(nTr).find('td:eq(3)').find('p').attr('id','edit_title_'+_obj.task_id);
+								if ( is_start == 1 && is_end != 1 ){
+									jQuery(nTr).find('td:eq(4)').find('p').attr('id','edit_owner_'+_obj.task_id);											
+									jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_sdate_'+_obj.task_id);																
+									jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_progr_'+_obj.task_id);								
+								}else if( is_start != 1 && is_end == 1 ){
+									jQuery(nTr).find('td:eq(4)').find('p').attr('id','edit_owner_'+_obj.task_id);																		
+									jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_edate_'+_obj.task_id);								
+									jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_progr_'+_obj.task_id);																	
+								}else if( is_start == 1 && is_end == 1 ){
+									jQuery(nTr).find('td:eq(4)').find('p').attr('id','edit_owner_'+_obj.task_id);											
+									jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_sdate_'+_obj.task_id);								
+									jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_edate_'+_obj.task_id);								
+									jQuery(nTr).find('td:eq(7)').find('p').attr('id','edit_progr_'+_obj.task_id);																	
+								}else{
+									jQuery(nTr).find('td:eq(4)').find('p').attr('id','edit_owner_'+_obj.task_id);																			
+									jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_progr_'+_obj.task_id);								
+								}
+								jQuery('#edit_edate_'+ task_id).html(_obj.task_end);														
 							});			
 							 jQuery('#_task_title').val('');
 							 jQuery('#_task_desc').val('');			 				
 						});
-						
+							
 						jQuery('.propeltooltip').each(function(){
 							var _content = jQuery(this).attr('title');
 							var _id = jQuery(this).attr('id');
@@ -1067,8 +1252,7 @@ class Post_Type_Project {
 								id		: _id,
 								content : _content							
 							});
-						});
-							
+						});								
 						return false;			
 					
 						}
@@ -1087,6 +1271,22 @@ class Post_Type_Project {
 					});
 					
 					jQuery('#propel_completed_task tbody tr').find('td:eq(1)').css({'width':0});
+					
+					setInterval(function(){ 
+						var d=new Date();
+						var t=d.toLocaleTimeString();
+						var data = {
+								action: 'get_update',
+								parent: '<?php get_the?>'
+								security: '<?php echo wp_create_nonce( "get-update" ); ?>'
+							};
+						jQuery.post(ajaxurl, data, function(response) {
+							jQuery('#propel-tasks_wrapper').fadeOut('fast',function(){
+								console.log(response);
+								jQuery('#propel-tasks_wrapper').html(response).fadeIn('slow');
+							});
+						});						
+					},10000);
 										
 	});//End of document.ready    
 
@@ -1590,7 +1790,7 @@ class Post_Type_Project {
 					'post_parent' => $_POST['parent'],
 				);
 
-			wp_update_post( $post );
+			wp_update_post( stripslashes_deep($post) );
 			
 		}else if ( isset($_POST["title"]) && !isset($_POST["content"]) ) {
 			$post = array(
@@ -1598,7 +1798,8 @@ class Post_Type_Project {
 				'post_title' => $_POST['title'],
 				'post_parent' => $_POST['parent'],
 			);
-			wp_update_post( $post );
+			
+			wp_update_post( stripslashes_deep($post) );
 			
 		}else if ( !isset($_POST["title"]) && isset($_POST["content"]) ) {
 			$post = array(
@@ -1606,7 +1807,8 @@ class Post_Type_Project {
 				'post_content' => $_POST['content'],
 				'post_parent' => $_POST['parent'],
 			);
-			wp_update_post( $post );
+			
+			wp_update_post( stripslashes_deep($post) );
 			
 		}
 		
@@ -1796,6 +1998,28 @@ class Post_Type_Project {
 					
 	}
 	
+	/*
+	* added by rob: ajax call for updates to user
+	*
+	*/
+	public static function wp_ajax_get_update() {		
+		check_ajax_referer( 'get-update', 'security' );
+		global $wpdb;
+		$parent = $_POST['parent']; 
+		//@todo: profile query / use WP_Query?
+		$query = "SELECT `post_id`, `meta_value` AS `progress` 
+		    	FROM `{$wpdb->postmeta}`
+		        WHERE `meta_key` = '_propel_complete' 
+		        AND `meta_value` < 100 AND `{$wpdb->postmeta}`.`post_id` 
+		        	IN (SELECT `ID` FROM {$wpdb->posts}
+		        	WHERE `post_parent`={$parent} AND `post_status` = 'publish')
+		        ORDER BY `meta_value` DESC, `post_id` DESC;";
+
+		$posts = $wpdb->get_results($query);		
+		include( dirname(__FILE__) . '/../metaboxes/project-tasks.php' );
+		echo $parent;
+		die();
+	}
 		
 } //End of class
 
