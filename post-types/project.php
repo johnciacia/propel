@@ -621,7 +621,7 @@ class Post_Type_Project {
 								get_JSON(response,2);	
 								
                                 $('#propel-deleted tr').find('td:eq(0) a').attr('class','propel_deltask');
-								$('#propel-deleted tr').find('td:eq(1)').attr('class','gen-icon gen-deleted-icon');
+								$('#propel-deleted tr').find('td:eq(1)').attr('class','gen-icon db-updated gen-deleted-icon');
 								$('#propel-deleted tr').find('td:eq(2) a').attr('class','propel_restore');
 								$('#propel-deleted tr').find('td:eq(2) a').attr('href','javascript:;');
 								$('#propel-deleted tr').find('td:eq(2) a').attr('alt',task_id);
@@ -1014,78 +1014,123 @@ class Post_Type_Project {
 					parent: '<?php esc_attr_e(get_the_ID()); ?>',
 					security: '<?php echo wp_create_nonce( "get-update" ); ?>'
 				};
+				
 			jQuery.post(ajaxurl, data, function(response) {
+				
 				var _post = jQuery.parseJSON(response);
-				jQuery.each(_post,function(i,el){
-					var _isUpdate = false;
-					var _len = 1;
-					var _data = {
-							action	: 'check_update',
-							pID		: el.post_id,
-							security: '<?php echo wp_create_nonce( "check-update" ); ?>'
-						};
-						jQuery.post(ajaxurl, _data, function(response) {
-							var _obj = jQuery.parseJSON(response);							
+					
+					jQuery.each(_post,function(i,el){
+						  
+					  if ( el.post_status === "publish" ) {	
 
-							if ( _obj[0].post_date !== _obj[0].post_modified ){
+						var _isUpdate = false;
+						var _len = 1;																																						
 								
-								if ( !jQuery('#propel-tasks tbody tr#'+ _obj[0].ID).find('td:eq(1)').hasClass('db-updated') ){
-									_len = 0;
-									_isUpdate = true;
-								}
+							if ( el !== undefined ){	
 								
-							}else{
-									_len = jQuery('#propel-tasks tbody tr#'+el.post_id).length;
-							}
-							
-							if ( _len != 1 ) {
-								var data = {
-									action: 'update_task',
-									security: '<?php echo wp_create_nonce( "update-task" ); ?>',
-									pID: el.post_id,
-								};
-								
-								jQuery.post(ajaxurl, data, function(response) {
-									
-									var _msg;
-									var _obj = jQuery.parseJSON(response);
-									
-									if (_isUpdate ==  true ){
-										 _msg = "This task has just been updated." 
+									if ( el.post_modified >= el.today && el.post_modified <= el.today ){
+										
+										if ( !jQuery('#propel-tasks tbody tr#'+ el.ID).find('td:eq(1)').hasClass('db-updated') ){										
+											_len = 0;
+											_isUpdate = true;
+										}
+										
 									}else{
-										 get_JSON(response);
-										 _msg = "A new task has been assigned to you.";
-									}																						
-									var _cuser = jQuery('#user-id').val();
-									console.log(_obj.task_authid);
-									if ( parseInt(_cuser) == parseInt(_obj.task_authid) ){
-										jQuery('tr#'+_obj.task_id+' td.gen-published-icon p').css({'background' : '#FFF'}).animate({'backgroundColor':'lime'},7000,'linear');
-										jQuery('tr#'+_obj.task_id).find('td:eq(1)')
-										.addClass('db-updated')
-										.append('<div class="propelnotify"><span class="narrow"></span>'+ _msg +'<small id="xclose">X<small></div>');
-										
-										
-										jQuery('.propelnotify').fadeIn(3000,'linear');									
-										
-										jQuery('#xclose').live('mouseenter',function(){
-											jQuery(this).animate({'color': "#FFF"},'slow','linear');
-										}).live('mouseleave',function(){
-											jQuery(this).animate({'color': "#CCC"},'slow','linear');
-										}).live('click',function(){
-											jQuery(this).offsetParent().fadeOut('slow',function(){
-												jQuery(this).remove();
-												check_Existence()
-											});
-										});											
+										_len = jQuery('#propel-tasks tbody tr#'+el.ID).length;
 									}
-								});
-							}//End of _len != 1
-							
-						});											
+									
+									if ( _len == 0 ) {
 
-				});//End of post
+										var data = {
+											action: 'update_task',
+											security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+											pID: el.ID,
+										};
+										
+										jQuery.post(ajaxurl, data, function(response) {
+											
+											var _msg;
+											var _obj = jQuery.parseJSON(response);
+											
+											if ( _obj.task_id !== null || _obj.task_id !== undefined ) {
+												
+												if (_isUpdate ==  true ){
+													 _msg = "This task has just been updated." 
+												}else{
+													 get_JSON(response);
+													 _msg = "A new task has been assigned to you.";
+												}																						
+												var _cuser = jQuery('#user-id').val();
+												
+												if ( parseInt(_cuser) == parseInt(_obj.task_authid) ){
+													jQuery('#propel-tasks tbody tr#'+_obj.task_id+' td.gen-published-icon p').css({'background' : '#FFF'}).animate({'backgroundColor':'lime'},7000,'linear');
+													jQuery('#propel-tasks tbody tr#'+_obj.task_id).find('td:eq(1)')
+													.addClass('db-updated')
+													.append('<div class="propelnotify"><span class="narrow"></span>'+ _msg +'<small id="xclose">X<small></div>');
+													
+													
+													jQuery('.propelnotify').fadeIn(3000,'linear');									
+													
+													jQuery('#xclose').live('mouseenter',function(){
+														jQuery(this).animate({'color': "#FFF"},'slow','linear');
+													}).live('mouseleave',function(){
+														jQuery(this).animate({'color': "#CCC"},'slow','linear');
+													}).live('click',function(){
+														jQuery(this).offsetParent().fadeOut('slow',function(){
+															jQuery(this).remove();
+															check_Existence()
+														});
+													});											
+												}
+										}
+									
+								});
+								
+							}//End of _len == 0
+							
+						}//end of response != undefiend											
+					
+					  }else{						 																																					
+								
+							if ( el !== undefined ){			
+								var _trlen = jQuery('#propel-deleted tbody tr#'+ el.ID).length;
+								if ( _trlen <= 0 ){
+									if ( !jQuery('#propel-deleted tbody tr#'+ el.ID).find('td:eq(1)').hasClass('db-updated') ){	
+																	
+										var data = {
+											action: 'update_task',
+											security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+											pID: el.ID,
+										};
+										
+										jQuery.post(ajaxurl, data, function(response) {
+
+											var _msg;
+											var _obj = jQuery.parseJSON(response);
+											
+											if ( _obj.task_id !== null || _obj.task_id !== undefined ) {
+												get_JSON(response,2);		
+												jQuery('#propel-tasks tbody tr#'+_obj.task_id).find('td')
+													 .wrapInner('<div style="display: block;" />')
+													 .parent()
+													 .find('td > div')
+													 .slideUp(700, function(){											    				
+														jQuery('#propel-tasks tbody tr#'+_obj.task_id).remove();											
+												});																																											
+											}
+									
+										});
+									}
+								}
+							
+							}//end of response != undefiend
+						  
+					  }//End of el.post_status
+	
+				});//End of each				
+					
 			});						
-		},60000);
+		},30000);
 	}  
 
 	function get_JSON(response,whichTable){
@@ -1115,6 +1160,7 @@ class Post_Type_Project {
 				jQuery('#propel_deleted_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-deleted').dataTable().fnAddData( _json );															
 				var nTr = dTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(1)').addClass('db-updated');
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-deleted-icon');
 			}
 			else{
@@ -1147,7 +1193,8 @@ class Post_Type_Project {
 			
 			// aps2012
 			if(whichTable === 2){
-				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');								
+				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');
+				jQuery(nTr).find('td:eq(1)').addClass('gen-deleted-icon').removeClass('gen-published-icon');								
 			} 
 			
 		} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 	
@@ -1174,6 +1221,7 @@ class Post_Type_Project {
 				jQuery('#propel_deleted_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-deleted').dataTable().fnAddData( _json );															
 				var nTr = dTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(1)').addClass('db-updated');				
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-deleted-icon');
 			}
 			
@@ -1207,7 +1255,8 @@ class Post_Type_Project {
 			
 			// aps2012
 			if(whichTable === 2){
-				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');								
+				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');
+				jQuery(nTr).find('td:eq(1)').addClass('gen-deleted-icon').removeClass('gen-published-icon');								
 			} 									
 			
 		} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 	
@@ -1235,6 +1284,7 @@ class Post_Type_Project {
 				jQuery('#propel_deleted_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-deleted').dataTable().fnAddData( _json );															
 				var nTr = dTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(1)').addClass('db-updated');				
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-deleted-icon');
 			}			
 			
@@ -1270,7 +1320,8 @@ class Post_Type_Project {
 			
 			// aps2012
 			if(whichTable === 2){
-				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');								
+				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');
+				jQuery(nTr).find('td:eq(1)').addClass('gen-deleted-icon').removeClass('gen-published-icon');								
 			} 
 			
 		}else {
@@ -1296,6 +1347,7 @@ class Post_Type_Project {
 				jQuery('#propel_deleted_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-deleted').dataTable().fnAddData( _json );															
 				var nTr = dTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(1)').addClass('db-updated');				
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-deleted-icon');
 			}
 			
@@ -1330,7 +1382,8 @@ class Post_Type_Project {
 			
 			// aps2012
 			if(whichTable === 2){
-				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');								
+				jQuery(nTr).find('td:eq(1) p').attr('title', 'deleted');	
+				jQuery(nTr).find('td:eq(1)').addClass('gen-deleted-icon').removeClass('gen-published-icon');							
 			} 
 				
 		}//End of if....
@@ -2161,13 +2214,14 @@ class Post_Type_Project {
 		check_ajax_referer( 'get-update', 'security' );
 		global $wpdb;
 		$parent = $_POST['parent']; 
+		$curDate = date("Y-m-d h:i:s");		
 		//@todo: profile query / use WP_Query?
-		$query = "SELECT `post_id`, `meta_value` AS `progress`
-		    	FROM `{$wpdb->postmeta}`
+		$query = "SELECT `ID`, `post_date`, `post_modified`, `post_status`, NOW() as today
+		    	FROM `{$wpdb->postmeta}` JOIN `{$wpdb->posts}` ON `post_id` = `ID`
 		        WHERE `meta_key` = '_propel_complete' 
 		        AND `meta_value` < 100 AND `{$wpdb->postmeta}`.`post_id` 
 		        	IN (SELECT `ID` FROM {$wpdb->posts}
-		        	WHERE `post_parent`={$parent} AND `post_status` = 'publish')
+		        	WHERE `post_parent`={$parent} AND (`post_status` = 'publish' OR `post_status` = 'trash'))
 		        ORDER BY `meta_value` DESC, `post_id` DESC";
 
 		$posts = $wpdb->get_results($query);		
@@ -2179,9 +2233,10 @@ class Post_Type_Project {
 		check_ajax_referer( 'check-update', 'security' );
 		global $wpdb;
 		$postid = $_POST['pID']; 
+		$curDate = date("Y-m-d h:i:s");
 		//@todo: profile query / use WP_Query?
-		$query = "SELECT `ID`, `post_date`, `post_modified`, `post_author` FROM {$wpdb->posts}
-		        	WHERE `ID`={$postid}";
+		$query = "SELECT `ID`, `post_date`, `post_modified`, `post_status` FROM {$wpdb->posts}
+		        	WHERE `ID`={$postid} AND `post_modified` >= {$curDate} ";
 		$posts = $wpdb->get_results($query);		
 		echo json_encode($posts);
 		die();	

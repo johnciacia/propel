@@ -97,7 +97,7 @@ background:url(<?php echo plugins_url('/propel/ui/gen/images/unchecked.png'); ?>
 				<!--
 				<a href="post.php?action=propel-delete&post=<?php//esc_attr_e( $task->ID ); ?>&_wpnonce=<?php// echo $nonce; ?>" title="Delete">Delete</a>--></td>
 			
-			<td class="gen-icon gen-deleted-icon" <?php $completed; ?> >
+			<td class="gen-icon gen-deleted-icon db-updated" <?php $completed; ?> >
             	<?php $status == 'due' ? $status = 'Due today or tomorrow' : $status; ?>
 				<p class="propeltooltip" <?php $completed; ?> title="deleted"></p></td>
 
