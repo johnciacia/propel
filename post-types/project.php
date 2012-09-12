@@ -1044,38 +1044,40 @@ class Post_Type_Project {
 									security: '<?php echo wp_create_nonce( "update-task" ); ?>',
 									pID: el.post_id,
 								};
+								
 								jQuery.post(ajaxurl, data, function(response) {
 									
 									var _msg;
 									var _obj = jQuery.parseJSON(response);
 									
 									if (_isUpdate ==  true ){
-										 get_JSON(response, 1);
-										 _msg = "This task have just been updated." 
+										 _msg = "This task has just been updated." 
 									}else{
 										 get_JSON(response);
 										 _msg = "A new task has been assigned to you.";
 									}																						
-									
-									jQuery('tr#'+_obj.task_id+' td.gen-published-icon p').css({'background' : '#FFF'}).animate({'backgroundColor':'lime'},7000,'linear');
-									jQuery('tr#'+_obj.task_id).find('td:eq(1)')
-									.addClass('db-updated')
-									.append('<div class="propelnotify"><span class="narrow"></span>'+ _msg +'<small id="xclose">X<small></div>');
-									
-									
-									jQuery('.propelnotify').fadeIn(3000,'linear');									
-									
-									jQuery('#xclose').live('mouseenter',function(){
-										jQuery(this).animate({'color': "#FFF"},'slow','linear');
-									}).live('mouseleave',function(){
-										jQuery(this).animate({'color': "#CCC"},'slow','linear');
-									}).live('click',function(){
-										jQuery(this).offsetParent().fadeOut('slow',function(){
-											jQuery(this).remove();
-											check_Existence()
-										});
-									});											
-													
+									var _cuser = jQuery('#user-id').val();
+									console.log(_obj.task_authid);
+									if ( parseInt(_cuser) == parseInt(_obj.task_authid) ){
+										jQuery('tr#'+_obj.task_id+' td.gen-published-icon p').css({'background' : '#FFF'}).animate({'backgroundColor':'lime'},7000,'linear');
+										jQuery('tr#'+_obj.task_id).find('td:eq(1)')
+										.addClass('db-updated')
+										.append('<div class="propelnotify"><span class="narrow"></span>'+ _msg +'<small id="xclose">X<small></div>');
+										
+										
+										jQuery('.propelnotify').fadeIn(3000,'linear');									
+										
+										jQuery('#xclose').live('mouseenter',function(){
+											jQuery(this).animate({'color': "#FFF"},'slow','linear');
+										}).live('mouseleave',function(){
+											jQuery(this).animate({'color': "#CCC"},'slow','linear');
+										}).live('click',function(){
+											jQuery(this).offsetParent().fadeOut('slow',function(){
+												jQuery(this).remove();
+												check_Existence()
+											});
+										});											
+									}
 								});
 							}//End of _len != 1
 							
@@ -1083,7 +1085,7 @@ class Post_Type_Project {
 
 				});//End of post
 			});						
-		},30000);
+		},60000);
 	}  
 
 	function get_JSON(response,whichTable){
@@ -1816,7 +1818,7 @@ class Post_Type_Project {
 		$post_created = $task->post_date;
 		$post_modified = $task->post_modified;
 		
-		$post_created == $post_modified ? $data->is_updated = 0 : $data->is_updated = 1;
+		$post_created !== $post_modified ? $data->is_updated = 0 : $data->is_updated = 1;
 		
 		//if( $start )
 		//$start = date( get_option( 'date_format' ), $start );
@@ -2178,7 +2180,7 @@ class Post_Type_Project {
 		global $wpdb;
 		$postid = $_POST['pID']; 
 		//@todo: profile query / use WP_Query?
-		$query = "SELECT `ID`, `post_content`, `post_title`, `post_date`, `post_modified` FROM {$wpdb->posts}
+		$query = "SELECT `ID`, `post_date`, `post_modified`, `post_author` FROM {$wpdb->posts}
 		        	WHERE `ID`={$postid}";
 		$posts = $wpdb->get_results($query);		
 		echo json_encode($posts);
