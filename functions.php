@@ -34,11 +34,19 @@ function set_page_title($admin_title, $title){
 	global $post;
 	if($post){
 			if(get_post_type($post->ID) == 'propel_project' ){
-				return 'Propel > ' . $post->post_title;
+				if(!$_GET['action']){
+					    return 'Propel > ' . 'All Projects';
+    			} else {
+	            		return 'Propel > ' . $post->post_title;
+				}
 			}
 			if(get_post_type($post->ID) == 'propel_task' ){
 				$parent = get_post($post->post_parent);
-				return 'Propel > ' . $parent->post_title . ' > ' . $post->post_title;
+				if(!$_GET['action']){
+					return 'Propel > ' . 'All Tasks';
+				} else {
+					return 'Propel > ' . $parent->post_title . ' > ' . $post->post_title;
+				}
 			}
 	}
 }
