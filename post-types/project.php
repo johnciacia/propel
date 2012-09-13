@@ -1028,14 +1028,40 @@ class Post_Type_Project {
 								
 							if ( el !== undefined ){	
 								
-									if ( el.post_modified >= el.today && el.post_modified <= el.today ){
-										
-										if ( !jQuery('#propel-tasks tbody tr#'+ el.ID).find('td:eq(1)').hasClass('db-updated') ){										
+									if ( el.post_date !== el.post_modified ){									
+										if ( !jQuery('#propel-tasks tbody tr#'+ el.ID).find('td:eq(1)').hasClass('db-updated') ){				
 											_len = 0;
 											_isUpdate = true;
-										}
+										}else{
+											var _tr = jQuery('#propel-tasks tbody tr#'+ el.ID);
+											if ( (el.post_title !== _tr.find('td:eq(3)').find('p').text()) || (el.post_content !== _tr.find('td:eq(3)').find('small').text())){
+												var aPos = _tr.index();
+												var _html ="";
+												var len = el.post_content.length;
+												if (len > 75 ) {
+													var _content = el.post_content.substr(0,75)+' ...';
+													_html = '<div id="desc_'+ el.ID +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ el.post_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+												}else{
+													var _content = el.post_content.substr(0,75);
+													_html = '<div id="desc_'+ el.ID +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ el.post_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
+												}													
+												oTable.fnUpdate( '<p id="edit_title_'+ el.ID +'">'+ el.post_title +'</p>'+_html, aPos, 3 )
+												_len = 0;
+												_isUpdate = true;
+											}else if ( el.progress > _tr.find('p#edit_progr_'+el.ID).find('progress').val() ){
+												_tr.find('p#edit_progr_'+el.ID).find('progress').val(el.progress);
+												_len = 0;
+												_isUpdate = true;																								
+											}
+											
+										}//end of if !Query('#propel-tasks tbody tr#'+ el.ID).find('td:eq(1)').hasClass('db-updated')
 										
-									}else{
+									}else if ( el.post_date === el.post_modified ){										
+										if ( !jQuery('#propel-tasks tbody tr#'+ el.ID).find('td:eq(1)').hasClass('db-updated') ){										
+											_len = 0;
+											_isUpdate = false;
+										}										
+									}else{										
 										_len = jQuery('#propel-tasks tbody tr#'+el.ID).length;
 									}
 									
@@ -1054,19 +1080,19 @@ class Post_Type_Project {
 											
 											if ( _obj.task_id !== null || _obj.task_id !== undefined ) {
 												
-												if (_isUpdate ==  true ){
+												if (_isUpdate ==  true ){													 	
 													 _msg = "This task has just been updated." 
 												}else{
 													 get_JSON(response);
 													 _msg = "A new task has been assigned to you.";
-												}																						
+												}				
+																														
 												var _cuser = jQuery('#user-id').val();
 												
 												if ( parseInt(_cuser) == parseInt(_obj.task_authid) ){
+													get_JSON(response,1);
 													jQuery('#propel-tasks tbody tr#'+_obj.task_id+' td.gen-published-icon p').css({'background' : '#FFF'}).animate({'backgroundColor':'lime'},7000,'linear');
-													jQuery('#propel-tasks tbody tr#'+_obj.task_id).find('td:eq(1)')
-													.addClass('db-updated')
-													.append('<div class="propelnotify"><span class="narrow"></span>'+ _msg +'<small id="xclose">X<small></div>');
+													jQuery('#propel-tasks tbody tr#'+_obj.task_id).find('td:eq(1)').addClass('db-updated').append('<div class="propelnotify"><span class="narrow"></span>'+ _msg +'<small id="xclose">X<small></div>');
 													
 													
 													jQuery('.propelnotify').fadeIn(3000,'linear');									
@@ -1130,7 +1156,7 @@ class Post_Type_Project {
 				});//End of each				
 					
 			});						
-		},30000);
+		},60000);
 	}  
 
 	function get_JSON(response,whichTable){
@@ -1167,6 +1193,7 @@ class Post_Type_Project {
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(1)').addClass('db-updated');
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
 			var _html = "";
@@ -1229,6 +1256,7 @@ class Post_Type_Project {
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(1)').addClass('db-updated');
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
 			var _html = "";
@@ -1292,6 +1320,7 @@ class Post_Type_Project {
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );															
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;
+				jQuery(nTr).find('td:eq(1)').addClass('db-updated');
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
 			
@@ -1355,7 +1384,8 @@ class Post_Type_Project {
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );	
 				console.log(oTable.fnSettings().aoData[ a[0] ]);														
-				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
+				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;	
+				jQuery(nTr).find('td:eq(1)').addClass('db-updated');		
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
 			}
 						
@@ -1451,7 +1481,7 @@ class Post_Type_Project {
 			var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;			
 			jQuery(nTr).attr('id',task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
 			jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
@@ -1477,7 +1507,7 @@ class Post_Type_Project {
 			var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;													
 			jQuery(nTr).attr('id',task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
 			jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
@@ -1504,7 +1534,7 @@ class Post_Type_Project {
 			var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;										
 			jQuery(nTr).attr('id',task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
 			jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
@@ -1530,7 +1560,7 @@ class Post_Type_Project {
 			var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;										
 			jQuery(nTr).attr('id',task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
-			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');	
+			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
 			jQuery(nTr).find('td:eq(3)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
 			jQuery(nTr).find('td:eq(3)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });									
@@ -2240,7 +2270,7 @@ class Post_Type_Project {
 		$parent = $_POST['parent']; 
 		$curDate = date("Y-m-d h:i:s");		
 		//@todo: profile query / use WP_Query?
-		$query = "SELECT `ID`, `post_date`, `post_modified`, `post_status`, NOW() as today
+		$query = "SELECT `ID`, `post_date`, `post_modified`, `post_status`, `post_title`, `post_content`, `post_author`, `meta_value` AS `progress`,  CURDATE() as today
 		    	FROM `{$wpdb->postmeta}` JOIN `{$wpdb->posts}` ON `post_id` = `ID`
 		        WHERE `meta_key` = '_propel_complete' 
 		        AND `meta_value` < 100 AND `{$wpdb->postmeta}`.`post_id` 
