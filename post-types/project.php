@@ -1963,7 +1963,8 @@ class Post_Type_Project {
 		$postval['ID'] =  $_POST['postid'];
 		$postval['post_status'] = 'trash';
 		wp_update_post($postval);
-		do_action( 'project_get_task', $_POST['postid']);	
+		do_action( 'project_get_task', $_POST['postid']);
+		self::auto_notify($post_id,'trash');	
 		
 	}
 	/**
@@ -2027,7 +2028,11 @@ class Post_Type_Project {
 			);
 			wp_update_post( $post );		
 			//aps
-			self::auto_notify($post_id,'assign');
+			if($post['post_author'] = -1){
+				self::auto_notify($post_id,'unassign');
+		    } else {
+				self::auto_notify($post_id,'assign');
+		    }
 		}	
 			
 		if ( isset($_POST['start_date']) ){	
@@ -2087,6 +2092,25 @@ class Post_Type_Project {
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 					<h3>$current_user->display_name re-assigned the following to $post_owner->user_login on the &#34;$post->post_title&#34; project:</h3>
+					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
+				</div>
+			";
+			} elseif($type == 'unassign'){
+			  $subject = "Task is UnAssigned ($parent->post_title): $post->post_title";
+			$message = "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>$current_user->display_name has un-assigned the following on the &#34;$post->post_title&#34; project:</h3>
+					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
+				</div>
+			";
+			}
+			elseif($type == 'trash'){
+			  $subject = "Task is Deleted ($parent->post_title): $post->post_title";
+			$message = "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>$current_user->display_name has deleted the following on the &#34;$post->post_title&#34; project:</h3>
 					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
 					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
 				</div>
