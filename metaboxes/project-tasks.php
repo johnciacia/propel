@@ -125,13 +125,13 @@
 					$len = strlen($task->post_content);
 					$len <= 0 ? $pad = "style='padding-bottom:10px;'" : $pad ='';
 				?>
-				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>" <?php echo $pad; ?>><?php esc_html_e($task->post_title); ?></p>
+				<p id="edit_title_<?php esc_attr_e( $task->ID ); ?>" <?php echo $pad; ?>><?php echo html_entity_decode($task->post_title,true); ?></p>
                 <?php 					
 					if ( $len > 75 ) :
 				 ?>
-	            <div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white;padding-bottom:5px;"><?php esc_html_e( substr($task->post_content,0,75).' ...'); ?></small></div>
+	            <div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php echo html_entity_decode($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white;padding-bottom:5px;"><?php echo html_entity_decode( substr($task->post_content,0,75).' ...'); ?></small></div>
                 <?php else : ?>
-				<div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php esc_html_e($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white;padding-bottom:5px;"><?php esc_html_e($task->post_content); ?></small></div               
+				<div id="desc_<?php esc_attr_e( $task->ID ); ?>" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="<?php echo html_entity_decode($task->post_content); ?>"><small style="color:#999;text-shadow:1px 1px white;padding-bottom:5px;"><?php echo html_entity_decode($task->post_content); ?></small></div               
                 ><?php endif  ?>
             </td>
 
