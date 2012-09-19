@@ -80,55 +80,57 @@ function mytheme_admin_bar_render() {
 	global $wp_admin_bar;
 	global $url_curr;
 	global $wp;
-	$current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; 
-	$current_url = str_replace("&context=personal", "", $current_url);
-	$current_url = str_replace("&context=admin", "", $current_url);
-	$current_url = str_replace("?context=personal", "", $current_url);
-	$current_url = str_replace("?context=admin", "", $current_url);
-	$and_char = strrpos($current_url, '&');
-	$quest_char = strrpos($current_url, '?');
-	if (($and_char === false) && ($quest_char === false)) { 
-         $con = '?';
-    } elseif ((($and_char === false) && ($quest_char !== false)) ||
-	 (($and_char !== false) && ($quest_char !== false))) {
-	     $con = '&';
-    }
-	$wp_admin_bar->remove_menu('updates');
-	$part1 = "889999999999";
-	$current_user = wp_get_current_user();
-	$part2 = $current_user->ID;
-	$id = $part1 . $part2;
-	$static_id = (int)($id);
-	$profile = get_post_meta( $static_id, '_propel_preference',true);
-	if(empty($profile)){
-	   $title = "Context - Personal";
-	} elseif($profile == 'personal'){
-	   $title = "Context - Personal";
-	} elseif($profile == 'admin'){
-	   $title = "Context - Admin";
+	if ( current_user_can( 'manage_options' ) ){
+			$current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; 
+			$current_url = str_replace("&context=personal", "", $current_url);
+			$current_url = str_replace("&context=admin", "", $current_url);
+			$current_url = str_replace("?context=personal", "", $current_url);
+			$current_url = str_replace("?context=admin", "", $current_url);
+			$and_char = strrpos($current_url, '&');
+			$quest_char = strrpos($current_url, '?');
+			if (($and_char === false) && ($quest_char === false)) { 
+				 $con = '?';
+			} elseif ((($and_char === false) && ($quest_char !== false)) ||
+			 (($and_char !== false) && ($quest_char !== false))) {
+				 $con = '&';
+			}
+			$wp_admin_bar->remove_menu('updates');
+			$part1 = "889999999999";
+			$current_user = wp_get_current_user();
+			$part2 = $current_user->ID;
+			$id = $part1 . $part2;
+			$static_id = (int)($id);
+			$profile = get_post_meta( $static_id, '_propel_preference',true);
+			if(empty($profile)){
+			   $title = "Context - Personal";
+			} elseif($profile == 'personal'){
+			   $title = "Context - Personal";
+			} elseif($profile == 'admin'){
+			   $title = "Context - Admin";
+			}
+			
+			$wp_admin_bar->add_menu( array(
+				'parent' => false,
+				'id' => 'customer_support',
+				'title' => __($title)
+			));
+			
+			$contactUsURL = $current_url;
+			$wp_admin_bar->add_menu(array(
+				'parent' => 'customer_support',
+				'id' => 'adminpref',
+				'title' => __('Admin'),
+				'href' => $current_url . $con ."context=admin"
+			)); 
+			
+			$contactUsURL = $current_url;
+			$wp_admin_bar->add_menu(array(
+				'parent' => 'customer_support',
+				'id' => 'personalpref',
+				'title' => __('Personal'),
+				'href' =>  $current_url .$con ."context=personal"
+			));
 	}
-	
-	$wp_admin_bar->add_menu( array(
-		'parent' => false,
-		'id' => 'customer_support',
-		'title' => __($title)
-	));
-	
-	$contactUsURL = $current_url;
-	$wp_admin_bar->add_menu(array(
-		'parent' => 'customer_support',
-		'id' => 'adminpref',
-		'title' => __('Admin'),
-		'href' => $current_url . $con ."context=admin"
-	)); 
-	
-	$contactUsURL = $current_url;
-	$wp_admin_bar->add_menu(array(
-		'parent' => 'customer_support',
-		'id' => 'personalpref',
-		'title' => __('Personal'),
-		'href' =>  $current_url .$con ."context=personal"
-	));
 }
 
 add_action( 'wp_before_admin_bar_render', 'mytheme_admin_bar_render' );
