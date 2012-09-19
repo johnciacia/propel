@@ -998,7 +998,7 @@ class Post_Type_Project {
 					
 					jQuery('#propel_completed_task tbody tr').find('td:eq(1)').css({'width':0});
 					
-					//check_Existence();					
+					check_Existence();					
 					
 	});//End of document.ready  
 	
@@ -1104,7 +1104,7 @@ class Post_Type_Project {
 													}).live('click',function(){
 														jQuery(this).offsetParent().fadeOut('slow',function(){
 															jQuery(this).remove();
-															//check_Existence()
+															check_Existence()
 														});
 													});											
 												}
@@ -1418,7 +1418,7 @@ class Post_Type_Project {
 				
 		}//End of if....
 				
-		//check_Existence();
+		check_Existence();
 		
 		jQuery('.propeltooltip').each(function(){
 			var _content = jQuery(this).attr('title');
@@ -1607,7 +1607,7 @@ class Post_Type_Project {
 			 jQuery('#_task_desc').val('');			 				
 		});
 		
-		//check_Existence();
+		check_Existence();
 			
 		jQuery('.propeltooltip').each(function(){
 			var _content = jQuery(this).attr('title');
@@ -1980,7 +1980,7 @@ class Post_Type_Project {
 		$postval = array();
 		$postval['ID'] =  $_POST['postid'];
 		$postval['post_status'] = 'publish';
-		wp_update_post((int)$postval);
+		wp_update_post($postval);
 		do_action( 'project_get_task', $_POST['postid']);	
 		
 	}
@@ -1993,8 +1993,7 @@ class Post_Type_Project {
 		$postval['ID'] =  $_POST['postid'];
 		$postval['post_status'] = 'trash';
 		wp_update_post($postval);
-		do_action( 'project_get_task', $_POST['postid']);
-		self::auto_notify($post_id,'trash');	
+		do_action( 'project_get_task', $_POST['postid']);	
 		
 	}
 	/**
@@ -2002,7 +2001,7 @@ class Post_Type_Project {
 	 */
 	public static function wp_ajax_delete_task() {
 		
-		wp_delete_post((int)$_POST['postid']);
+		wp_delete_post($_POST['postid']);
 		
 	}		
 	/**
@@ -2058,11 +2057,7 @@ class Post_Type_Project {
 			);
 			wp_update_post( $post );		
 			//aps
-			if($post['post_author'] = -1){
-				self::auto_notify($post_id,'unassign');
-		    } else {
-				self::auto_notify($post_id,'assign');
-		    }
+			self::auto_notify($post_id,'assign');
 		}	
 			
 		if ( isset($_POST['start_date']) ){	
@@ -2122,25 +2117,6 @@ class Post_Type_Project {
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 					<h3>$current_user->display_name re-assigned the following to $post_owner->user_login on the &#34;$post->post_title&#34; project:</h3>
-					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
-					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
-				</div>
-			";
-			} elseif($type == 'unassign'){
-			  $subject = "Task is UnAssigned ($parent->post_title): $post->post_title";
-			$message = "
-				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
-					<h3>$current_user->display_name has un-assigned the following on the &#34;$post->post_title&#34; project:</h3>
-					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
-					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
-				</div>
-			";
-			}
-			elseif($type == 'trash'){
-			  $subject = "Task is Deleted ($parent->post_title): $post->post_title";
-			$message = "
-				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
-					<h3>$current_user->display_name has deleted the following on the &#34;$post->post_title&#34; project:</h3>
 					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
 					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
 				</div>
