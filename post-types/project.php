@@ -998,7 +998,7 @@ class Post_Type_Project {
 					
 					jQuery('#propel_completed_task tbody tr').find('td:eq(1)').css({'width':0});
 					
-					check_Existence();					
+					//check_Existence();					
 					
 	});//End of document.ready  
 	
@@ -1104,7 +1104,7 @@ class Post_Type_Project {
 													}).live('click',function(){
 														jQuery(this).offsetParent().fadeOut('slow',function(){
 															jQuery(this).remove();
-															check_Existence()
+															//check_Existence()
 														});
 													});											
 												}
@@ -1418,7 +1418,7 @@ class Post_Type_Project {
 				
 		}//End of if....
 				
-		check_Existence();
+		//check_Existence();
 		
 		jQuery('.propeltooltip').each(function(){
 			var _content = jQuery(this).attr('title');
@@ -1607,7 +1607,7 @@ class Post_Type_Project {
 			 jQuery('#_task_desc').val('');			 				
 		});
 		
-		check_Existence();
+		//check_Existence();
 			
 		jQuery('.propeltooltip').each(function(){
 			var _content = jQuery(this).attr('title');
@@ -1980,7 +1980,7 @@ class Post_Type_Project {
 		$postval = array();
 		$postval['ID'] =  $_POST['postid'];
 		$postval['post_status'] = 'publish';
-		wp_update_post($postval);
+		wp_update_post((int)$postval);
 		do_action( 'project_get_task', $_POST['postid']);	
 		
 	}
@@ -2002,7 +2002,7 @@ class Post_Type_Project {
 	 */
 	public static function wp_ajax_delete_task() {
 		
-		wp_delete_post($_POST['postid']);
+		wp_delete_post((int)$_POST['postid']);
 		
 	}		
 	/**
