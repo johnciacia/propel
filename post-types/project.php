@@ -479,6 +479,7 @@ class Post_Type_Project {
 	public static function wp_ajax_add_task() {
 
 		check_ajax_referer( 'add-task', 'security' );
+		
 		$post = array(
 			'post_title' => $_POST['title'],
 			'post_content' => $_POST['description'],
@@ -494,9 +495,11 @@ class Post_Type_Project {
 		update_post_meta( $id, '_propel_start_date', time() );
 		update_post_meta( $id, '_propel_end_date', strtotime( $_POST['end_date'] ) );
 		update_post_meta( $id, '_propel_complete', 0 );
-		update_post_meta( $id, '_propel_priority', $_POST['priority'] );
+		update_post_meta( $id, '_propel_priority', $_POST['priority'] );				
+
 		do_action( 'post_wp_ajax_add_task', $id );
-		do_action( 'project_get_task', $id);		
+		self::auto_notify($id,'new-assign');
+		do_action( 'project_get_task', $id);			
 
 		die($id);
 	}
@@ -1922,6 +1925,7 @@ class Post_Type_Project {
 			
 			if ( $hours < 0 && $hours > -24 ) {
 				$data->task_status = "due";
+				self::auto_notify($post_id,'task-due');
 			}else if ( $hours < -24 ) {
 				$data->task_status = "past-due";
 			}else{
@@ -1989,12 +1993,16 @@ class Post_Type_Project {
 	 */
 	public static function wp_ajax_trash_task() {
 		
+		if ( isset( $_POST['postid'] ) ){
+			$post_id = $_POST['postid'];
+		}
 		$postval = array();
-		$postval['ID'] =  $_POST['postid'];
+		$postval['ID'] =  (int)$_POST['postid'];
 		$postval['post_status'] = 'trash';
+		
 		wp_update_post($postval);
-		do_action( 'project_get_task', $_POST['postid']);
-		self::auto_notify($post_id,'trash');	
+		self::auto_notify($post_id,'trash');
+		do_action( 'project_get_task', $_POST['postid']);			
 		
 	}
 	/**
@@ -2031,6 +2039,8 @@ class Post_Type_Project {
 
 			wp_update_post( stripslashes_deep($post) );
 			
+			self::auto_notify($post_id,'task-update');
+						
 		}else if ( isset($_POST["title"]) && !isset($_POST["content"]) ) {
 			$post = array(
 				'ID' => (int)$post_id,
@@ -2039,6 +2049,7 @@ class Post_Type_Project {
 			);
 			
 			wp_update_post( stripslashes_deep($post) );
+			self::auto_notify($post_id,'task-update');
 			
 		}else if ( !isset($_POST["title"]) && isset($_POST["content"]) ) {
 			$post = array(
@@ -2048,7 +2059,8 @@ class Post_Type_Project {
 			);
 			
 			wp_update_post( stripslashes_deep($post) );
-			
+			self::auto_notify($post_id,'task-update');
+						
 		}
 		
 		if( isset( $_POST['user'] ) ){
@@ -2058,7 +2070,7 @@ class Post_Type_Project {
 			);
 			wp_update_post( $post );		
 			//aps
-			if($post['post_author'] = -1){
+			if((int)$_POST['user'] = -1){
 				self::auto_notify($post_id,'unassign');
 		    } else {
 				self::auto_notify($post_id,'assign');
@@ -2077,6 +2089,7 @@ class Post_Type_Project {
 			}
 			
 			update_post_meta( $post_id, '_propel_end_date', $end );
+			self::auto_notify($post_id,'task-due');
 		}
 		
 		if ( isset( $_POST['priority'] ) ){
@@ -2088,7 +2101,7 @@ class Post_Type_Project {
 		 	if (isset( $_POST['complete'] ) && ($_POST['complete'] == 100)){
 				self::auto_notify($post_id,'complete');
 	 	  	}
-		}
+		}	
 		
 		do_action('project_get_task',$post_id);
 		
@@ -2107,9 +2120,10 @@ class Post_Type_Project {
 			$domain =  preg_replace('/^www\./','',$_SERVER['HTTP_HOST']); 
 			$current_user = wp_get_current_user();
 			$post_owner = get_userdata( $post->post_author );
-			$headers = "From: $current_user->display_name <donotreply@$domain_name>" . "\r\n";
+			$end = get_post_meta( $post_id, '_propel_end_date', true );
+			//$headers = "From: $current_user->display_name <donotreply@$domain_name>" . "\r\n";
 			if($type == 'complete'){
-			$subject = "Task is Completed ($parent->post_title): $post->post_title";
+			$subject = "The following task has been completed.";
 		    $message .= "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 					<h3>$current_user->display_name has updated the project as 100% complete &#34;$parent->post_title&#34; project:</h3>
@@ -2117,8 +2131,26 @@ class Post_Type_Project {
 					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
 				</div>
 			";
+			} elseif($type == 'new-assign'){
+			  $subject = "A new task has been assigned to you.";
+			$message = "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>New Task Assigned to you {$post->post_title}.</h3>
+					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
+				</div>
+			";
+			} elseif($type == 'task-update'){
+			  $subject = "A task has been modified.";
+			$message = "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3> The task {$post->post_title} has been updated by $current_user->display_name.</h3>
+					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
+				</div>
+			";
 			} elseif($type == 'assign'){
-			  $subject = " - Task is Re-Assigned ($parent->post_title): $post->post_title";
+			  $subject = "The following task was reassigned to {$post_owner->user_login}";
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 					<h3>$current_user->display_name re-assigned the following to $post_owner->user_login on the &#34;$post->post_title&#34; project:</h3>
@@ -2127,54 +2159,66 @@ class Post_Type_Project {
 				</div>
 			";
 			} elseif($type == 'unassign'){
-			  $subject = "Task is UnAssigned ($parent->post_title): $post->post_title";
+			  $subject = "Reassignment Notification"; //"Task is UnAssigned ($parent->post_title): $post->post_title";
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
-					<h3>$current_user->display_name has un-assigned the following on the &#34;$post->post_title&#34; project:</h3>
+					<h3>{$current_user->display_name} has reassigned the following task to {$post_owner->user_login}:</h3>
 					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
 					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
 				</div>
 			";
-			}
-			elseif($type == 'trash'){
-			  $subject = "Task is Deleted ($parent->post_title): $post->post_title";
+			} elseif($type == 'trash'){
+			  $subject = "The following task has been deleted.";
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
-					<h3>$current_user->display_name has deleted the following on the &#34;$post->post_title&#34; project:</h3>
+					<h3>{$current_user->display_name} has deleted the following on the {$post->post_title} project:</h3>
 					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
 					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
 				</div>
 			";
-			}
-            
-   		  if($post_id) {
-			$coauthors = array();
-			$defaults = array( 'orderby' => 'term_order', 'order' => 'ASC' );
-		    $args = wp_parse_args( $args, $defaults );
-			$coauthor_terms = wp_get_post_terms( $post_id, 'author', $args );
-
-			if(is_array($coauthor_terms) && !empty($coauthor_terms)) {
-				foreach($coauthor_terms as $coauthor) {
-					$post_author =  get_user_by( 'login', $coauthor->name );
-					// In case the user has been deleted while plugin was deactivated
-					if(!empty($post_author)) $coauthors[] = $post_author->ID;
-				}
-			} else {
-				if($post) {
-					$post_author = get_userdata($post->post_author);
-				} else {
-					$post_author = get_userdata($wpdb->get_var($wpdb->prepare("SELECT post_author FROM $wpdb->posts WHERE ID = %d", $post_id)));
-				}
-				if(!empty($post_author)) $coauthors[] = $post_author;
-			}
-		  }
+			} elseif($type == 'task-due'){
+			  $subject = "The following task due date was changed to {$end}";
+			$message = "
+				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
+					<h3>The following task due date was changed to ~new due date~</h3>
+					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
+					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
+				</div>
+			";
+			}			
 			
-   			foreach(array_unique($coauthors) as $login ) {
-						$user = get_userdata( $login );
-						add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
-						wp_mail($user->user_email, $subject, $message, $headers);
+			if($post_id) {
+					$coauthors = array();
+					$defaults = array( 'orderby' => 'term_order', 'order' => 'ASC' );
+					$args = wp_parse_args( $args, $defaults );
+					$coauthor_terms = wp_get_post_terms( $post_id, 'author', $args );
+					
+					if(is_array($coauthor_terms) && !empty($coauthor_terms)) {
+						foreach($coauthor_terms as $coauthor) {
+							$post_author =  get_user_by( 'login', $coauthor->name );
+							// In case the user has been deleted while plugin was deactivated
+							if(!empty($post_author)) $coauthors[] = $post_author->ID;
+						}
+						//wp_mail('robertopanes@theportlandcompany.com', 'is_array($coauthor_terms)', $post_author->ID, '');
+					} else {
+						if($post) {
+							$post_author = get_userdata($post->post_author);
+						} else {
+							$post_author = get_userdata($wpdb->get_var($wpdb->prepare("SELECT post_author FROM $wpdb->posts WHERE ID = %d", $post_id)));
+						}
+						if(!empty($post_author)) $coauthors[] = $post_author;
+						//wp_mail('robertopanes@theportlandcompany.com', '!is_array($coauthor_terms)', $post_author->ID, '');
 					}
-		}
+					
+					foreach(array_unique($coauthors) as $login ) {
+						$user = get_userdata( $login );						 
+						add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));
+						//wp_mail('robertopanes@theportlandcompany.com', $subject, $message, $headers);
+						wp_mail($user->user_email, $subject, $message, $headers); 
+					}			
+			}			
+//			wp_mail($post_owner->user_email, $subject, $message, $headers); 			 
+		}  //End of email option	
 	}
 	
 	
