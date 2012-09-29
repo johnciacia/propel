@@ -2123,7 +2123,7 @@ class Post_Type_Project {
 			$end = get_post_meta( $post_id, '_propel_end_date', true );
 			//$headers = "From: $current_user->display_name <donotreply@$domain_name>" . "\r\n";
 			if($type == 'complete'){
-			$subject = "The following task has been completed.";
+			$subject = "Task Completed: '$post->post_title'";
 		    $message .= "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 					<h3>$current_user->display_name has updated the project as 100% complete &#34;$parent->post_title&#34; project:</h3>
@@ -2132,7 +2132,7 @@ class Post_Type_Project {
 				</div>
 			";
 			} elseif($type == 'new-assign'){
-			  $subject = "A new task has been assigned to you.";
+			  $subject = "New Task: '$post->post_title'";
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 					<h3>New Task Assigned to you {$post->post_title}.</h3>
@@ -2141,25 +2141,25 @@ class Post_Type_Project {
 				</div>
 			";
 			} elseif($type == 'task-update'){
-			  $subject = "A task has been modified.";
+			  $subject = "Task Modified: '$post->post_title'";
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
-					<h3> The task {$post->post_title} has been updated by $current_user->display_name.</h3>
+					<h3> The task {$post->post_title} has been modified by $current_user->display_name.</h3>
 					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
 					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
 				</div>
 			";
 			} elseif($type == 'assign'){
-			  $subject = "The following task was reassigned to {$post_owner->user_login}";
+			  $subject = "Task Reassigned to {$post_owner->user_login}: '$post->post_title'";
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
-					<h3>$current_user->display_name re-assigned the following to $post_owner->user_login on the &#34;$post->post_title&#34; project:</h3>
+					<h3>$current_user->display_name re-assigned the following task to $post_owner->user_login on the &#34;$post->post_title&#34; project:</h3>
 					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
 					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
 				</div>
 			";
 			} elseif($type == 'unassign'){
-			  $subject = "Reassignment Notification"; //"Task is UnAssigned ($parent->post_title): $post->post_title";
+			  $subject = "Reassignment Notification: '$post->post_title'"; //"Task is UnAssigned ($parent->post_title): $post->post_title";
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 					<h3>{$current_user->display_name} has reassigned the following task to {$post_owner->user_login}:</h3>
@@ -2168,7 +2168,7 @@ class Post_Type_Project {
 				</div>
 			";
 			} elseif($type == 'trash'){
-			  $subject = "The following task has been deleted.";
+			  $subject = "Task Deleted: '$post->post_title'";
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
 					<h3>{$current_user->display_name} has deleted the following on the {$post->post_title} project:</h3>
@@ -2177,10 +2177,10 @@ class Post_Type_Project {
 				</div>
 			";
 			} elseif($type == 'task-due'){
-			  $subject = "The following task due date was changed to {$end}";
+			  $subject = "Task Due Date Change to {$end} for '$post->post_title'";
 			$message = "
 				<div style='padding: 20px; background: #F1F1F1; color: #666; text-shadow: 0 1px #fff; border-radius: 5px;'>
-					<h3>The following task due date was changed to ~new due date~</h3>
+					<h3>The following task due date was changed to {$end}</h3>
 					<p><b>&#34;<a href='$post->guid' style='color: #1E8CBE;'>$post->post_title</a>&#34;</b></p>
 					<p><b>Details:</b> &#34;$post->post_content&#34;</p>
 				</div>
