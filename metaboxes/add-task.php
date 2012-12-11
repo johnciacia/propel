@@ -1,21 +1,68 @@
+<div>
 <input class="metabox-add-task-title widefat" type="text" name="task_title" id="_task_title" placeholder="Title" />
 
 <?php if( Propel_Options::option('show_end_date' ) ) : ?>
 <input class="metabox-add-task-date widefat date" type="text" name="task_end_date" placeholder="End Date" />
 <?php endif; ?>
-
-<label>Contributors:</label>
-<?php 
-$current_user = wp_get_current_user();
-$args = array(
-'class' => 'metabox-add-task-user',
-'name' => 'propel_post_author',
-'show_option_none' => 'Unassigned',
-'orderby' => 'display_name',
-'selected' => $current_user->ID
-);
-wp_dropdown_users( $args );
-?>
 <input class="metabox-add-task-button button-primary" type="button" id="add-task" value="Add Task" />
+<div style="border:1px solid #DFDFDF;background:#FFF;margin-top:5px;border-radius:3px;-moz-border-radius:3px;-webkit-border-radius:3px;">
+<ul id="selected_task_contributor">
+</ul>
+<input  class="metabox-add-task-title widefat" type="text" name="task_contributor" id="task_contributor" placeholder="Contributor" />
 
+<?php 
+	
+	global $post;
+	
+	$coauthor_terms = wp_get_post_terms( $post->ID, 'author', $args );	
+	if(is_array($coauthor_terms) && !empty($coauthor_terms)) {
+		$select = "<select id='propel_post_author' class='metabox-add-task-contributor task-priority'>"; 
+		$select .= "<option value='-1'>Undefined</option>"; 
+		foreach($coauthor_terms as $coauthor) {	
+			$post_author =  get_user_by( 'login', $coauthor->name );
+			$select .= "<option value='".$post_author->ID."'>".$post_author->display_name."</option>"; 
+		}
+		$select .= "<select>"; 
+		_e($select);
+	}	
+	
+//	$args = array(
+//	'class' => 'metabox-add-task-contributor',
+//	'name' => 'propel_post_author',
+//	'show_option_none' => 'Unassigned',
+//	'orderby' => 'display_name',
+//	);
+//	wp_dropdown_users( $args );
+
+	$coauthor_terms = wp_get_post_terms( $post->ID, 'author', $args );	
+	if(is_array($coauthor_terms) && !empty($coauthor_terms)) {
+		$html = "<ul id='task_contributor_list'>";
+		foreach($coauthor_terms as $coauthor) {	
+			$post_author =  get_user_by( 'login', $coauthor->name );
+			if ( $post_author->ID == $post->post_author ){
+				$html .= "<li id='".$post_author->user_login."' data-value='".$post_author->ID."' class='propel_is_added'><div class='del_contributor'></div>".$post_author->display_name."</li>";	
+			}else{
+				$html .= "<li id='".$post_author->user_login."' data-value='".$post_author->ID."' class='propel_not_added'><div class='add_contributor'></div>".$post_author->display_name."</li>";	
+			}	
+		}
+		$html .= "</ul>";
+		_e($html);
+
+	}
+	
+//	$html = "<ul id='task_contributor_list'>";
+//	$users = get_users();
+//	foreach($users as $user):
+//		if ( $user->user_login == $task->post_author ){
+//			$html .= "<li id='".$user->user_login."' data-value='".$user->ID."' class='propel_is_added'><div class='del_contributor'></div>".$user->display_name."</li>";	
+//		}else{
+//			$html .= "<li id='".$user->user_login."' data-value='".$user->ID."' class='propel_not_added'><div class='add_contributor'></div>".$user->display_name."</li>";	
+//		}		
+//	endforeach;
+//	$html .= "</ul>";
+//	_e($html);
+	
+?>
+</div>
+</div>
 <textarea class="metabox-add-task-description widefat" name="task_description" id="_task_desc" placeholder="Description"></textarea>

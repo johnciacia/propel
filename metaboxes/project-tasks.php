@@ -34,21 +34,21 @@
 	<thead>
 		<tr>
 			<!--Change back to elements instead of colspan. The datables will raise an error using colspan when initialize-->
-            <th></th>
-            <th></th>
-            <th></th>
-			<th class="sortable"><p>Title</p></th>
-			<th class="sortable"><p>Contributors</p></th>
+            <th width=5%></th>
+            <th width=5%></th>
+            <th width=5%></th>
+			<th class="sortable" width=15%><p>Title</p></th>
+			<th class="sortable" width=15%><p>Contributors</p></th>
 			
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
-				<th class="sortable"><p>Started</p></th>
+				<th class="sortable" width=15%><p>Started</p></th>
 			<?php endif; ?>
 			
 			<?php if( Propel_Options::option('show_end_date' ) ) : ?>
-				<th class="sortable"><p>Due</p></th>
+				<th class="sortable" width=15%><p>Due</p></th>
 			<?php endif; ?>
 			
-			<th class="sortable"><p>Progress</p></th>
+			<th class="sortable" width=10%><p>Progress</p></th>
 		</tr>
 	</thead>
 	
@@ -101,6 +101,15 @@
 		$nonce = wp_create_nonce('propel-trash');
 		$completed = ($progress == 100) ? "style='width:0;margin:0;padding:0;'" : "";
 		
+		$usercnt = get_post_meta($task->ID,'_propel_user',true);
+		
+		$html='';
+		for ($i=0; $i < $usercnt; $i++){
+			$contributor = get_post_meta($task->ID,'_propel_user_'.$i,true);
+			$user = get_userdatabylogin($contributor);
+			$html .= '<span id="'.$user->ID.'" class="span_contr">'.$contributor.'</span>';
+		}
+		
 		/*
 		* rob_eyouth : added by rob to show task for the current user and if user is admin
 		*/
@@ -120,7 +129,7 @@
 			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
 				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
 				
-			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
+			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="min-width: 200px;">
             	<?php 
 					$len = strlen($task->post_content);
 					$len <= 0 ? $pad = "style='padding-bottom:10px;'" : $pad ='';
@@ -136,7 +145,11 @@
             </td>
 
 			<td class="owner" data-value="<?php esc_attr_e( $author ); ?>">
-				<p id="edit_owner_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($author); ?></p>
+				<?php if(empty($html)): ?>
+					<p id="edit_owner_<?php esc_attr_e( $task->ID ); ?>"><?php esc_html_e($author); ?></p>
+				<?php else: ?>
+					<p id="edit_contr_<?php esc_attr_e( $task->ID ); ?>"><?php _e($html); ?></p>
+				<?php endif; ?>
 			</td>
 
 			<?php if( Propel_Options::option('show_start_date' ) ) : ?>
