@@ -1039,9 +1039,15 @@ class Post_Type_Project {
 						jQuery('#div_task').fadeOut('slow');	
 					});
 					
-					jQuery('form#post #propel_add_task').live('keypress',function(event){
+					jQuery('form#post #_task_desc').live('keypress',function(event){
 						if (event.which === 13){
 							add_Data();	
+							return false;								
+						}
+					});
+					
+					jQuery('form#post #propel_add_task').live('keypress',function(event){
+						if (event.which === 13){
 							return false;								
 						}
 					});
@@ -1064,30 +1070,73 @@ class Post_Type_Project {
 					var _taskcontributorcss = jQuery('#task_contributor').offset().left - 165;
 					var _taskcontributorw = jQuery('#task_contributor').innerWidth();
 					var _newsearchstring;
+					var _listid;
+					var _listidfind = false;
 					jQuery('#task_contributor_list').css({'left':_taskcontributorcss, 'width':_taskcontributorw});	
 					jQuery('#task_contributor').keyup(function(e){	
 //						var _stringsearch = String.fromCharCode(e.which);
 //						var _listItem = jQuery('#task_contributor_list li#'+jQuery(this).val().toLowerCase());	
 //						var _indexofli = jQuery('#task_contributor_list li').index(_listItem);						
 						
-						var _arr = jQuery('#task_contributor_list li:contains("'+ jQuery(this).val().toLowerCase() +'")');						
+						var _arr = jQuery('#task_contributor_list li:econtains("'+ jQuery(this).val().toLowerCase() +'")');						
 						if( _arr.length > 0 && jQuery(this).val() !== '' ){
+							jQuery('#task_contributor_list').find('li').removeClass('searchable');
 							jQuery(_arr).each(function(i,el){ 
 								jQuery('#task_contributor_list').fadeIn('slow'); 
 								jQuery(el).fadeIn('slow'); 
+								jQuery(el).addClass('searchable');								
+								if (!_listidfind){
+									jQuery(el).css({'color':'red'}).addClass('selected');
+									_listid = jQuery(el).attr('id');								
+									_listidfind = true;
+								}
 							});							
 						}else{
 							jQuery('#task_contributor_list, #task_contributor_list li.propel_not_added').fadeOut('slow');												
 						}
 
-					}).focusin(function(){					
+					}).focusin(function(){										
 							jQuery('#task_contributor_list, #task_contributor_list li').fadeOut('slow');						
+					}).keydown(function(e){
+							switch (e.keyCode){
+							case 40:	
+								jQuery('#task_contributor_list').find('li').css({'color':'black'}).removeClass('selected');	
+								jQuery('#task_contributor_list').find('li.searchable').next('li.searchable').css({'color':'red'}).addClass('selected');		
+								break;
+							case 38:
+								jQuery('#task_contributor_list').find('li').css({'color':'black'}).removeClass('selected');										
+								jQuery('#task_contributor_list').find('li.searchable').prev('li.searchable').css({'color':'red'}).addClass('selected');		
+								break;
+							case 13:
+								jQuery(this).val('');
+								var _selList = jQuery('#task_contributor_list li.selected').find('div');
+								jQuery(_selList).removeClass().addClass('del_contributor').parent().removeClass().addClass('propel_is_added').clone().appendTo(jQuery('#task_contributor_list'));					
+								jQuery(_selList).parent().remove();	
+								jQuery('#selected_task_contributor').find('li').remove();									
+								jQuery('#task_contributor_list, #task_contributor_list li').fadeOut('slow')
+								jQuery('#task_contributor_list li').each(function(i,el){
+									if (jQuery(el).hasClass('propel_is_added')){
+										var _txtselected;
+										jQuery(this).length < 5 ? _txtselected = jQuery(this).attr('id').substr(0,5) : _txtselected = jQuery(this).attr('id').substr(0,5)+'...';
+																					
+										jQuery('#selected_task_contributor').append('<li id="'+jQuery(this).attr('id')+'">'+_txtselected+'<span class="contributor_x">x</span></li>');	
+										jQuery('#task_contributor').val('');
+									}
+								});		
+
+								
+								break;
+							}
 					});	
 					
-					jQuery('#task_contributor_list li').live('mouseenter',function(){
-						jQuery(this).animate({'color':'#F00'});
+					jQuery('#task_contributor_list').find('li.searchable').css({'color':'#F00'});
+					
+ 				    jQuery('#task_contributor_list li').live('mouseenter',function(){
+						jQuery('#task_contributor_list').find('li').removeClass('searchable').css({'color':'#000'});
+						jQuery(this).animate({'color':'#F00'}).addClass('searchable');
 					}).live('mouseleave',function(){
-						if (jQuery(this).hasClass('propel_is_added')){
+						jQuery('#task_contributor_list').find('li').removeClass('searchable');
+						if (jQuery(this).hasClass('propel_is_added') && jQuery(this).hasClass('searchable')){
 							jQuery(this).animate({'color':'#F00'});
 						}else{
 							jQuery(this).animate({'color':'#000'});	
@@ -1135,7 +1184,6 @@ class Post_Type_Project {
 					});
 					
 					jQuery('.contributor_x').live('click',function(){
-						console.log(jQuery(this).parent().attr('id'))
 						jQuery(this).parent().remove();
 						jQuery('#task_contributor_list li#'+jQuery(this).parent().attr('id')).removeClass().addClass('propel_not_added');
 						jQuery('#task_contributor_list li#'+jQuery(this).parent().attr('id')).find('div').removeClass().addClass('add_contributor');
@@ -1146,6 +1194,10 @@ class Post_Type_Project {
 					});
 					
 	});//End of document.ready  
+	
+	jQuery.expr[':'].econtains = function(obj, index, meta, stack){
+		return (obj.textContent || obj.innerText || jQuery(obj).text() || '').toLowerCase().indexOf(meta[3].toLowerCase()) >= 0;
+	};
 	
 //	function check_Existence(){
 //
@@ -2145,15 +2197,13 @@ class Post_Type_Project {
 	 * rob: added this function..
 	 */
 	public static function project_get_task( $id ) {
+		$data = new stdClass;
 		$task = get_post($id); 		
 		$progress = get_post_meta( $task->ID, '_propel_complete', true );
 		$priority = get_post_meta( $task->ID, '_propel_priority', true );
 		$start = get_post_meta( $task->ID, '_propel_start_date', true );
 		$post_created = $task->post_date;
 		$post_modified = $task->post_modified;
-		
-		$post_created !== $post_modified ? $data->is_updated = 0 : $data->is_updated = 1;
-		
 		//if( $start )
 		//$start = date( get_option( 'date_format' ), $start );
 
@@ -2192,7 +2242,11 @@ class Post_Type_Project {
 			
 		$x = ($progress == 100) ? "" : "un";
 		$nonce = wp_create_nonce('propel-trash');
-		
+		if ($post_created !== $post_modified):
+		  $data->is_updated = 0;
+		else: 
+		  $data->is_updated = 1;		
+		endif; 
 		$data->task_id=  $task->ID;
 		$data->task_title = $task->post_title;
 		$data->task_author = $author;
