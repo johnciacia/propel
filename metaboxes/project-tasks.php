@@ -107,7 +107,7 @@
 		for ($i=0; $i < $usercnt; $i++){
 			$contributor = get_post_meta($task->ID,'_propel_user_'.$i,true);
 			$user = get_userdatabylogin($contributor);
-			$html .= '<span id="'.$user->ID.'" class="span_contr">'.$contributor.'</span>';
+			$html .= '<span id="'.$user->ID.'" class="span_contr">'.$user->display_name.'</span>';
 		}
 		
 		/*

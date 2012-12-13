@@ -599,9 +599,9 @@ class Post_Type_Project {
 					jQuery('#propel_edit_task').css({ 'display':'none' });
 					jQuery('#propel_add_task').css({ 'display':'block' });
 					
-					jQuery("#add-task").click(function(e) {									
-						add_Data();
-						return false;			
+					jQuery("#add-task").click(function(e) {	
+							add_Data();
+							return false;			
 					});
 		
 	   	            //
@@ -1041,7 +1041,15 @@ class Post_Type_Project {
 					
 					jQuery('form#post #_task_desc').live('keypress',function(event){
 						if (event.which === 13){
-							add_Data();	
+							var _isokay = true;
+							jQuery('#propel_add_task').find('input[type="text"]').each(function(i,el){
+								if ( jQuery(el).val() == '' ){
+									_isokay = false;
+								}
+							});
+							jQuery('#_task_desc').val() == '' ? _isokay = false : _isokay = true;
+							
+							if ( _isokay ){ add_Data(); }
 							return false;								
 						}
 					});
@@ -1072,7 +1080,7 @@ class Post_Type_Project {
 						var _taskcontributorw = jQuery('#task_contributor').innerWidth();
 					}
 					var _newsearchstring;
-					var _listid;
+					var _listid = [];
 					var _listidfind = false;
 					jQuery('#task_contributor_list').css({'left':_taskcontributorcss, 'width':_taskcontributorw});	
 					jQuery('#task_contributor').keyup(function(e){	
@@ -1080,26 +1088,6 @@ class Post_Type_Project {
 //						var _listItem = jQuery('#task_contributor_list li#'+jQuery(this).val().toLowerCase());	
 //						var _indexofli = jQuery('#task_contributor_list li').index(_listItem);						
 						
-						var _arr = jQuery('#task_contributor_list li:econtains("'+ jQuery(this).val().toLowerCase() +'")');						
-						if( _arr.length > 0 && jQuery(this).val() !== '' ){
-							jQuery('#task_contributor_list').find('li').removeClass('searchable');
-							jQuery(_arr).each(function(i,el){ 
-								jQuery('#task_contributor_list').fadeIn('slow'); 
-								jQuery(el).fadeIn('slow'); 
-								jQuery(el).addClass('searchable');								
-								if (!_listidfind){
-									jQuery(el).css({'color':'red'}).addClass('selected');
-									_listid = jQuery(el).attr('id');								
-									_listidfind = true;
-								}
-							});							
-						}else{
-							jQuery('#task_contributor_list, #task_contributor_list li.propel_not_added').fadeOut('slow');												
-						}
-
-					}).focusin(function(){										
-							jQuery('#task_contributor_list, #task_contributor_list li').fadeOut('slow');						
-					}).keydown(function(e){
 							switch (e.keyCode){
 							case 40:	
 								jQuery('#task_contributor_list').find('li').css({'color':'black'}).removeClass('selected');	
@@ -1118,17 +1106,45 @@ class Post_Type_Project {
 								jQuery('#task_contributor_list, #task_contributor_list li').fadeOut('slow')
 								jQuery('#task_contributor_list li').each(function(i,el){
 									if (jQuery(el).hasClass('propel_is_added')){
-										var _txtselected;
-										jQuery(this).length < 5 ? _txtselected = jQuery(this).attr('id').substr(0,5) : _txtselected = jQuery(this).attr('id').substr(0,5)+'...';
+										var _txtselected = jQuery(this).text();
+										//jQuery(this).length < 5 ? _txtselected = jQuery(this).text().substr(0,10) : _txtselected = jQuery(this).text().substr(0,10)+'...';
 																					
 										jQuery('#selected_task_contributor').append('<li id="'+jQuery(this).attr('id')+'">'+_txtselected+'<span class="contributor_x">x</span></li>');	
 										jQuery('#task_contributor').val('');
 									}
-								});		
-
-								
+								});										
 								break;
-							}
+								
+							default: 
+																
+								jQuery('#task_contributor_list').find('li').each(function(index, element) {
+								   jQuery(this).css({'color':'#000'}).removeClass('searchable').removeClass('selected'); 						   
+								});
+								
+								jQuery('#task_contributor_list, #task_contributor_list li.propel_not_added').fadeOut();
+								_listid = [];	
+								
+								var _arr = jQuery('#task_contributor_list li:econtains("'+ jQuery(this).val().toLowerCase() +'")');						
+								if( _arr.length > 0 && jQuery(this).val() !== '' ){	
+														
+									jQuery(_arr).each(function(i,el){																		
+										jQuery(el).addClass('searchable').detach().prependTo(jQuery('#task_contributor_list'));							 										
+										_listid[i] = jQuery(el).attr('id');	
+										jQuery('#task_contributor_list, #task_contributor_list li.searchable').fadeIn('slow');
+										if ( (_arr.length -1) == i ){
+											jQuery(el).css({'color':'red'}).addClass('selected');									
+										}																													
+									});			
+					
+								}else{
+									jQuery('#task_contributor_list, #task_contributor_list li.propel_not_added').fadeOut('slow');									
+								}
+								
+								break;	
+							}						
+
+					}).focusin(function(){										
+							jQuery('#task_contributor_list, #task_contributor_list li').fadeOut('slow');						
 					});	
 					
 					jQuery('#task_contributor_list').find('li.searchable').css({'color':'#F00'});
@@ -1153,8 +1169,8 @@ class Post_Type_Project {
 								jQuery('#selected_task_contributor').find('li').remove();	
 								jQuery('#task_contributor_list li').each(function(){
 									if (jQuery(this).hasClass('propel_is_added')){	
-										var _txtselected;
-										jQuery(this).length < 5 ? _txtselected = jQuery(this).attr('id').substr(0,5) : _txtselected = jQuery(this).attr('id').substr(0,5)+'...';
+										var _txtselected = jQuery(this).text();
+										//jQuery(this).length < 5 ? _txtselected = jQuery(this).text().substr(0,10) : _txtselected = jQuery(this).text().substr(0,10)+'...';
 																					
 										jQuery('#selected_task_contributor').append('<li id="'+jQuery(this).attr('id')+'">'+_txtselected+'<span class="contributor_x">x</span></li>');	
 										jQuery('#task_contributor').val('');
@@ -1195,10 +1211,75 @@ class Post_Type_Project {
 						jQuery('#task_contributor_list').fadeOut('slow');
 					});
 					
+					jQuery('#img_propel_attach').click(function(){
+						//var _imagenumber = $(this).parent().find('input#tpc-carousel-image-num').val();
+						// replace the default send_to_editor handler function with our own
+						window.send_to_editor = window.attach_image;
+						tb_show('', 'media-upload.php?post_id=<?php echo get_the_ID(); ?>&amp;type=image&amp;TB_iframe=true');
+						
+						return false;
+					}).hover(function(){
+							jQuery(this).animate({opacity:.5});
+						}, function(){
+							jQuery(this).animate({opacity:1});					
+					});
+					
+					jQuery('.propel_media_remove').click(function(){
+						jQuery(this).parent().fadeOut('slow', function(){
+							jQuery(this).remove();
+						})
+					});
+					
+				window.send_to_editor_default = window.send_to_editor;
+					
+				window.attach_image = function(html) {
+				
+					// turn the returned image html into a hidden image element so we can easily pull the relevant attributes we need
+					$('body').append('<div id="temp_image">' + html + '</div>');
+						
+					var img = $('#temp_image').find('img');
+					
+					imgurl   = img.attr('src');
+					imgclass = img.attr('class');
+					imgid    = parseInt(imgclass.replace(/\D/g, ''), 10);
+		
+					$('#upload_tpc_image_id').val(imgid);
+					$('#remove-tpc-carousel-image').show();
+		
+					$('img#tpc_carousel_image').attr('src', imgurl);
+					
+					if (imgid){
+								
+//						var data = {
+//							action			: 'update_tpc_image_meta',
+//							security		: '<?php //echo wp_create_nonce( "update-tpc-image-meta" ); ?>',
+//							postID			: '<?php //echo get_the_ID(); ?>', 	
+//							imageNum		: _imagenumber,					
+//							upload_tpc_image_id	: imgid,						
+//						}
+//	
+//						jQuery.post(ajaxurl,data,function(response){
+//							window.location.reload(true);
+//						});	
+						
+					}
+					
+					try{tb_remove();}catch(e){};
+					$('#temp_image').remove();
+					
+					// restore the send_to_editor handler function
+					window.send_to_editor = window.send_to_editor_default;
+					
+				}
+					
 	});//End of document.ready  
 	
+//	jQuery.expr[':'].econtains = function(obj, index, meta, stack){
+//	return (obj.textContent || obj.innerText || $(obj).text() || "").toLowerCase() == meta[3].toLowerCase();
+//	}
+
 	jQuery.expr[':'].econtains = function(obj, index, meta, stack){
-		return (obj.textContent || obj.innerText || jQuery(obj).text() || '').toLowerCase().indexOf(meta[3].toLowerCase()) >= 0;
+		return (obj.textContent || obj.innerText || jQuery(obj).text() || '').toLowerCase().indexOf(meta[3].toLowerCase()) == 0;
 	};
 	
 //	function check_Existence(){
@@ -1210,8 +1291,8 @@ class Post_Type_Project {
 //			var t=d.toLocaleTimeString();
 //			var data = {
 //					action: 'get_update',
-//					parent: '<?php esc_attr_e(get_the_ID()); ?>',
-//					security: '<?php echo wp_create_nonce( "get-update" ); ?>'
+//					parent: ' //esc_attr_e(get_the_ID()); ',
+//					security: ' //echo wp_create_nonce( "get-update" ); '
 //				};
 //				
 //			jQuery.post(ajaxurl, data, function(response) {
@@ -1640,9 +1721,9 @@ class Post_Type_Project {
 				_arrdata[_cntdata] = jQuery(this).attr('id');
 				var _contr_id = jQuery(this).attr('data-value');
 				if ( _html_author === undefined){
-					_html_author = '<span id="'+_contr_id+'" class="span_contr" style="padding:3px;">'+jQuery(this).attr('id')+'</span>';
+					_html_author = '<span id="'+_contr_id+'" class="span_contr" style="padding:3px;">'+jQuery(this).text()+'</span>';
 				}else{
-					_html_author +='<span id="'+_contr_id+'" class="span_contr" style="padding:3px;">'+jQuery(this).attr('id')+'</span>';
+					_html_author +='<span id="'+_contr_id+'" class="span_contr" style="padding:3px;">'+jQuery(this).text()+'</span>';
 				}
 				_cntdata++;
 			}
@@ -2193,9 +2274,48 @@ class Post_Type_Project {
 			#propel_add_media{
 				float:left;
 				margin-top: -30px;
-				z-index: 999;
+				margin-left:5px;
 				position: relative;
 				margin-left: 5px;
+				width:100%;
+				
+			}
+			
+			#propel_add_media img{
+				float:left;
+				position:relative;
+				padding:2px;
+				cursor:pointer;
+			}
+			
+			#propel_ul_img_attach{
+				float:left;	
+				width:90%;			
+			}
+			
+			#propel_ul_img_attach li{
+				display:inline-block;
+				width:auto;
+				min-width:100px;
+				position:relative;
+				padding:2px;
+				background:#DDD;
+				border-radius:3px;
+				-moz-border-radius:3px;
+				-webkit-border-radius:3px;
+			}
+			
+			#propel_ul_img_attach li a{
+				margin-left:2px;
+				text-decoration:none;
+				font-size:10px;
+			}
+			#propel_ul_img_attach li p{
+				float:right;
+				padding-right:5px;
+				color:red;
+				font-weight:bold;
+				cursor:pointer;
 			}
 							
 		 </style>

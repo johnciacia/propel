@@ -65,7 +65,14 @@
 ?>
 </div>
 </div>
-<textarea class="metabox-add-task-description widefat" name="task_description" id="_task_desc" placeholder="Description" style="Height:70px;"></textarea>
+<textarea class="metabox-add-task-description widefat" name="task_description" id="_task_desc" placeholder="Description" style="min-height:80px;"></textarea>
 <div id="propel_add_media">
-	<img src="<?php echo plugins_url();?>/propel/images/attachment.png"/>
+    <img id="img_propel_attach" src="<?php echo plugins_url();?>/propel/images/attachment.png" title="Click to add media"/>
+    <ul id="propel_ul_img_attach">
+    	<li><a href="<?php echo plugins_url();?>/propel/images/attachment.png" title="Click to view" target="_blank">Attachment1.png </a><p class="propel_media_remove">x</p></li>
+    	<li><a href="<?php echo plugins_url();?>/propel/images/attachment.png" title="Click to view" target="_blank">Attachment2.png </a><p class="propel_media_remove">x</p></li>
+    	<li><a href="<?php echo plugins_url();?>/propel/images/attachment.png" title="Click to view" target="_blank">Attachment3.png </a><p class="propel_media_remove">x</p></li>
+    	<li><a href="<?php echo plugins_url();?>/propel/images/attachment.png" title="Click to view" target="_blank">Attachment4.png </a><p class="propel_media_remove">x</p></li>                        
+    </ul>
+	    
 </div>
