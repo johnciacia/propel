@@ -2520,7 +2520,7 @@ class Post_Type_Project {
 							for ($i =0; $i < $usercnt; $i++ ){
 								$userlogin = get_post_meta( $post_id, '_propel_user_'.$i, true );
 								//$author =  get_user_by( 'login', $userlogin );
-								if ( $userlogin == $login->display_name ){
+								if ( $userlogin == $login->user_login ){
 									add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));					
 									wp_mail($login->user_email, $subject, $message, $headers); 				
 								}								
