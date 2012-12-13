@@ -65,4 +65,7 @@
 ?>
 </div>
 </div>
-<textarea class="metabox-add-task-description widefat" name="task_description" id="_task_desc" placeholder="Description"></textarea>
+<textarea class="metabox-add-task-description widefat" name="task_description" id="_task_desc" placeholder="Description" style="Height:70px;"></textarea>
+<div id="propel_add_media">
+	<img src="<?php echo plugins_url();?>/propel/images/attachment.png"/>
+</div>

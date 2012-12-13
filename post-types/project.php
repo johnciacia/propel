@@ -1066,9 +1066,11 @@ class Post_Type_Project {
 					
 					jQuery('#propel_completed_task tbody tr').find('td:eq(1)').css({'width':0});
 					
-					//check_Existence();			
-					var _taskcontributorcss = jQuery('#task_contributor').offset().left - 165;
-					var _taskcontributorw = jQuery('#task_contributor').innerWidth();
+					//check_Existence();	
+					if (jQuery('#task_contributor').length > 0 ) {		
+						var _taskcontributorcss = jQuery('#task_contributor').offset().left - 165;
+						var _taskcontributorw = jQuery('#task_contributor').innerWidth();
+					}
 					var _newsearchstring;
 					var _listid;
 					var _listidfind = false;
@@ -2186,6 +2188,14 @@ class Post_Type_Project {
 			
 			.metabox-add-task-contributor{
 				display:none;
+			}
+			
+			#propel_add_media{
+				float:left;
+				margin-top: -30px;
+				z-index: 999;
+				position: relative;
+				margin-left: 5px;
 			}
 							
 		 </style>
