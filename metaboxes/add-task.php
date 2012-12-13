@@ -37,6 +37,7 @@
 	$coauthor_terms = wp_get_post_terms( $post->ID, 'author', $args );	
 	if(is_array($coauthor_terms) && !empty($coauthor_terms)) {
 		$html = "<ul id='task_contributor_list'>";
+		$html .= "<li id='Undefined' data-value='-1' class='propel_not_added'><div class='add_contributor'></div>Undefined</li>";
 		foreach($coauthor_terms as $coauthor) {	
 			$post_author =  get_user_by( 'login', $coauthor->name );
 			if ( $post_author->ID == $post->post_author ){

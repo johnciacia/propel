@@ -106,8 +106,12 @@
 		$html='';
 		for ($i=0; $i < $usercnt; $i++){
 			$contributor = get_post_meta($task->ID,'_propel_user_'.$i,true);
-			$user = get_userdatabylogin($contributor);
-			$html .= '<span id="'.$user->ID.'" class="span_contr">'.$user->display_name.'</span>';
+			if ( $contributor == 'Undefined' || $contributor == 'undefined' ){
+				$html .= '<span id="-1" class="span_contr">Undefined</span>';		
+			}else{
+				$user = get_userdatabylogin($contributor);
+				$html .= '<span id="'.$user->ID.'" class="span_contr">'.$user->display_name.'</span>';
+			}
 		}
 		
 		/*

@@ -31,6 +31,7 @@ class Post_Type_Project {
 		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
 		add_action( 'admin_head', array( __CLASS__, 'tooltip_css' ) );
 		add_filter( 'request', array( __CLASS__, 'request' ) );
+		
 	}
 
 	/**
@@ -1087,14 +1088,14 @@ class Post_Type_Project {
 //						var _stringsearch = String.fromCharCode(e.which);
 //						var _listItem = jQuery('#task_contributor_list li#'+jQuery(this).val().toLowerCase());	
 //						var _indexofli = jQuery('#task_contributor_list li').index(_listItem);						
+						jQuery('#task_contributor_list').find('li').css({'color':'black'}).removeClass('selected');	
 						
 							switch (e.keyCode){
-							case 40:	
-								jQuery('#task_contributor_list').find('li').css({'color':'black'}).removeClass('selected');	
+							case 40:			
+								//console.log(jQuery('#task_contributor_list').find('li.searchable').attr('id'))						
 								jQuery('#task_contributor_list').find('li.searchable').next('li.searchable').css({'color':'red'}).addClass('selected');		
 								break;
 							case 38:
-								jQuery('#task_contributor_list').find('li').css({'color':'black'}).removeClass('selected');										
 								jQuery('#task_contributor_list').find('li.searchable').prev('li.searchable').css({'color':'red'}).addClass('selected');		
 								break;
 							case 13:
@@ -1106,9 +1107,9 @@ class Post_Type_Project {
 								jQuery('#task_contributor_list, #task_contributor_list li').fadeOut('slow')
 								jQuery('#task_contributor_list li').each(function(i,el){
 									if (jQuery(el).hasClass('propel_is_added')){
-										var _txtselected = jQuery(this).text();
+										var _txtselected = jQuery(el).text();
 										//jQuery(this).length < 5 ? _txtselected = jQuery(this).text().substr(0,10) : _txtselected = jQuery(this).text().substr(0,10)+'...';
-																					
+										console.log(jQuery(el).text())											
 										jQuery('#selected_task_contributor').append('<li id="'+jQuery(this).attr('id')+'">'+_txtselected+'<span class="contributor_x">x</span></li>');	
 										jQuery('#task_contributor').val('');
 									}
@@ -1271,6 +1272,8 @@ class Post_Type_Project {
 					window.send_to_editor = window.send_to_editor_default;
 					
 				}
+				
+				jQuery('div.error').css({'display':'none'});
 					
 	});//End of document.ready  
 	
