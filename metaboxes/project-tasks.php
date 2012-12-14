@@ -20,6 +20,7 @@
 			);
 			wp_dropdown_users( $args );
 			?>
+            
 			<input class="metabox-add-task-button button-primary" type="button" id="add-task" value="Add Task" />
 		</td>
 	</tr>

@@ -1083,20 +1083,25 @@ class Post_Type_Project {
 					var _newsearchstring;
 					var _listid = [];
 					var _listidfind = false;
+					var _cntidarr = 0;
 					jQuery('#task_contributor_list').css({'left':_taskcontributorcss, 'width':_taskcontributorw});	
 					jQuery('#task_contributor').keyup(function(e){	
 //						var _stringsearch = String.fromCharCode(e.which);
 //						var _listItem = jQuery('#task_contributor_list li#'+jQuery(this).val().toLowerCase());	
-//						var _indexofli = jQuery('#task_contributor_list li').index(_listItem);						
-						jQuery('#task_contributor_list').find('li').css({'color':'black'}).removeClass('selected');	
+//						var _indexofli = jQuery('#task_contributor_list li').index(_listItem);												
 						
 							switch (e.keyCode){
-							case 40:			
-								//console.log(jQuery('#task_contributor_list').find('li.searchable').attr('id'))						
-								jQuery('#task_contributor_list').find('li.searchable').next('li.searchable').css({'color':'red'}).addClass('selected');		
+							case 40:					
+								jQuery('#task_contributor_list').find('li').css({'color':'black'}).removeClass('selected');	
+								jQuery('#task_contributor_list').find('li#'+_listid[_cntidarr]).css({'color':'red'}).addClass('selected')
+								_cntidarr++;						
+								_cntidarr > (_listid.length-1) ? _cntidarr = 0 : _cntidarr;		
 								break;
-							case 38:
-								jQuery('#task_contributor_list').find('li.searchable').prev('li.searchable').css({'color':'red'}).addClass('selected');		
+							case 38:	
+								jQuery('#task_contributor_list').find('li').css({'color':'black'}).removeClass('selected');	
+								jQuery('#task_contributor_list').find('li#'+_listid[_cntidarr]).css({'color':'red'}).addClass('selected')
+								_cntidarr--;
+								_cntidarr < 0 ? _cntidarr = (_listid.length-1) : _cntidarr;
 								break;
 							case 13:
 								jQuery(this).val('');
@@ -1107,9 +1112,7 @@ class Post_Type_Project {
 								jQuery('#task_contributor_list, #task_contributor_list li').fadeOut('slow')
 								jQuery('#task_contributor_list li').each(function(i,el){
 									if (jQuery(el).hasClass('propel_is_added')){
-										var _txtselected = jQuery(el).text();
-										//jQuery(this).length < 5 ? _txtselected = jQuery(this).text().substr(0,10) : _txtselected = jQuery(this).text().substr(0,10)+'...';
-										console.log(jQuery(el).text())											
+										var _txtselected = jQuery(el).text();										
 										jQuery('#selected_task_contributor').append('<li id="'+jQuery(this).attr('id')+'">'+_txtselected+'<span class="contributor_x">x</span></li>');	
 										jQuery('#task_contributor').val('');
 									}
@@ -1117,23 +1120,24 @@ class Post_Type_Project {
 								break;
 								
 							default: 
-																
+								_cntidarr = 0;								
 								jQuery('#task_contributor_list').find('li').each(function(index, element) {
-								   jQuery(this).css({'color':'#000'}).removeClass('searchable').removeClass('selected'); 						   
+								   jQuery(this).css({'color':'#000'}).removeClass('searchable').removeClass('selected'); 									   
 								});
 								
-								jQuery('#task_contributor_list, #task_contributor_list li.propel_not_added').fadeOut();
+								jQuery('#task_contributor_list, #task_contributor_list li.propel_not_added').css({'display':'none'});
 								_listid = [];	
 								
 								var _arr = jQuery('#task_contributor_list li:econtains("'+ jQuery(this).val().toLowerCase() +'")');						
 								if( _arr.length > 0 && jQuery(this).val() !== '' ){	
 														
-									jQuery(_arr).each(function(i,el){																		
-										jQuery(el).addClass('searchable').detach().prependTo(jQuery('#task_contributor_list'));							 										
-										_listid[i] = jQuery(el).attr('id');	
-										jQuery('#task_contributor_list, #task_contributor_list li.searchable').fadeIn('slow');
+									jQuery(_arr).each(function(i,el){																								 										
+										_listid[i] = jQuery(el).attr('id');											
 										if ( (_arr.length -1) == i ){
-											jQuery(el).css({'color':'red'}).addClass('selected');									
+											for (var x = (_listid.length-1); x >= 0; x--){
+												jQuery('#task_contributor_list').find('li#'+_listid[x]).addClass('searchable').detach().prependTo(jQuery('#task_contributor_list'));														
+												jQuery('#task_contributor_list, #task_contributor_list li.searchable').fadeIn('slow');					
+											}																				
 										}																													
 									});			
 					
