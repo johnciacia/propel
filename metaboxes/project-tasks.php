@@ -35,9 +35,10 @@
 	<thead>
 		<tr>
 			<!--Change back to elements instead of colspan. The datables will raise an error using colspan when initialize-->
-            <th width=5%></th>
-            <th width=5%></th>
-            <th width=5%></th>
+            <th width=2%></th>
+            <th width=2%></th>
+            <th width=2%></th>
+            <th width=2%></th>
 			<th class="sortable" width=15%><p>Title</p></th>
 			<th class="sortable" width=15%><p>Contributors</p></th>
 			
@@ -133,6 +134,45 @@
 
 			<td class="gen-icon gen-<?php echo $x; ?>checked-icon">
 				<a href="post.php?action=complete&post=<?php esc_attr_e( $task->ID ); ?>" title="Mark as complete">Complete</a></td>
+
+			<td>
+            	<?php  
+					$imagecnt = get_post_meta($task->ID,'_propel_task_image', true);
+					if ( !empty($imagecnt) || $imagecnt > 0 ) : 					
+				?>
+            		<img class="img_propel_view_attachment" src="<?php echo plugins_url();?>/propel/images/attachment2.png" title="Click to view attachment" style="cursor:pointer;opacity:.5;"/>
+                    <div class="image_propel_container" id="propel_media_<?php esc_attr_e( $task->ID ); ?>" data-id="<?php esc_attr_e( $task->ID ); ?>">
+                    	<div class="image_propel_logo"></div>
+                    	<div class="image_propel_container_h3">Attachment</div>
+                        <div class="image_propel_container_arrow"><div class="image_propel_container_arrow_inner"></div></div>
+                        <ul>
+							<?php
+                                for ($i=0; $i < $imagecnt; $i++){
+                                    $imageid = get_post_meta($task->ID,'_propel_task_image_'.$i,true);
+									$imagepost = basename(get_post_meta($imageid,'_wp_attached_file',true));
+									$file_url = wp_get_attachment_url($imageid);
+                                    echo "<li><p class='image_propel_x' id='".$imageid."' data-meta='_propel_task_image_".$i."'></p><a href='".$file_url."' target='_blank'>".$imagepost."</a></li>";
+                                }
+							?>	                        	
+                        </ul>
+                        <div class="image_propel_dismiss"><a href="#" id="propel_media_<?php esc_attr_e( $task->ID ); ?>" style="text-decoration:none;">Dismiss</a></div>
+                    </div>
+                    
+                <?php else : ?>
+                	
+                    <img src="<?php echo plugins_url();?>/propel/images/attachment.png" style="opacity:.5;cursor:pointer;" class="media_propel_add" id="<?php esc_attr_e( $task->ID ); ?>"/>
+                    <div class="image_propel_container" id="propel_media_<?php esc_attr_e( $task->ID ); ?>" data-id="<?php esc_attr_e( $task->ID ); ?>">
+                    	<div class="image_propel_logo"></div>
+                    	<div class="image_propel_container_h3">Attachment</div>
+                        <div class="image_propel_container_arrow"><div class="image_propel_container_arrow_inner"></div></div>
+                        <ul>							                        	
+                        </ul>
+                        <div class="image_propel_dismiss"><a href="#" id="propel_media_<?php esc_attr_e( $task->ID ); ?>" style="text-decoration:none;">Dismiss</a></div>
+                    </div>
+                    
+				<?php endif; ?>
+                
+            </td>                
 				
 			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="min-width: 200px;">
             	<?php 
