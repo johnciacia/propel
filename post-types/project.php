@@ -2084,11 +2084,14 @@ class Post_Type_Project {
 				jQuery('#edit_edate_'+ task_id).html(_obj.task_end);		
 				
 				jQuery(nTr).find('td:eq(3)').find('div.image_propel_container').attr('id','propel_media_'+_obj.task_id);
-				jQuery.each(_obj.attachment, function(i,el){
-					console.log(el);						
-					jQuery(nTr).find('td:eq(3)').find('ul').append("<li><p class='image_propel_x' id='' data-meta='_propel_task_image_"+i+"'></p><a href='"+el+"' target='_blank'>"+el.split(/(\\|\/)/g).pop()+"</a></li>");
-					
-				});		
+				if ( _obj.attachment.length > 0 ){
+					jQuery.each(_obj.attachment, function(i,el){										
+						jQuery(nTr).find('td:eq(3)').find('ul').append("<li><p class='image_propel_x' id='' data-meta='_propel_task_image_"+i+"'></p><a href='"+el+"' target='_blank'>"+el.split(/(\\|\/)/g).pop()+"</a></li>");
+						
+					});		
+				}else{
+					jQuery(nTr).find('td:eq(3)').find('img').attr('src','<?php echo plugins_url();?>/propel/images/attachment.png');
+				}
 																				
 			});			
 			
