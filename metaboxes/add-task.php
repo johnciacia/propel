@@ -8,7 +8,7 @@
 <div style="border:1px solid #DFDFDF;background:#FFF;margin-top:5px;border-radius:3px;-moz-border-radius:3px;-webkit-border-radius:3px;">
 <ul id="selected_task_contributor">
 </ul>
-<input  class="metabox-add-task-title widefat" type="text" name="task_contributor" id="task_contributor" placeholder="Contributor" />
+<input  class="metabox-add-task-title widefat" type="text" name="task_contributor" id="task_contributor" placeholder="Contributor" autocomplete="off"/>
 
 <?php 
 	

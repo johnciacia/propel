@@ -112,7 +112,11 @@
 				$html .= '<span id="-1" class="span_contr">Undefined</span>';		
 			}else{
 				$user = get_userdatabylogin($contributor);
-				$html .= '<span id="'.$user->ID.'" class="span_contr">'.$user->display_name.'</span>';
+				if ( $i == ($usercnt-1)){
+					$html .= '<span id="'.$user->ID.'" class="span_contr">'.$user->display_name.'</span>';
+				}else{
+					$html .= '<span id="'.$user->ID.'" class="span_contr">'.$user->display_name.',</span>';
+				}
 			}
 		}
 		
@@ -154,8 +158,7 @@
                                     echo "<li><p class='image_propel_x' id='".$imageid."' data-meta='_propel_task_image_".$i."'></p><a href='".$file_url."' target='_blank'>".$imagepost."</a></li>";
                                 }
 							?>	                        	
-                        </ul>
-                        <div class="image_propel_dismiss"><a href="#" id="propel_media_<?php esc_attr_e( $task->ID ); ?>" style="text-decoration:none;">Dismiss</a></div>
+                        </ul>                        
                     </div>
                     
                 <?php else : ?>
