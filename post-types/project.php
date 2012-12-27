@@ -917,8 +917,9 @@ class Post_Type_Project {
 							
 							switch(_this_id){
 								case 'edit_title':	
-									var _val = jQuery('#'+this_id).text();					
-									jQuery('#'+this_id).empty().append('<input type="text" id="propel_edit_title_'+ task_id +'" value="'+ _val +'" size="60">');
+									var _val = jQuery('#'+this_id).text();	
+									console.log(_val);				
+									jQuery('#'+this_id).empty().append('<input type="text" id="propel_edit_title_'+ task_id +'" value=\''+ _val +'\' size="60">');
 									jQuery('#propel_edit_title_'+ task_id).focus();	
 									
 									jQuery('#propel_edit_title_'+ task_id).live('keyup',function(e){
@@ -2181,9 +2182,10 @@ class Post_Type_Project {
 			$this.live('mouseenter',function(e){
 				
 				_title = opts.content;
+
 				$this.attr('title',"");
 					
-				jQuery("body").append("<p id='tooltips'><span class='arrow'></span>"+ _title +"</p>");
+				jQuery("body").append('<p id="tooltips"><span class="arrow"></span>'+ _title +'</p>');
 			
 				e.pageX > 750 ?  e.pageX = 600 : e.pageX;
 			
@@ -2212,8 +2214,7 @@ class Post_Type_Project {
 	
 					jQuery("#tooltips").fadeOut('slow',function(){
 						jQuery("#tooltips").remove();
-						jQuery("#"+_divtooltip).find('small').hide('fast','linear',function(){
-							
+						jQuery("#"+_divtooltip).find('small').hide('fast','linear',function(){							
 							jQuery("#"+_divtooltip).removeClass('propeltooltip').append('<textarea id="desc_edit_'+ task_id +'" style="width:400px; height:50px; margin-top:5px;font-size:10px;padding:5px;">'+ _title +'</textarea>');
 						
 						jQuery('#desc_edit_'+task_id).focus();	
@@ -2230,7 +2231,7 @@ class Post_Type_Project {
 							jQuery("#tooltips").fadeOut('slow','swing');
 						});
 						
-						jQuery('#desc_edit_'+task_id).live('keypress',function(event){
+						jQuery('#desc_edit_'+task_id).live('keyup',function(event){
 							if ( event.which === 13 ){
 										var data = {
 												action: 'update_task',
@@ -2253,7 +2254,7 @@ class Post_Type_Project {
 													var _content = _obj.task_content.substr(0,75);
 													_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 												}			
-												oTable.fnUpdate( '<p id="edit_title_'+ task_id +'">'+ _obj.task_title +'</p>'+_html, aPos, 4 );
+												oTable.fnUpdate( '<p id="edit_title_'+ task_id +'">'+ _obj.task_title +'</p>'+_html, aPos, 5 );
 												jQuery('.propeltooltip').each(function(){
 														var _content = jQuery(this).attr('title');
 														var _id = jQuery(this).attr('id');
