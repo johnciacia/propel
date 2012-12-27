@@ -15,6 +15,7 @@ background:url(<?php echo plugins_url('/propel/ui/gen/images/unchecked.png'); ?>
             <th></th>
             <th></th>
             <th></th>
+            <th></th>
 			<th class="sortable"><p>Title</p></th>
 			<th class="sortable"><p>Contributors</p></th>
 			
@@ -106,7 +107,9 @@ background:url(<?php echo plugins_url('/propel/ui/gen/images/unchecked.png'); ?>
 				<a href="javascript:;" class="propel_restore" alt="<?php esc_attr_e( $task->ID ); ?>" title="Restore">Restore</a></td>
                 
 			<td></td>                
-				
+			
+            <td></td> 
+            	
 			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="width: 400px;">
             	<?php 
 					$len = strlen($task->post_content);

@@ -39,6 +39,7 @@
             <th width=2%></th>
             <th width=2%></th>
             <th width=2%></th>
+            <th width=2%></th>
 			<th class="sortable" width=15%><p>Title</p></th>
 			<th class="sortable" width=15%><p>Contributors</p></th>
 			
@@ -175,8 +176,23 @@
                     
 				<?php endif; ?>
                 
-            </td>                
-				
+            </td>          
+                  
+			<td>
+            	<div class="propel_task_comment">
+                	<div class="propel_task_comment_arrow">
+                    	<p><?php 
+							$args = array(
+								'post_id' => $task->ID, // use post_id, not post_ID
+									'count' => true //return only the count
+							);
+							$comments = get_comments($args);
+							echo $comments;					
+						?></p>
+                    </div>
+                </div>
+            </td>	
+            
 			<td class="title" data-value="<?php esc_attr_e($task->post_title); ?>" style="min-width: 200px;">
             	<?php 
 					$len = strlen($task->post_content);

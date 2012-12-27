@@ -30,6 +30,8 @@ class Post_Type_Project {
 		add_action( 'wp_ajax_trash_task', array( __CLASS__, 'wp_ajax_trash_task' ) );  // aps2012
 		add_action( 'wp_ajax_delete_task_image', array( __CLASS__, 'wp_ajax_delete_task_image' ) ); 
 		add_action( 'wp_ajax_single_task_image', array( __CLASS__, 'wp_ajax_single_task_image' ) );
+		add_action( 'wp_ajax_propel_post_comment', array( __CLASS__, 'wp_ajax_propel_post_comment' ) );
+		add_action( 'wp_ajax_propel_get_comment', array( __CLASS__, 'wp_ajax_propel_get_comment' ) );		
 		add_action( 'load-post.php', array( __CLASS__, 'post' ) );
 		add_action( 'admin_head', array( __CLASS__, 'tooltip_css' ) );
 		add_filter( 'request', array( __CLASS__, 'request' ) );
@@ -140,12 +142,18 @@ class Post_Type_Project {
 		));
 
 		unset($labels);
+		if (isset($_REQUEST['post'])){
+			$pst = get_post($_REQUEST['post']);
+			$title = "Edit ".$pst->post_title;
+		}else{
+			$title = "Edit Project";
+		}
  		$labels = array(
 			'name' => _x( 'Propel', 'post type general name' ),
     		'singular_name' => _x( 'Propel', 'post type singular name' ),
     		'add_new' => _x( 'Add New', 'project' ),
     		'add_new_item' => __( 'Add New Project' ),
-    		'edit_item' => __( 'Edit Project' ),
+    		'edit_item' => __( $title ),
     		'new_item' => __( 'New Project' ),
     		'all_items' => __( 'All Projects' ),
     		'view_item' => __( 'View Project' ),
@@ -553,7 +561,7 @@ class Post_Type_Project {
 				if( _tdcnt == 1 ) {
 					jQuery('#propel_project_tasks #propel-tasks tbody tr').remove();
 					jQuery('#propel_project_tasks #propel-tasks tbody').prepend('<tr id="no-data" class="odd">'+ _html +'</tr>');
-					jQuery('#propel_project_tasks #propel-tasks tbody').find('td:eq(4)').find('p').html('No data available');
+					jQuery('#propel_project_tasks #propel-tasks tbody').find('td:eq(5)').find('p').html('No data available');
 				}								
 				
 				var __tdcnt = jQuery('#propel_completed_tasks #propel-com-tasks').find('td').size();
@@ -569,7 +577,7 @@ class Post_Type_Project {
 				if( _tdcntd == 1 ) {
 					jQuery('#propel_deleted_tasks #propel-deleted tbody tr').remove();
 					jQuery('#propel_deleted_tasks #propel-deleted tbody').prepend('<tr id="no-data" class="odd">'+ _html +'</tr>');
-					jQuery('#propel_deleted_tasks #propel-deleted tbody').find('td:eq(4)').find('p').html('No data available');
+					jQuery('#propel_deleted_tasks #propel-deleted tbody').find('td:eq(5)').find('p').html('No data available');
 				}			
 				dTable = jQuery('#propel-deleted').dataTable();														
 			
@@ -695,7 +703,7 @@ class Post_Type_Project {
 					 jQuery(".propel_restore").live('click',function(){
 							var task_id = jQuery(this).attr('alt'); 
 							var $parent = jQuery(this).parent().parent();
-							var prog_ress = $parent.find('td:eq(8)').attr('data-value');
+							var prog_ress = $parent.find('td:eq(9)').attr('data-value');
 							var data = {
 									action: 'restore_task',
 									security: '<?php echo wp_create_nonce( "restore-task" ); ?>',
@@ -772,7 +780,7 @@ class Post_Type_Project {
 							var task_id = jQuery(this).closest('tr').attr('id');
 							var this_id = jQuery(this).parent().attr('id');
 							var _html = jQuery('#'+this_id).clone(true);								
-							console.log(_contributorid);
+							
 							jQuery('#'+this_id).empty().append('<input type="text" placeholder="Contributor" id="task_edit_contributor_inplace" autocomplete="off" autofocus="autofocus" >');																	
 							jQuery('#task_contributor_list').clone().attr('id','task_contributor_list_upt').appendTo(jQuery('#'+this_id));		
 							
@@ -822,7 +830,7 @@ class Post_Type_Project {
 													var nTr = oTable.fnSettings().aoData[ aPos ].nTr;										
 													jQuery(_html).find('span#'+_contributorid).attr('id',_obj.task_authid).text(_obj.task_author).css({'padding-left':'3px', 'padding-right':'5px'});
 													//oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 4 );
-													oTable.fnUpdate( jQuery(_html).html(), aPos, 5 );									
+													oTable.fnUpdate( jQuery(_html).html(), aPos, 6 );									
 													jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_author);		
 													//jQuery('#'+this_id).parent().empty().html(_html);			
 												});																								
@@ -912,8 +920,10 @@ class Post_Type_Project {
 									var _val = jQuery('#'+this_id).text();					
 									jQuery('#'+this_id).empty().append('<input type="text" id="propel_edit_title_'+ task_id +'" value="'+ _val +'" size="60">');
 									jQuery('#propel_edit_title_'+ task_id).focus();	
-									jQuery('#propel_edit_title_'+ task_id).live('keypress',function(event){
-										if ( event.which == 13){
+									
+									jQuery('#propel_edit_title_'+ task_id).live('keyup',function(e){
+										
+										if ( e.which === 13){											
 											var data = {
 													action: 'update_task',
 													security: '<?php echo wp_create_nonce( "update-task" ); ?>',
@@ -921,6 +931,7 @@ class Post_Type_Project {
 													postid: task_id,
 													title: jQuery('#propel_edit_title_'+ task_id).val(),
 											};
+											
 											var _data = jQuery('#propel_edit_title_'+ task_id).val();
 											jQuery.post(ajaxurl, data, function(response) {
 												var _obj = jQuery.parseJSON(response);
@@ -936,7 +947,7 @@ class Post_Type_Project {
 														_html = '<div id="desc_'+ _obj.task_id +'" style="margin:-8px 0 3px 1px;" class="propeltooltip" title="'+ _obj.task_content +'"><small style="color:#999;text-shadow:1px 1px white">'+ _content +'</small></div>';
 													}			
 
-													oTable.fnUpdate( '<p id="edit_title_'+ task_id +'">'+ _obj.task_title +'</p>'+_html, aPos, 4 )
+													oTable.fnUpdate( '<p id="edit_title_'+ task_id +'">'+ _obj.task_title +'</p>'+_html, aPos, 5 )
 														jQuery('.propeltooltip').each(function(){
 															var _content = jQuery(this).attr('title');
 															var _id = jQuery(this).attr('id');
@@ -989,8 +1000,8 @@ class Post_Type_Project {
 															var aPos = oTable.fnGetPosition( this );
 															var _obj = jQuery.parseJSON(response);
 															var nTr = oTable.fnSettings().aoData[ aPos ].nTr;															
-															oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 5 );													
-															jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_author);																									
+															oTable.fnUpdate( '<p id="edit_owner_'+ task_id +'">'+ _obj.task_author +'</p>', aPos, 6 );													
+															jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_author);																									
 														});																								
 													});
 											}).live('focusout',function(){									
@@ -1111,17 +1122,17 @@ class Post_Type_Project {
 															var _obj = jQuery.parseJSON(response);
 															var nTr = oTable.fnSettings().aoData[ aPos ].nTr;
 															if ( _obj.is_start === 1 && _obj.is_end === 0 ) { 
-																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 7 );			
-																jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);																					
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 8 );			
+																jQuery(nTr).find('td:eq(8)').attr('data-value',_obj.task_progress);																					
 															} else if ( _obj.is_start === 0 && _obj.is_end === 1 ) { 
-																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 7 );
-																jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);				
-															} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 
 																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 8 );
 																jQuery(nTr).find('td:eq(8)').attr('data-value',_obj.task_progress);				
+															} else if ( _obj.is_start === 1 && _obj.is_end === 1 ) { 
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 9 );
+																jQuery(nTr).find('td:eq(9)').attr('data-value',_obj.task_progress);				
 															}else {
-																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 6 );	
-																jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);			
+																oTable.fnUpdate( '<p id="edit_progr_'+ task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'"></progress></p>', aPos, 7 );	
+																jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);			
 															}																																									
 														});									
 													});
@@ -1425,6 +1436,14 @@ class Post_Type_Project {
 					});
 				});
 				
+				jQuery('.propel_task_comment').click(function(e){
+					var _cnt = jQuery(this).find('p').text();
+					var _id = jQuery(this).parent().closest('tr').attr('id');				
+					jQuery(this).propelcomment({
+						id	: _id,
+						list  : _cnt							
+					});
+				});												
 					
 	});//End of document.ready  
 	
@@ -1603,7 +1622,8 @@ class Post_Type_Project {
 				'<a href="javascript:;" class="propel_trashtask"  alt="'+ _obj.task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
-				'',
+				jQuery('tr#'+_obj.task_id).find('td:eq(3)').html(),
+				jQuery('tr#'+_obj.task_id).find('td:eq(4)').html(),
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
 				'<p id="edit_sdate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_start +'</p>',			
@@ -1645,10 +1665,10 @@ class Post_Type_Project {
 			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');			
-			jQuery(nTr).find('td:eq(4)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
-			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_start);			
-			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value',_obj.task_author);
-			jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);	
+			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
+			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_start);			
+			jQuery(nTr).find('td:eq(7)').addClass('owner').attr('data-value',_obj.task_author);
+			jQuery(nTr).find('td:eq(8)').attr('data-value',_obj.task_progress);	
 			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
 			});							
@@ -1665,7 +1685,8 @@ class Post_Type_Project {
 				'<a href="javascript:;" class="propel_trashtask"  alt="'+ _obj.task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
-				'',
+				jQuery('tr#'+_obj.task_id).find('td:eq(3)').html(),
+				jQuery('tr#'+_obj.task_id).find('td:eq(4)').html(),
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
 				'<p id="edit_edate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_end +'</p>',				
@@ -1709,10 +1730,10 @@ class Post_Type_Project {
 			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');			
-			jQuery(nTr).find('td:eq(4)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
-			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_end);			
-			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value',_obj.task_author);
-			jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);	
+			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
+			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_end);			
+			jQuery(nTr).find('td:eq(7)').addClass('owner').attr('data-value',_obj.task_author);
+			jQuery(nTr).find('td:eq(8)').attr('data-value',_obj.task_progress);	
 			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
 			});		
@@ -1729,7 +1750,8 @@ class Post_Type_Project {
 				'<a href="javascript:;" class="propel_trashtask"  alt="'+ _obj.task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',
-				'',
+				jQuery('tr#'+_obj.task_id).find('td:eq(3)').html(),
+				jQuery('tr#'+_obj.task_id).find('td:eq(4)').html(),
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
 				'<p id="edit_sdate_'+ _obj.task_id +'" style="font-size: 10px; color: #999;">'+ _obj.task_start +'</p>',
@@ -1775,11 +1797,11 @@ class Post_Type_Project {
 			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');			
-			jQuery(nTr).find('td:eq(4)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);				
-			jQuery(nTr).find('td:eq(5)').attr('data-value',_obj.task_start);
-			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_end);			
-			jQuery(nTr).find('td:eq(7)').addClass('owner').attr('data-value',_obj.task_author);
-			jQuery(nTr).find('td:eq(8)').attr('data-value',_obj.task_progress);	
+			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);				
+			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_start);
+			jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_end);			
+			jQuery(nTr).find('td:eq(8)').addClass('owner').attr('data-value',_obj.task_author);
+			jQuery(nTr).find('td:eq(9)').attr('data-value',_obj.task_progress);	
 			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
 			});		
@@ -1796,7 +1818,8 @@ class Post_Type_Project {
 				'<a href="javascript:;" class="propel_trashtask"  alt="'+ _obj.task_id+'" title="Delete">Delete</a>',
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="post.php?action=complete&post='+ _obj.task_id +'" title="Mark as complete">Complete</a>',	
-				'',			
+				jQuery('tr#'+_obj.task_id).find('td:eq(3)').html(),
+				jQuery('tr#'+_obj.task_id).find('td:eq(4)').html(),	
 				'<p id="edit_title_'+ _obj.task_id +'">'+ _obj.task_title +'</p>',
 				'<p id="edit_owner_'+ _obj.task_authid +'">'+ _obj.task_author +'</p>',
 				'<p id="edit_progr_'+ _obj.task_id +'" style="font-size:10px;color:#999;"><progress max="100" value="'+ _obj.task_progress +'" ></progress></p>'
@@ -1821,7 +1844,7 @@ class Post_Type_Project {
 			else{
 				jQuery('#propel_project_tasks tbody #no-data').css('border','none').hide();	
 				var a = jQuery('#propel-tasks').dataTable().fnAddData( _json );	
-				console.log(oTable.fnSettings().aoData[ a[0] ]);														
+																	
 				var nTr = oTable.fnSettings().aoData[ a[0] ].nTr;	
 				jQuery(nTr).find('td:eq(1)').addClass('db-updated');		
 				jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');
@@ -1841,9 +1864,9 @@ class Post_Type_Project {
 			jQuery(nTr).attr('id',_obj.task_id);			
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon');			
-			jQuery(nTr).find('td:eq(4)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
-			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value',_obj.task_author);
-			jQuery(nTr).find('td:eq(6)').attr('data-value',_obj.task_progress);
+			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value',_obj.task_title).css({"width":"400px"}).find('p').after(_html);					
+			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value',_obj.task_author);
+			jQuery(nTr).find('td:eq(7)').attr('data-value',_obj.task_progress);
 			jQuery(nTr).stop().animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).stop().animate({'backgroundColor':'transparent'},7000);
 			});
@@ -1876,6 +1899,7 @@ class Post_Type_Project {
 		var _cntdata = 0;
 		var _html_author;
 		var _html_media;
+		var _html_cmt;
 				
 		jQuery('#task_contributor_list li').each(function(){
 			if (jQuery(this).hasClass('propel_is_added')){	
@@ -1937,6 +1961,10 @@ class Post_Type_Project {
 		_html_media += '<ul></ul>';		
 		_html_media += '</div>';		
 		
+        _html_cmt =  '<div class="propel_task_comment">';
+        _html_cmt += '<div class="propel_task_comment_arrow">';
+        _html_cmt += '<p>0</p></div></div>';
+		
 		
 		if ( is_start == 1 && is_end != 1 ){
 			//aps2012
@@ -1945,6 +1973,7 @@ class Post_Type_Project {
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="#" title="Mark as complete">Complete</a>',
 				_html_media,
+				_html_cmt,
 				'<p id="edit_title_">'+ task_title +'</p>',
 				'<p id="edit_contr_">'+ _html_author +'</p>',
 				'<p id="edit_sdate_" style="font-size: 10px; color: #999;">'+ today +'</p>',			
@@ -1957,11 +1986,11 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');											
-			jQuery(nTr).find('td:eq(4)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-			jQuery(nTr).find('td:eq(4)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
-			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value', task_author);
-			jQuery(nTr).find('td:eq(6)').attr('data-value', today );						
-			jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
+			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+			jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
+			jQuery(nTr).find('td:eq(7)').attr('data-value', today );						
+			jQuery(nTr).find('td:eq(8)').attr('data-value', 0 );	
 			jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
 			});									
@@ -1972,6 +2001,7 @@ class Post_Type_Project {
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="#" title="Mark as complete">Complete</a>',
 				_html_media,
+				_html_cmt,
 				'<p id="edit_title_">'+ task_title +'</p>',
 				'<p id="edit_contr_">'+ _html_author +'</p>',
 				'<p id="edit_edate_" style="font-size: 10px; color: #999;">'+ task_end +'</p>',			
@@ -1984,11 +2014,11 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
-			jQuery(nTr).find('td:eq(4)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-			jQuery(nTr).find('td:eq(4)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
-			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value', task_author);			
-			jQuery(nTr).find('td:eq(6)').attr('data-value', task_end);			
-			jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
+			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+			jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);			
+			jQuery(nTr).find('td:eq(7)').attr('data-value', task_end);			
+			jQuery(nTr).find('td:eq(8)').attr('data-value', 0 );	
 			jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
 			});								
@@ -1999,6 +2029,7 @@ class Post_Type_Project {
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="#" title="Mark as complete">Complete</a>',
 				_html_media,
+				_html_cmt,
 				'<p id="edit_title_">'+ task_title +'</p>',
 				'<p id="edit_contr_">'+ _html_author +'</p>',
 				'<p id="edit_sdate_" style="font-size: 10px; color: #999;">'+ today +'</p>',
@@ -2012,12 +2043,12 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
-			jQuery(nTr).find('td:eq(4)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-			jQuery(nTr).find('td:eq(4)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
-			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value', task_author);
-			jQuery(nTr).find('td:eq(6)').attr('data-value', today );
-			jQuery(nTr).find('td:eq(7)').attr('data-value', task_end);						
-			jQuery(nTr).find('td:eq(8)').attr('data-value', 0 );	
+			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+			jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
+			jQuery(nTr).find('td:eq(7)').attr('data-value', today );
+			jQuery(nTr).find('td:eq(8)').attr('data-value', task_end);						
+			jQuery(nTr).find('td:eq(9)').attr('data-value', 0 );	
 			jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
 			});										
@@ -2028,6 +2059,7 @@ class Post_Type_Project {
 				'<p class="propeltooltip" title="published"></p>',
 				'<a href="#" title="Mark as complete">Complete</a>',
 				_html_media,
+				_html_cmt,
 				'<p id="edit_title_">'+ task_title +'</p>',
 				'<p id="edit_contr_">'+ _html_author +'</p>',			
 				'<p id="edit_progr_" style="font-size:10px;color:#999;"><progress max="100" value="" ></progress></p>'
@@ -2039,10 +2071,10 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(0)').addClass('gen-icon gen-delete-icon');
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
-			jQuery(nTr).find('td:eq(4)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-			jQuery(nTr).find('td:eq(4)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });									
-			jQuery(nTr).find('td:eq(5)').addClass('owner').attr('data-value', task_author);
-			jQuery(nTr).find('td:eq(6)').attr('data-value', 0 );	
+			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
+			jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });									
+			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
+			jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
 			jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
 				jQuery(nTr).animate({'backgroundColor':'transparent'},7000);							
 			});										
@@ -2062,25 +2094,26 @@ class Post_Type_Project {
 				jQuery(nTr).find('td:eq(0)').find('a').attr('href','javascript:;');
 				jQuery(nTr).find('td:eq(0)').find('a').attr('alt', _obj.task_id);	
 				jQuery(nTr).find('td:eq(2)').find('a').attr('href','post.php?action=complete&post='+ _obj.task_id);						
-				jQuery(nTr).find('td:eq(4)').animate({ 'padding-left' : 0 },'slow');
-				jQuery(nTr).find('td:eq(4)').find('p').attr('id','edit_title_'+_obj.task_id);
+				jQuery(nTr).find('td:eq(5)').animate({ 'padding-left' : 0 },'slow');
+				jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_title_'+_obj.task_id);
 				if ( is_start == 1 && is_end != 1 ){
-					jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_contr_'+_obj.task_id);											
-					jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_sdate_'+_obj.task_id).html(_obj.task_start);																
-					jQuery(nTr).find('td:eq(7)').find('p').attr('id','edit_progr_'+_obj.task_id);								
+					jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_contr_'+_obj.task_id);											
+					jQuery(nTr).find('td:eq(7)').find('p').attr('id','edit_sdate_'+_obj.task_id).html(_obj.task_start);																
+					jQuery(nTr).find('td:eq(8)').find('p').attr('id','edit_progr_'+_obj.task_id);								
 				}else if( is_start != 1 && is_end == 1 ){
-					jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_contr_'+_obj.task_id);																		
-					jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_edate_'+_obj.task_id).html(_obj.task_end);								
-					jQuery(nTr).find('td:eq(7)').find('p').attr('id','edit_progr_'+_obj.task_id);																	
-				}else if( is_start == 1 && is_end == 1 ){
-					jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_contr_'+_obj.task_id);											
-					jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_sdate_'+_obj.task_id).html(_obj.task_start);								
+					jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_contr_'+_obj.task_id);																		
 					jQuery(nTr).find('td:eq(7)').find('p').attr('id','edit_edate_'+_obj.task_id).html(_obj.task_end);								
 					jQuery(nTr).find('td:eq(8)').find('p').attr('id','edit_progr_'+_obj.task_id);																	
+				}else if( is_start == 1 && is_end == 1 ){
+					jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_contr_'+_obj.task_id);											
+					jQuery(nTr).find('td:eq(7)').find('p').attr('id','edit_sdate_'+_obj.task_id).html(_obj.task_start);								
+					jQuery(nTr).find('td:eq(8)').find('p').attr('id','edit_edate_'+_obj.task_id).html(_obj.task_end);								
+					jQuery(nTr).find('td:eq(9)').find('p').attr('id','edit_progr_'+_obj.task_id);																	
 				}else{
-					jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_contr_'+_obj.task_id);																			
-					jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_progr_'+_obj.task_id);								
+					jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_contr_'+_obj.task_id);																			
+					jQuery(nTr).find('td:eq(7)').find('p').attr('id','edit_progr_'+_obj.task_id);								
 				}
+				
 				jQuery('#edit_edate_'+ task_id).html(_obj.task_end);		
 				
 				jQuery(nTr).find('td:eq(3)').find('div.image_propel_container').attr('id','propel_media_'+_obj.task_id);
@@ -2106,6 +2139,15 @@ class Post_Type_Project {
 					jQuery(this).find('div').removeClass().addClass('add_contributor');
 				}
 			});	
+			
+			jQuery('.propel_task_comment').click(function(e){
+				var _cnt = jQuery(this).find('p').text();
+				var _id = jQuery(this).parent().closest('tr').attr('id');				
+				jQuery(this).propelcomment({
+					id	: _id,
+					list  : _cnt							
+				});
+			});
 			 				
 		});
 		
@@ -2154,7 +2196,7 @@ class Post_Type_Project {
 			
 			$this.live('mouseleave',function(){
 					$this.attr('title',_title);
-					jQuery("#tooltips").fadeOut('fast');
+					jQuery("#tooltips").fadeOut('fast','swing');
 					jQuery("#tooltips").remove();
 			});
 			
@@ -2180,12 +2222,12 @@ class Post_Type_Project {
 							jQuery('#desc_edit_'+task_id).fadeOut('fast',function(){
 								jQuery('#desc_edit_'+task_id).remove();							
 							});
-							jQuery("#"+_divtooltip).addClass('propeltooltip').find('small').css("display","block").fadeIn('slow');
+							jQuery("#"+_divtooltip).addClass('propeltooltip').find('small').css("display","block").fadeIn('slow','swing');
 							
 						})
 						
 						jQuery('#desc_edit_'+task_id).live('focusin',function(e) {
-							jQuery("#tooltips").fadeOut('slow');
+							jQuery("#tooltips").fadeOut('slow','swing');
 						});
 						
 						jQuery('#desc_edit_'+task_id).live('keypress',function(event){
@@ -2237,6 +2279,137 @@ class Post_Type_Project {
 		  //});//end of each
 		  
 		}; 		
+		
+	jQuery.fn.propelcomment = function(settings){
+		
+		var xOffset = 30;
+		var yOffset = 20;
+		
+		var opts = jQuery.extend({ id:'', list:'' },settings);
+		var $this = jQuery(this);
+		
+		if ( opts.list !== '0' ) { 
+		
+		var data = {
+			action : 'propel_get_comment',
+			security : '<?php echo wp_create_nonce("propel-get-comment"); ?>',
+			comment_post_ID : opts.id
+		}
+		
+		jQuery.post(ajaxurl, data, function(res){
+			var _obj = jQuery.parseJSON(res);
+			var html;
+
+			var style = "position: absolute; top: 879px; left: 312px; width: 300px; height:auto; min-height: 100px; background: white; border: 1px solid #DFDFDF;border-radius:3px 3px 0 0; -moz-border-radius:3px 3px 0 0; -webkit-border-radius:3px 3px 0 0;";
+
+			html = '<div class="comment_propel_container" id="" data-id="" style="'+ style +'">';
+			html += '<div class="comment_propel_logo"></div>';
+			html += '<div class="comment_propel_container_h3">Comments</div>';
+			html += '<div class="comment_propel_x"></div>';
+			html += '<div class="comment_propel_container_arrow"><div class="comment_propel_container_arrow_inner"></div></div>';
+			html += '<ul id="propel_comment_list">';
+
+			jQuery.each(_obj,function(i,el){				
+				html += '<li class="propel_li_comment_list"><small class="propel_comment_by">'+el.comment_author+'</small><small class="propel_comment_date">'+el.comment_date_gmt+'</small><p>'+el.comment_content+'</p></li>';								
+			});
+			
+			html += '<li id="propel_li_comment_entry" style="display:none;"><textarea rows="2" cols="50"></textarea></li>';
+			html += '</ul>';		
+			html += '<input id="propel_add_row" type="button" class="button-secondary" value="Add Comment" style="float: right; margin:5px;" />';
+			html += '<input id="propel_post_comment" type="button" class="button-secondary" value="Post Comment" style="float: right; margin:5px;display:none;" />';
+			html += '</div>';				 
+		
+				jQuery('body').append(html);
+				
+				$this.offset().left > 750 ?  $this.offset().left = 600 : $this.offset().left;
+			
+				jQuery(".comment_propel_container")
+					.css("top",($this.offset().top - 50) + "px")
+					.css("left",($this.offset().left + 33) + "px")
+					.fadeIn("slow","swing");
+				
+			});//end of post get_comment	
+			
+		}else{
+			
+			var html;
+			var style = "position: absolute; top: 879px; left: 312px; width: 300px; height:auto; min-height: 100px; background: white; border: 1px solid #DFDFDF;border-radius:3px 3px 0 0; -moz-border-radius:3px 3px 0 0; -webkit-border-radius:3px 3px 0 0;";
+
+			html = '<div class="comment_propel_container" id="" data-id="" style="'+ style +'">';
+			html += '<div class="comment_propel_logo"></div>';
+			html += '<div class="comment_propel_container_h3">Comments</div>';
+			html += '<div class="comment_propel_x"></div>';
+			html += '<div class="comment_propel_container_arrow"><div class="comment_propel_container_arrow_inner"></div></div>';
+			html += '<ul id="propel_comment_list">';										
+			html += '<li id="propel_li_comment_entry"><textarea rows="2" cols="50"></textarea></li>';
+			html += '</ul>';		
+			html += '<input id="propel_add_row" type="button" class="button-secondary" value="Add Comment" style="float: right; margin:5px;" />';
+			html += '<input id="propel_post_comment" type="button" class="button-secondary" value="Post Comment" style="float: right; margin:5px;" />';
+			html += '</div>';				 
+		
+				jQuery('body').append(html);
+				
+				$this.offset().left > 750 ?  $this.offset().left = 600 : $this.offset().left;
+			
+				jQuery(".comment_propel_container")
+					.css("top",($this.offset().top - 50) + "px")
+					.css("left",($this.offset().left + 33) + "px")
+					.fadeIn("slow","swing");			
+			
+		}
+			
+			jQuery('#propel_add_row').live('click',function(){
+				jQuery('#propel_li_comment_entry').fadeIn('slow','swing');
+				jQuery('#propel_post_comment').fadeIn('slow', 'swing');
+			});
+			
+			jQuery('.comment_propel_x').live('click', function(){
+				jQuery(".comment_propel_container").fadeOut('fast','swing', function(){
+					jQuery(this).remove();
+				});
+			});
+			
+			jQuery('#propel_li_comment_entry').live('focusout',function(){
+				jQuery(this).fadeOut('fast', 'swing');
+				jQuery('#propel_post_comment').fadeOut('fast', 'swing');				
+			});
+			
+			jQuery('#propel_post_comment').live('click', function(){
+				var _comment = jQuery('#propel_li_comment_entry').find('textarea').val();
+				if ( _comment !== '' ){
+					var data = {
+						action : 'propel_post_comment',
+						security : '<?php echo wp_create_nonce('propel-post-comment'); ?>',
+						comment_post_ID : opts.id,
+						comment_content: _comment,
+					}
+					jQuery.post(ajaxurl, data, function(response){
+						console.log(response);
+						var _obj = jQuery.parseJSON(response);
+						var _html;
+						_html = '<li class="propel_li_comment_list" style="display:none"><small class="propel_comment_by">'+ _obj.comment_author +'</small><small class="propel_comment_date">'+_obj.comment_date_gmt+'</small><p>'+_obj.comment_content+'</p></li>';
+						
+						jQuery(_html).insertBefore(jQuery('#propel_li_comment_entry')).fadeIn('slow','swing');
+					});
+				}else{
+					alert('Must enter comment to post.');
+				}
+
+			});
+			
+//			$this.live('mouseleave',function(){
+//					jQuery(".comment_propel_container").fadeOut('fast','swing');
+//					jQuery(".comment_propel_container").remove();
+//			});
+			
+//			$this.live('mousemove',function(e){		
+//					jQuery(".comment_propel_container")
+//					.css("top",(e.pageY - 30) + "px")
+//					.css("left",(e.pageX + (yOffset)) + "px");
+//					
+//			})
+		
+	}
 
     </script>
     
@@ -2511,7 +2684,7 @@ class Post_Type_Project {
 				cursor:pointer;
 			}
 			
-			.image_propel_container{
+			.image_propel_container, comment_propel_container{
 				padding: 0 0 10px;
 				position: absolute;
 				z-index:1;
@@ -2534,7 +2707,7 @@ class Post_Type_Project {
 				display:none;
 			}
 			
-			.image_propel_container_h3{
+			.image_propel_container_h3, .comment_propel_container_h3{
 				position: relative;
 				margin: 0 0 5px;
 				padding: 10px 10px 10px 40px;
@@ -2553,7 +2726,7 @@ class Post_Type_Project {
 				cursor: default;		
 				font-family:Georgia, "Times New Roman", Times, serif;
 			}		
-			.image_propel_container_arrow{
+			.image_propel_container_arrow, .comment_propel_container_arrow{
 				width: 0; 
 				height: 0; 
 				top:45px;
@@ -2564,7 +2737,7 @@ class Post_Type_Project {
 				border-right:15px solid #DFDFDF; 					
 			}	
 			
-			.image_propel_container_arrow_inner{
+			.image_propel_container_arrow_inner, .comment_propel_container_arrow_inner{
 				width: 0;
 				height: 0;
 				top: -14px;
@@ -2586,7 +2759,7 @@ class Post_Type_Project {
 				z-index: 1;
 				margin:7px 0 0 10px;
 			}					
-			.image_propel_container ul li{
+			.image_propel_container ul li, .comment_propel_container ul li{
 				padding:2px 2px 2px 10px;
 			}		
 			p.image_propel_x{
@@ -2646,7 +2819,101 @@ class Post_Type_Project {
 					cursor: pointer;
 				}			
 			
-			
+			.propel_task_comment{
+				width:17px;
+				height:15px;
+				background:#CCC;
+				border:1px solid #DFDFDF;
+				border-radius:4px;
+				display:block;
+				position:relative;
+				text-align:center;
+			}
+				.propel_task_comment_arrow{
+					width: 0;
+					height: 0;
+					position: absolute;
+					border-bottom: 9px solid transparent;
+					border-right: 8px solid transparent;
+					position: relative;
+					border-left: 8px solid #CCC;
+					margin-top:12px;
+					margin-left:6px;
+				}
+					.propel_task_comment_arrow p{
+						color:#FFF;
+						position: absolute;
+						z-index: 1;
+						margin: -12px 0 0 -11px;
+						padding: 0;
+						text-shadow: none;
+						font-size: 9px;
+						font-weight: bold;	
+						width:10px;
+						text-align:center;					
+					}
+					
+					#propel_comment_list{
+						display: inline-block;
+						padding:3px 5px;
+						width: 96%;
+						height: auto;
+						min-height: 20px;
+					}
+					
+					#propel_comment_list li{
+						border-bottom:1px solid #EEE;
+					}
+					
+					.propel_li_comment_list{
+						padding:0;
+						margin:0;
+					}
+						.propel_li_comment_list p{
+							padding:5px 0;
+							margin:0;
+						}
+							.propel_comment_by{
+								padding:2px 0;
+								font-family:"Times New Roman", Times, serif;
+								font-size:12px;
+								font-weight:normal;
+							}
+							.propel_comment_date{
+								padding:2px 10px 2px 0;
+								float:right;
+								clear:right;
+								color:#999;
+							}
+				
+				.comment_propel_logo{
+					width: 25px;
+					height: 25px;
+					border-radius: 15px;
+					-moz-border-radius: 15px;
+					-webkit-border-radius: 15px;
+					float: left;
+					background: white url(<?php echo plugins_url();?>/propel/images/comment-grey-bubble.png) no-repeat 50% 50%;
+					position: relative;
+					z-index: 1;
+					margin:7px 0 0 10px;
+				}			
+				
+				.comment_propel_x{
+					color: white;
+					text-shadow: none;
+					background: #CCC url(<?php echo plugins_url();?>/propel/images/x.png) no-repeat 10% 50%;
+					width: 11px;
+					height: 11px;
+					border-radius: 9px;
+					-moz-border-radius: 9px;
+					-webkit-border-radius: 9px;
+					position: relative;
+					float: right;
+					margin: -47px -3px 0 0;
+					cursor:pointer;
+				}			
+					
 		 </style>
 	<?php             
      }    
@@ -3171,6 +3438,49 @@ class Post_Type_Project {
 		}
 	
 		die();	
+	}
+	
+	public static function wp_ajax_propel_post_comment(){
+		check_ajax_referer( 'propel-post-comment', 'security' );
+		if ( isset($_POST['comment_post_ID']) ){
+			
+			global $current_user;
+			get_currentuserinfo();
+			$time = current_time('mysql');
+			$data = array(
+				'comment_post_ID' => $_POST['comment_post_ID'],
+				'comment_author' => $current_user->user_login,
+				'comment_author_email' => $current_user->user_email,
+				'comment_content' => $_POST['comment_content'],
+				'comment_type' => '',
+				'comment_parent' => 0,
+				'user_id' => $current_user->ID,
+				'comment_date' => $time,
+				'comment_approved' => 1,
+			);
+			
+			$post = wp_insert_comment($data);
+			
+			if ($post){
+				$comments = get_comment($post);
+				echo json_encode($comments);
+			}
+		}
+		die();
+	}
+	
+	public static function wp_ajax_propel_get_comment(){
+		check_ajax_referer( 'propel-get-comment', 'security' );
+		if ( isset($_POST['comment_post_ID']) ){
+			$args = array(
+				'post_id' => $_POST['comment_post_ID'],
+				'orderby' => 'comment_date_gmt',
+				'order' => 'ASC'
+			);
+			$comments = get_comments($args);
+			echo json_encode($comments);
+		}
+		die();
 	}
 	
 		
