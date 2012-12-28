@@ -1962,9 +1962,10 @@ class Post_Type_Project {
 		_html_media += '<ul></ul>';		
 		_html_media += '</div>';		
 		
-        _html_cmt =  '<div class="propel_task_comment">';
+        _html_cmt =  '<div class="propel_task_comment" style="display:none;">';
         _html_cmt += '<div class="propel_task_comment_arrow">';
         _html_cmt += '<p>0</p></div></div>';
+		_html_cmt += '<div class="saving" style="height:40px;width:25px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;position:absolute;margin-top:-20px;"></div>';
 		
 		
 		if ( is_start == 1 && is_end != 1 ){
@@ -1988,7 +1989,7 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');											
 			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-			jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+			//jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
 			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
 			jQuery(nTr).find('td:eq(7)').attr('data-value', today );						
 			jQuery(nTr).find('td:eq(8)').attr('data-value', 0 );	
@@ -2016,7 +2017,7 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
 			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-			jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+			//jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
 			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);			
 			jQuery(nTr).find('td:eq(7)').attr('data-value', task_end);			
 			jQuery(nTr).find('td:eq(8)').attr('data-value', 0 );	
@@ -2045,7 +2046,7 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
 			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-			jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
+			//jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });						
 			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
 			jQuery(nTr).find('td:eq(7)').attr('data-value', today );
 			jQuery(nTr).find('td:eq(8)').attr('data-value', task_end);						
@@ -2073,7 +2074,7 @@ class Post_Type_Project {
 			jQuery(nTr).find('td:eq(1)').addClass('gen-icon gen-published-icon db-updated');	
 			jQuery(nTr).find('td:eq(2)').addClass('gen-icon gen-unchecked-icon');								
 			jQuery(nTr).find('td:eq(5)').addClass('title').attr('data-value', task_title).css({"width":"400px"}).find('p').after(_html);				
-			jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });									
+			//jQuery(nTr).find('td:eq(5)').prepend('<div class="saving" style="height:40px;width:40px; background:url('+ _img +'images/wpspin_light.gif) no-repeat 0 50%;margin-left:-20px;position:absolute;"></div>').css({ 'padding-left' : '20px' });									
 			jQuery(nTr).find('td:eq(6)').addClass('owner').attr('data-value', task_author);
 			jQuery(nTr).find('td:eq(7)').attr('data-value', 0 );	
 			jQuery(nTr).animate({'backgroundColor':'#0F3'},'slow',function(){ 
@@ -2095,7 +2096,7 @@ class Post_Type_Project {
 				jQuery(nTr).find('td:eq(0)').find('a').attr('href','javascript:;');
 				jQuery(nTr).find('td:eq(0)').find('a').attr('alt', _obj.task_id);	
 				jQuery(nTr).find('td:eq(2)').find('a').attr('href','post.php?action=complete&post='+ _obj.task_id);						
-				jQuery(nTr).find('td:eq(5)').animate({ 'padding-left' : 0 },'slow');
+				//jQuery(nTr).find('td:eq(5)').animate({ 'padding-left' : 0 },'slow');
 				jQuery(nTr).find('td:eq(5)').find('p').attr('id','edit_title_'+_obj.task_id);
 				if ( is_start == 1 && is_end != 1 ){
 					jQuery(nTr).find('td:eq(6)').find('p').attr('id','edit_contr_'+_obj.task_id);											
@@ -2116,7 +2117,7 @@ class Post_Type_Project {
 				}
 				
 				jQuery('#edit_edate_'+ task_id).html(_obj.task_end);		
-				
+				jQuery('.propel_task_comment').fadeIn('slow','swing');
 				jQuery(nTr).find('td:eq(3)').find('div.image_propel_container').attr('id','propel_media_'+_obj.task_id);
 				if ( _obj.attachment.length > 0 ){
 					jQuery.each(_obj.attachment, function(i,el){										
@@ -2219,7 +2220,7 @@ class Post_Type_Project {
 						
 						jQuery('#desc_edit_'+task_id).focus();	
 							
-						jQuery('#desc_edit_'+task_id).live('mouseleave',function(e) {
+						jQuery('#desc_edit_'+task_id).live('focusout',function(e) {
 							jQuery('#desc_edit_'+task_id).fadeOut('fast',function(){
 								jQuery('#desc_edit_'+task_id).remove();							
 							});
@@ -2240,7 +2241,9 @@ class Post_Type_Project {
 												postid: task_id,
 												content: jQuery('#desc_edit_'+task_id).val(),
 										};
-			
+										jQuery(this).fadeOut('slow','swing',function(){
+											jQuery('#desc_'+task_id).find('small').text('Updating, please wait...');
+										});
 										jQuery.post(ajaxurl, data, function(response) {
 											var _obj = jQuery.parseJSON(response);
 											jQuery('tr#'+task_id).fadeIn('slow',function(){
@@ -2384,8 +2387,8 @@ class Post_Type_Project {
 						comment_post_ID : opts.id,
 						comment_content: _comment,
 					}
-					jQuery.post(ajaxurl, data, function(response){
-						console.log(response);
+					jQuery.post(ajaxurl, data, function(response){	
+						console.log(response);					
 						var _obj = jQuery.parseJSON(response);
 						var _html;
 						_html = '<li class="propel_li_comment_list" style="display:none"><small class="propel_comment_by">'+ _obj.comment_author +'</small><small class="propel_comment_date">'+_obj.comment_date_gmt+'</small><p>'+_obj.comment_content+'</p></li>';
@@ -3463,7 +3466,53 @@ class Post_Type_Project {
 			$post = wp_insert_comment($data);
 			
 			if ($post){
+				
 				$comments = get_comment($post);
+				foreach($comments as $comment):
+					$headers[] = 'From: '.$comment->comment_author.' <'.$comments->comment_author_email.'>';
+					$content = $comment->comment_content;
+				endforeach;
+				
+				$pid = (int)$_POST['comment_post_ID'];
+
+				$post_comment = get_post($pid);
+						
+				$coauthors = array();
+				$defaults = array( 'orderby' => 'term_order', 'order' => 'ASC' );
+				$args = wp_parse_args( $args, $defaults );
+				$coauthor_terms = wp_get_post_terms( $pid, 'author', $args );
+				
+				if(is_array($coauthor_terms) && !empty($coauthor_terms)) {
+					foreach($coauthor_terms as $coauthor) {			
+						$post_author =  get_user_by( 'login', $coauthor->name );
+						if(!empty($post_author)) $coauthors[] = $post_author;			
+					}
+					$usercnt = get_post_meta( $pid, '_propel_user',true );
+					foreach( $coauthors as $login ) {						
+						for ($i =0; $i < $usercnt; $i++ ){
+							$userlogin = get_post_meta( $pid, '_propel_user_'.$i, true );					
+							if ( $userlogin == $login->user_login ){							
+								$headers[] = 'Cc: '.$login->user_login.' <'.$login->user_email.'>';															
+							}								
+						}
+						
+					}																	
+						add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));					
+						wp_mail($login->user_email, $post_comment->post_title, $content, $headers); 				
+						
+				}else {
+
+					$usercnt = get_post_meta( $post_id, '_propel_user',true );	
+					for ($i =0; $i < $usercnt; $i++ ){
+						$userlogin = get_post_meta( $post_id, '_propel_user_'.$i, true );
+						$author =  get_user_by( 'login', $userlogin );
+						$headers[] = 'Cc: '.$author->user_login.' <'.$author->user_email.'>';											
+					}	
+						add_filter('wp_mail_content_type',create_function('', 'return "text/html";'));							
+						wp_mail($author->user_email, $post_comment->post_title, $content, $headers);	
+					
+				}
+
 				echo json_encode($comments);
 			}
 		}

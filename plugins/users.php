@@ -348,7 +348,7 @@ class Propel_Authors {
 	 *
 	 */
 	public static function list_authors() {
-		require_once( dirname(__FILE__) . '/../metaboxes/list-authors.php')	;
+		require_once( dirname(__FILE__) . '/../metaboxes/list-authors.php');
 	}
 
 	/**

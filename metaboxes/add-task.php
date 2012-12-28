@@ -26,7 +26,6 @@
 		_e($select);
 	}	
 	
-	
 //	$args = array(
 //	'class' => 'metabox-add-task-contributor',
 //	'name' => 'propel_post_author',
@@ -75,3 +74,4 @@
     </ul>
 	    
 </div>
+		
