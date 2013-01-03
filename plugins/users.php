@@ -1,4 +1,4 @@
-.<?php
+<?php
 /**
  * @todo: move list-authors.php into this file
  * @todo: when a user is deleted projects are not reassigned appropratly 
@@ -99,13 +99,13 @@ class Propel_Authors {
 							switch (e.keyCode){
 							case 40:					
 								jQuery('#propel_userschecklist').find('li').css({'color':'black'}).removeClass('selected');	
-								jQuery('#propel_userschecklist').find('li#'+_listid[_cntidarr]).css({'color':'red'}).addClass('selected')
+								jQuery('#propel_userschecklist').find('li#'+_listid[_cntidarr]).css({'color':'red'}).addClass('selected');
 								_cntidarr++;						
 								_cntidarr > (_listid.length-1) ? _cntidarr = 0 : _cntidarr;		
 								break;
 							case 38:	
 								jQuery('#propel_userschecklist').find('li').css({'color':'black'}).removeClass('selected');	
-								jQuery('#propel_userschecklist').find('li#'+_listid[_cntidarr]).css({'color':'red'}).addClass('selected')
+								jQuery('#propel_userschecklist').find('li#'+_listid[_cntidarr]).css({'color':'red'}).addClass('selected');
 								_cntidarr--;
 								_cntidarr < 0 ? _cntidarr = (_listid.length-1) : _cntidarr;
 								break;

@@ -34,6 +34,8 @@ function _list_authors(){
     <div id="task_contributor_content"> 
     	<?php 
 			global $typenow;
+			$html = '';
+			$html_ = '';
 			if ( $typenow != 'propel_task' ){
 		 ?>
 	    	<input  class="widefat" type="text" name="user_task_contributor" id="user_task_contributor" placeholder="Contributor" autocomplete="off"/>    
@@ -99,29 +101,3 @@ function propel_is_parent_coauthor( $user_id ) {
 	}
 	return false;
 }?>
-
-
-<!--
-<input value="<?php  //esc_attr_e($user->user_login); ?>" type="checkbox" name="coauthors[]" id="in-propel_user-<?php //echo $user->ID; ?>" 
--->
-      	<?php
-			if( propel_is_coauthor( $user->ID ) ) { 
-				//echo "checked='checked' "; 
-			}
-			if( propel_is_parent_coauthor( $user->ID ) ) { 
-				//echo "disabled='disabled'"; 
-			}
-		
-			?> 
-			
-			<?php //esc_html_e($user->display_name); ?>
-									
-			<?php
-			if( propel_is_parent_coauthor( $user->ID ) ) {
-			?>
-				<!--
-                <input value="<?php  //esc_attr_e($user->user_login); ?>" type="hidden" name="coauthors[]" />
-                -->
-			<?php
-			}
-		?>

@@ -1524,7 +1524,7 @@ class Post_Type_Project {
 //
 //										var data = {
 //											action: 'update_task',
-//											security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+//											security: '<?php //echo wp_create_nonce( "update-task" ); ?>',
 //											pID: el.ID,
 //										};
 //										
@@ -1580,7 +1580,7 @@ class Post_Type_Project {
 //																	
 //										var data = {
 //											action: 'update_task',
-//											security: '<?php echo wp_create_nonce( "update-task" ); ?>',
+//											security: '<?php //echo wp_create_nonce( "update-task" ); ?>',
 //											pID: el.ID,
 //										};
 //										
@@ -2302,6 +2302,7 @@ class Post_Type_Project {
 		}
 		
 		jQuery.post(ajaxurl, data, function(res){
+			
 			var _obj = jQuery.parseJSON(res);
 			var html;
 
@@ -2388,8 +2389,7 @@ class Post_Type_Project {
 						comment_post_ID : opts.id,
 						comment_content: _comment,
 					}
-					jQuery.post(ajaxurl, data, function(response){	
-						console.log(response);					
+					jQuery.post(ajaxurl, data, function(response){											
 						var _obj = jQuery.parseJSON(response);
 						var _html;
 						_html = '<li class="propel_li_comment_list" style="display:none"><small class="propel_comment_by">'+ _obj.comment_author +'</small><small class="propel_comment_date">'+_obj.comment_date_gmt+'</small><p>'+_obj.comment_content+'</p></li>';
