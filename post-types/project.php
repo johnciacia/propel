@@ -1398,7 +1398,8 @@ class Post_Type_Project {
 					jQuery.post(ajaxurl, data, function(response){
 						var _cnt = jQuery('#propel_media_'+_taskidadd).find('ul').filter('li').length;
 						jQuery('#propel_media_'+_taskidadd).find('ul').append('<li><p class="image_propel_x" id="" data-meta="_propel_task_image_"'+ _cnt +'></p><a href="'+ ahref +'" target="_blank"></a></li>');				
-						jQuery('img#'+_taskidadd).removeClass().addClass('img_propel_view_attachment');										
+						var _imgview = jQuery('tr#'+_taskidadd).find('td').filter('td:eq(3)').find('img#'+_taskidadd);
+						jQuery(_imgview).removeClass().addClass('img_propel_view_attachment').attr('src','<?php echo plugins_url(); ?>/propel/images/attachment2.png');									
 					});					
 
 					try{tb_remove();}catch(e){};

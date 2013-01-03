@@ -65,7 +65,182 @@ class Propel_Authors {
 		add_action( 'init', array( __CLASS__, 'install' ) );
 		add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
 		add_action( 'admin_print_styles', array( __CLASS__, 'admin_print_styles' ) );
+		add_action( 'admin_footer', array( __CLASS__, 'admin_footer') );
+		add_action( 'wp_ajax_add_user_to_project', array( __CLASS__, 'wp_ajax_add_user_to_project') );
 
+	}
+	
+	/*
+	* JS Added / related to searchbox
+	*/
+	public function admin_footer(){
+	?>
+    	<script>
+			jQuery(document).ready(function(e) {
+                
+					var _newsearchstring;
+					var _listid = [];
+					var _listidfind = false;
+					var _cntidarr = 0;
+					
+					
+					jQuery('form#post #task_contributor_content').live('keypress',function(event){
+						if (event.which === 13){
+							return false;								
+						}
+					});
+					
+					//jQuery('#propel_userschecklist').css({'left':_taskcontributorcss, 'width':_taskcontributorw});	
+					jQuery('#user_task_contributor').keyup(function(e){	
+//						var _stringsearch = String.fromCharCode(e.which);
+//						var _listItem = jQuery('#task_contributor_list li#'+jQuery(this).val().toLowerCase());	
+//						var _indexofli = jQuery('#task_contributor_list li').index(_listItem);												
+						
+							switch (e.keyCode){
+							case 40:					
+								jQuery('#propel_userschecklist').find('li').css({'color':'black'}).removeClass('selected');	
+								jQuery('#propel_userschecklist').find('li#'+_listid[_cntidarr]).css({'color':'red'}).addClass('selected')
+								_cntidarr++;						
+								_cntidarr > (_listid.length-1) ? _cntidarr = 0 : _cntidarr;		
+								break;
+							case 38:	
+								jQuery('#propel_userschecklist').find('li').css({'color':'black'}).removeClass('selected');	
+								jQuery('#propel_userschecklist').find('li#'+_listid[_cntidarr]).css({'color':'red'}).addClass('selected')
+								_cntidarr--;
+								_cntidarr < 0 ? _cntidarr = (_listid.length-1) : _cntidarr;
+								break;
+							case 13:								
+								jQuery(this).val('');
+								var _selList = jQuery('#propel_userschecklist li.selected').find('div');
+								jQuery(_selList).removeClass().addClass('user_del_contributor').parent().removeClass().addClass('propel_is_added').clone().appendTo(jQuery('#propel_userschecklist'));											
+								var _coauthor = [];
+								var _authcnt = 0;	
+								var _html = '';	
+								jQuery(_selList).fadeOut('fast','swing',function(){									
+									jQuery(this).parent().remove();																		
+									jQuery('#propel_userschecklist li').each(function(i,el){
+										if (jQuery(el).hasClass('propel_is_added')){
+											//var _txtselected = jQuery(el).text();										
+											_coauthor[_authcnt] = jQuery(el).attr('id');
+											_authcnt++;
+											if ( jQuery('#task_contributor_list').find('li#'+ jQuery(el).attr('id') ).length < 1 ){
+												_html += "<li id='"+ jQuery(el).attr('id') +"' data-value='"+ jQuery(el).attr('data-value') +"' class='propel_not_added'><div class='add_contributor'></div>"+ jQuery(el).text() +"</li>";
+											}
+										}
+									});
+
+									var postid = '<?php echo get_the_ID(); ?>';								
+									postAuthor(_coauthor, postid);
+									jQuery('#task_contributor_list').prepend(_html);
+									
+								});									
+								
+//								jQuery('#propel_userschecklist').find('li').remove();									
+//								jQuery('#propel_userschecklist li.propel_not_added').fadeOut('slow')
+								
+																							
+								break;
+								
+							default: 
+								_cntidarr = 0;								
+								jQuery('#propel_userschecklist').find('li').each(function(index, element) {
+								   jQuery(this).css({'color':'#000'}).removeClass('searchable').removeClass('selected'); 									   
+								});
+								
+								jQuery('#propel_userschecklist li.propel_not_added').css({'display':'none'});
+								_listid = [];	
+								
+								var _arr = jQuery('#propel_userschecklist li:econtains("'+ jQuery(this).val().toLowerCase() +'")');	
+												
+								if( _arr.length > 0 && jQuery(this).val() !== '' ){	
+														
+									jQuery(_arr).each(function(i,el){																								 										
+										_listid[i] = jQuery(el).attr('id');											
+										if ( (_arr.length -1) == i ){
+											for (var x = (_listid.length-1); x >= 0; x--){
+												jQuery('#propel_userschecklist').find('li#'+_listid[x]).addClass('searchable').detach().prependTo(jQuery('#propel_userschecklist'));														
+												jQuery('#propel_userschecklist li.searchable').fadeIn('slow');					
+											}																				
+										}																													
+									});			
+					
+								}else{
+									jQuery('#propel_userschecklist li.propel_not_added').fadeOut('slow');									
+								}
+								
+								break;	
+							}						
+						
+					}).focusin(function(){										
+							jQuery('#propel_userschecklist li.propel_not_added').fadeOut('slow');						
+					});			
+					
+					jQuery('.user_add_contributor').live('click',function(){
+							jQuery(this).removeClass().addClass('user_del_contributor').parent().removeClass().addClass('propel_is_added').clone().appendTo(jQuery							('#propel_userschecklist'));						
+							jQuery(this).parent().fadeOut(function(){
+								var _id = jQuery(this).attr('id');
+								var _html = '';
+								jQuery(this).remove();
+								var _coauthor = [];
+								var _authcnt = 0;								
+								jQuery('#propel_userschecklist li').each(function(i,el){
+									if (jQuery(el).hasClass('propel_is_added')){									
+										_coauthor[_authcnt] = jQuery(el).attr('id');
+										_authcnt++;
+										if ( jQuery('#task_contributor_list').find('li#'+ jQuery(el).attr('id') ).length < 1 ){
+												_html += "<li id='"+ jQuery(el).attr('id') +"' data-value='"+ jQuery(el).attr('data-value') +"' class='propel_not_added'><div class='add_contributor'></div>"+ jQuery(el).text() +"</li>";
+										}
+									}
+								});	
+								var postid = '<?php echo get_the_ID(); ?>';								
+								postAuthor(_coauthor, postid);	
+									
+								jQuery('#task_contributor_list').prepend(_html);						
+							});								
+					});
+					
+					jQuery('.user_del_contributor').live('click',function(){
+							
+							jQuery(this).removeClass().addClass('user_add_contributor').parent().removeClass().addClass('propel_not_added').clone().prependTo(jQuery('#propel_userschecklist'));	
+							jQuery(this).parent().fadeOut(function(){
+								var _id = jQuery(this).attr('id');
+								
+								jQuery(this).remove();
+								
+								var _coauthor = [];
+								var _authcnt = 0;								
+								jQuery('#propel_userschecklist li').each(function(i,el){
+									if (jQuery(el).hasClass('propel_is_added')){									
+										_coauthor[_authcnt] = jQuery(el).attr('id');
+										_authcnt++;
+									}
+								});	
+								var postid = '<?php echo get_the_ID(); ?>';								
+								postAuthor(_coauthor, postid);	
+								
+								jQuery('#task_contributor_list').find('li#'+_id).remove();	
+								
+							});
+					});							
+				
+				//jQuery('#propel_userschecklist').find('li:last').css({'border-bottom':'1px solid #DDD'});
+				
+					function postAuthor(_coauthor, postid){
+
+						var data = {
+							action   : 'add_user_to_project',
+							security : '<?php echo wp_create_nonce('add-user-to-project'); ?>',
+							coauthors: _coauthor,
+							post_id  : postid
+						}
+						jQuery.post(ajaxurl,data,function(res){ 
+							
+						});
+					}
+				
+            });//End of document
+		</script>
+    <?php
 	}
 
 	/**
@@ -78,9 +253,63 @@ class Propel_Authors {
 			$projects = get_posts( 'post_type=propel_project&post_status=publish' );
 			if( count( $projects ) == 0 ) {
 			?>
-				<style type="text/css">.add-new-h2 { display: none; }</style>
+				<style type="text/css">.add-new-h2 { display: none; } </style>
+			<?php
+			}else{
+			?>
+            	<style>  </style>
 			<?php
 			}
+		}else if( $typenow == 'propel_project' ) {
+			?>
+            	<style type="text/css">
+				
+					#task_contributor_content{
+						padding:5px;
+						width:97%;
+						height:auto;
+						display:inline-block;
+						background:#FFF;
+						border:1px solid #DFDFDF;
+					}
+					#user_task_contributor{
+						margin:5px 0 1px 0;
+						border-radius: 0;
+					}
+					#propel_userschecklist li{
+						padding:3px;
+						background:#DDD;
+						border-bottom:1px solid #DFDFDF;
+						margin-bottom: 1px;
+					}
+					#propel_userschecklist li.propel_is_added{
+						color:#F00;
+						font-weight:bold;
+					}
+					
+					#propel_userschecklist li.propel_not_added{
+						color:#000;
+						display:none;
+					}
+					
+						#propel_userschecklist li div.user_add_contributor{
+							width:20px;
+							height:20px;
+							background: url('<?php echo plugins_url();?>/propel/images/details_open.png') no-repeat;
+							float:right;
+							clear:both;
+							cursor: pointer;					
+						}
+						#propel_userschecklist li div.user_del_contributor{
+							width:20px;
+							height:20px;
+							background: url('<?php echo plugins_url();?>/propel/images/details_close.png') no-repeat;
+							float:right;
+							clear:both;
+							cursor: pointer;
+						}					
+				</style>
+            <?php
 		}
 	}
 
@@ -453,6 +682,53 @@ class Propel_Authors {
 
 			return self::add_coauthors( $post_id, $coauthors );
 		}
+	}
+	
+	/*
+	* Added by : rob - Ajax post to save co-author
+	*/	
+	public function wp_ajax_add_user_to_project(){
+		
+		check_ajax_referer('add-user-to-project','security');	
+		
+		if ( isset($_POST['coauthors']) && isset($_POST['post_id']) ){
+			
+			$coauthors = (array) $_POST['coauthors'];
+			//check_admin_referer( 'coauthors-edit', 'coauthors-nonce' );
+			$coauthors = array_map( 'esc_html', $coauthors );
+			
+			$post_id = (int)$_POST['post_id'];
+//			$project_managers = self::get_coauthors( $post_id );
+//			
+//			$p = array();
+//			foreach( $project_managers as $pm) {
+//				$p[] = $pm->data->user_login;				
+//			}			
+//			
+//			$p = array_diff( $p );
+//			print_r($project_managers);
+			
+//			$coauthors = array_unique( $coauthors );			
+
+			$posts = get_posts( array( 'post_type' => 'propel_task', 'post_parent' => $post_id ) );
+			foreach( $posts as $post ) {
+				//self::add_coauthors( $post->ID, $coauthors );
+				foreach( array_unique( $coauthors ) as $author ) {
+					$name = $author;
+					if( !term_exists( $name, self::COAUTHOR_TAXONOMY ) ) {
+						$args = array( 'slug' => sanitize_title( $name ) );
+						$insert = wp_insert_term( $name, self::COAUTHOR_TAXONOMY, $args );
+					}					
+				}
+				
+				if( !is_wp_error( $insert ) ) {
+					$set = wp_set_post_terms( $post_id, $coauthors, self::COAUTHOR_TAXONOMY, $append );
+				}
+			}
+			
+		}
+		
+		die();
 	}
 
 	/**

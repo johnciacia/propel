@@ -30,35 +30,35 @@ function _list_authors(){
 			<a href="#propel_user-all">All Contributors</a>
 		</li>
 	</ul>
+	
+    <div id="task_contributor_content"> 
+    	<?php 
+			global $typenow;
+			if ( $typenow != 'propel_task' ){
+		 ?>
+	    	<input  class="widefat" type="text" name="user_task_contributor" id="user_task_contributor" placeholder="Contributor" autocomplete="off"/>    
+ 			<div id="propel_user-all" class="tabs-panel" style="display: block;padding:0;margin:0;border:none;">       
+		<?php }else{ ?>
+        	<div id="propel_user-all" class="tabs-panel" style="display: block;padding:15px;margin:0;border:1px solid #DFDFDF;"> 
+        <?php } ?>
 
-	<div id="propel_user-all" class="tabs-panel" style="display: block; ">
-		<ul id="propel_userschecklist" class="list:propel_category categorychecklist form-no-clear">
-
-		<?php foreach($users as $user) : ?>
-			<li id="propel_user-<?php esc_attr_e($user->ID); ?>" class="popular-category">
-				<label class="selectit">
-				
-					<input value="<?php  esc_attr_e($user->user_login); ?>" type="checkbox" name="coauthors[]" id="in-propel_user-<?php echo $user->ID; ?>" <?php 
-				
-					if( propel_is_coauthor( $user->ID ) ) { echo "checked='checked' "; }
-					if( propel_is_parent_coauthor( $user->ID ) ) { echo "disabled='disabled'"; }
-				
-					?>> <?php esc_html_e($user->display_name); 
+            <ul id="propel_userschecklist" class="list:propel_category categorychecklist form-no-clear">
+    
+            <?php foreach($users as $user) : 
 			
-					?>
-					
-					
-					<?php
-					if( propel_is_parent_coauthor( $user->ID ) ) {
-					?>
-						<input value="<?php  esc_attr_e($user->user_login); ?>" type="hidden" name="coauthors[]" />
-					<?php
-					}
-					?>
-				</label>
-			</li>
-		<?php endforeach; ?>				
-		</ul>
+                if ( propel_is_coauthor( $user->ID )){
+                    $html_ .= "<li id='".$user->user_login."' data-value='".$user->ID."' class='propel_is_added'><div class='user_del_contributor'></div>".$user->display_name."</li>";	
+                }else{
+                    $html .= "<li id='".$user->user_login."' data-value='".$user->ID."' class='propel_not_added'><div class='user_add_contributor'></div>".$user->display_name."</li>";	
+                }
+			 
+			 endforeach; 
+			 
+			 	echo $html.$html_;
+			 	
+			 ?>				
+            </ul>
+        </div>
 	</div>
 </div>
 
@@ -84,5 +84,27 @@ function propel_is_parent_coauthor( $user_id ) {
 }?>
 
 
-
-
+<!--
+<input value="<?php  //esc_attr_e($user->user_login); ?>" type="checkbox" name="coauthors[]" id="in-propel_user-<?php //echo $user->ID; ?>" 
+-->
+      	<?php
+			if( propel_is_coauthor( $user->ID ) ) { 
+				//echo "checked='checked' "; 
+			}
+			if( propel_is_parent_coauthor( $user->ID ) ) { 
+				//echo "disabled='disabled'"; 
+			}
+		
+			?> 
+			
+			<?php //esc_html_e($user->display_name); ?>
+									
+			<?php
+			if( propel_is_parent_coauthor( $user->ID ) ) {
+			?>
+				<!--
+                <input value="<?php  //esc_attr_e($user->user_login); ?>" type="hidden" name="coauthors[]" />
+                -->
+			<?php
+			}
+		?>

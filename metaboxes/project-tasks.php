@@ -80,7 +80,7 @@
 			$hours_remaining = $hours-($days*24)-24;
 			
 			if ( $hours < 0 && $hours > -24 ) {
-				$status = "due today or tomorrow";
+				$status = "due";
 			}else if ( $hours < -24 ) {
 				$status = "past-due";
 			}else{
