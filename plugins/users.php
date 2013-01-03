@@ -307,7 +307,8 @@ class Propel_Authors {
 							float:right;
 							clear:both;
 							cursor: pointer;
-						}					
+						}				
+						p, input[type="text"], td select { font-size:12px; }
 				</style>
             <?php
 		}

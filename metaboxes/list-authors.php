@@ -53,11 +53,20 @@ function _list_authors(){
 				}else{
 					$username = $user->display_name;
 				}
+				
+				//preg_match ('/^@/',$user->user_login,$matches, PREG_OFFSET_CAPTURE);
+
+				if ( strpos($user->user_login,'@') ){
+					$userid = substr($user->user_login,0,strpos($user->user_login,'@'));
+				}else{
+					$userid = $user->user_login;
+				}
+				
 			
                 if ( propel_is_coauthor( $user->ID )){
-                    $html_ .= "<li id='".strpos($user->user_login,'@')."' data-value='".$user->ID."' class='propel_is_added'><div class='user_del_contributor'></div>".$username."</li>";	
+                    $html_ .= "<li id='".$userid."' data-value='".$user->ID."' class='propel_is_added'><div class='user_del_contributor'></div>".$username."</li>";	
                 }else{
-                    $html .= "<li id='".strpos($user->user_login,'@')."' data-value='".$user->ID."' class='propel_not_added'><div class='user_add_contributor'></div>".$username."</li>";	
+                    $html .= "<li id='".$userid."' data-value='".$user->ID."' class='propel_not_added'><div class='user_add_contributor'></div>".$username."</li>";	
                 }
 			 
 			 endforeach; 

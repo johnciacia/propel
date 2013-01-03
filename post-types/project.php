@@ -2426,6 +2426,7 @@ class Post_Type_Project {
 	public static function tooltip_css(){ ?>
 		 <style>
 		 	*{margin:0;padding:0}
+			.propeltooltip { font-size:10px; padding-top:3px; }
 			#tooltips {
 				text-align:start;
 				text-shadow: 1px 1px #EEE;
