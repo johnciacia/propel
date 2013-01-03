@@ -132,6 +132,7 @@ class Propel_Authors {
 									var postid = '<?php echo get_the_ID(); ?>';								
 									postAuthor(_coauthor, postid);
 									jQuery('#task_contributor_list').prepend(_html);
+									jQuery('#user_task_contributor').focus();
 									
 								});									
 								
@@ -195,7 +196,8 @@ class Propel_Authors {
 								var postid = '<?php echo get_the_ID(); ?>';								
 								postAuthor(_coauthor, postid);	
 									
-								jQuery('#task_contributor_list').prepend(_html);						
+								jQuery('#task_contributor_list').prepend(_html);	
+								jQuery('#user_task_contributor').focus();					
 							});								
 					});
 					
@@ -219,6 +221,7 @@ class Propel_Authors {
 								postAuthor(_coauthor, postid);	
 								
 								jQuery('#task_contributor_list').find('li#'+_id).remove();	
+								jQuery('#user_task_contributor').focus();
 								
 							});
 					});							
