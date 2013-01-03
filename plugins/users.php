@@ -1,4 +1,4 @@
-<?php
+.<?php
 /**
  * @todo: move list-authors.php into this file
  * @todo: when a user is deleted projects are not reassigned appropratly 
@@ -151,7 +151,7 @@ class Propel_Authors {
 								_listid = [];	
 								
 								var _arr = jQuery('#propel_userschecklist li:econtains("'+ jQuery(this).val().toLowerCase() +'")');	
-												
+								console.log(_arr);				
 								if( _arr.length > 0 && jQuery(this).val() !== '' ){	
 														
 									jQuery(_arr).each(function(i,el){																								 										

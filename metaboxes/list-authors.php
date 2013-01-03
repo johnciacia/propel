@@ -45,11 +45,19 @@ function _list_authors(){
             <ul id="propel_userschecklist" class="list:propel_category categorychecklist form-no-clear">
     
             <?php foreach($users as $user) : 
+				
+				$lenstr = strlen($user->display_name);
+				
+				if ($lenstr > 25){
+					$username = substr($user->display_name,0,25).'...';
+				}else{
+					$username = $user->display_name;
+				}
 			
                 if ( propel_is_coauthor( $user->ID )){
-                    $html_ .= "<li id='".$user->user_login."' data-value='".$user->ID."' class='propel_is_added'><div class='user_del_contributor'></div>".$user->display_name."</li>";	
+                    $html_ .= "<li id='".strpos($user->user_login,'@')."' data-value='".$user->ID."' class='propel_is_added'><div class='user_del_contributor'></div>".$username."</li>";	
                 }else{
-                    $html .= "<li id='".$user->user_login."' data-value='".$user->ID."' class='propel_not_added'><div class='user_add_contributor'></div>".$user->display_name."</li>";	
+                    $html .= "<li id='".strpos($user->user_login,'@')."' data-value='".$user->ID."' class='propel_not_added'><div class='user_add_contributor'></div>".$username."</li>";	
                 }
 			 
 			 endforeach; 
