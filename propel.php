@@ -100,25 +100,23 @@ class Propel {
      */
 	public static function init () { 
 		
-		wp_enqueue_script('jquery');
-		wp_enqueue_script('jquery-ui-core');
-		wp_enqueue_script('jquery-ui-widget');
+		wp_enqueue_script( 'jquery' );
+		wp_enqueue_script( 'jquery-ui-core' );
+		wp_enqueue_script( 'jquery-ui-widget' );
 		
-		wp_enqueue_script('jquery-ui-tabs');
-		wp_enqueue_script('jquery-ui-datepicker', 
-			plugins_url( '/propel/js/jquery.ui.datepicker.min.js' ), array('jquery', 'jquery-ui-core') );
-		wp_enqueue_script('jquery-ui-progressbar', 
-			plugins_url( '/propel/js/jquery.ui.progressbar.min.js' ), array('jquery', 'jquery-ui-core', 'jquery-ui-widget') );
+		wp_enqueue_script( 'jquery-ui-tabs');
+		wp_enqueue_script( 'jquery-ui-datepicker' );
+		wp_enqueue_script( 'jquery-ui-progressbar', plugins_url( '/propel/js/jquery.ui.progressbar.min.js' ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-widget' ) );
 
 		$options = get_option( 'propel_options' );
-		wp_register_style("propel-jquery-ui", $options['theme'] );
-		wp_register_style("genesis-ui", plugins_url( '/propel/gen/ui.css' ) );
-		wp_register_style("propel-ui", plugins_url( '/propel/style.css' ) );
+		wp_register_style( 'propel-jquery-ui', $options['theme'] );
+		wp_register_style( 'genesis-ui', plugins_url( '/propel/gen/ui.css' ) );
+		wp_register_style( 'propel-ui', plugins_url( '/propel/style.css' ) );
 
-		wp_enqueue_style('genesis-ui');
-		wp_enqueue_style('propel-jquery-ui');
-		if(get_option('PROPEL_INCLUDE_CSS') == true)
-			wp_enqueue_style('propel-ui');
+		wp_enqueue_style( 'genesis-ui' );
+		wp_enqueue_style( 'propel-jquery-ui' );
+		if ( get_option( 'PROPEL_INCLUDE_CSS' ) == true)
+			wp_enqueue_style( 'propel-ui' );
 	}	
 
 	
@@ -141,7 +139,7 @@ class Propel_Options {
 	public static function get_option( $option ) {
 		$options = get_option( 'propel_options' );
 
-		if( isset( $options[$option] ) ) 
+		if ( isset( $options[$option] ) ) 
 			return $options[$option];
 
 		return false;
@@ -240,8 +238,8 @@ class Propel_Options {
 	}
 
 	public static function option( $option ) {
-		$options = get_option('propel_options');
-		return (isset($options[$option])) ? (bool)$options[$option] : false;
+		$options = get_option( 'propel_options' );
+		return ( isset( $options[$option] ) ) ? (bool)$options[$option] : false;
 	}
 }
 
