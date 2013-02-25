@@ -1,92 +1,4 @@
 <?php
-/* CURRENT PROJECTS */
-function dashboard_client_current_projects_metabox() {
-
-	function dashboard_client_current_projects_content() {
-		echo "
-			<ul>
-				<li><a href='#'>Project #1</a></li>
-				<li><a href='#'>Project #2</a></li>
-			</ul>
-		";
-	}
-	
-	wp_add_dashboard_widget( 'dashboard_client_current_projects_content', __( 'Current Projects' ), 'dashboard_client_current_projects_content' );
-	
-}
-
-add_action('wp_dashboard_setup', 'dashboard_client_current_projects_metabox');
-
-
-/* COMPLETED PROJECTS */
-function dashboard_client_completed_projects_metabox() {
-
-	function dashboard_client_completed_projects_content() {
-		echo "
-			<ul>
-				<li><a href='#'>Project #1</a></li>
-				<li><a href='#'>Project #2</a></li>
-			</ul>
-		";
-	}
-
-	wp_add_dashboard_widget( 'dashboard_client_completed_projects_content', __( 'Completed Projects' ), 'dashboard_client_completed_projects_content' );
-}
-
-add_action('wp_dashboard_setup', 'dashboard_client_completed_projects_metabox');
-
-
-/* ARCHIVED PROJECTS */
-function dashboard_client_archived_projects_metabox() {
-
-	function dashboard_client_archived_projects_content() {
-		echo "
-			<ul>
-				<li><a href='#'>Project #1</a></li>
-				<li><a href='#'>Project #2</a></li>
-			</ul>
-		";
-	}
-
-	wp_add_dashboard_widget( 'dashboard_client_archived_projects_content', __( 'Archived Projects' ), 'dashboard_client_archived_projects_content' );
-}
-
-add_action('wp_dashboard_setup', 'dashboard_client_archived_projects_metabox');
-
-
-/* GANTT CHART */
-function dashboard_client_gantt_chart_metabox() {
-
-	function dashboard_client_gantt_chart_content() {
-		echo "
-			<img alt='Gannt Chart' src='/wp-content/themes/the-portland-company-version-three/images/gantt-chart.png' title='Gannt Chart' />
-		";
-	}
-
-	wp_add_dashboard_widget( 'dashboard_client_gantt_chart_content', __( 'Timeline' ), 'dashboard_client_gantt_chart_content' );
-
-}
-add_action('wp_dashboard_setup', 'dashboard_client_gantt_chart_metabox');
-
-
-/* SUPPORT REQUESTS */
-function dashboard_client_support_requests_metabox() {
-
-	function dashboard_client_support_requests_content() {
-		echo "
-			<p>If you have an inquiry or support request use the form below to have it added to the queue so it can be addressed promptly.</p>
-		";
-	}
-	
-	wp_add_dashboard_widget( 'dashboard_client_support_requests_content', __( 'Support Requests' ), 'dashboard_client_support_requests_content' );
-	
-}
-
-add_action('wp_dashboard_setup', 'dashboard_client_support_requests_metabox');
-
-
-
-
 
 function dashboard_widget_function() {
 	$args = array(
@@ -95,45 +7,39 @@ function dashboard_widget_function() {
 		'post_status' => 'publish'
 	);
 	$projects = get_posts( $args );
-	echo "<table width='100%'>";
-	foreach( $projects as $project ) {
-		echo '<tr rowspan="3"><td><strong>' . $project->post_title . '</strong></td></tr>';
-		$argv = array(
+	?>
+	
+	<table width="100%">
+	<?php foreach ( $projects as $project ) : ?>
+		<tr rowspan="3">
+			<td><strong><?php esc_html( $project->post_title ) ?></strong></td>
+		</tr>
+
+		<?php
+		$tasks = get_posts( array(
 			'numberposts' => -1,
 			'post_type' => 'propel_task',
 			'post_status' => 'publish',
 			'post_parent' => $project->ID
-		);
-		$tasks = get_posts( $argv );
-		
+		) );
+		?>
 
-		foreach( $tasks as $task ) {
-			$progress = get_post_meta( $task->ID, '_propel_complete', true );
-			echo "<tr>";
-			echo "<td width='200'>" . $task->post_title . "</td>";
-			echo "<td width='65%'><div class='propel-progress-bar' style='height:13px' title='$progress'></div></td>";
-			echo "<td>" . $progress . "%</td>";
-			echo "</tr>";
-		}
-	}
-	echo "</table>";
-?>
-	<script type="text/javascript">
-		jQuery(document).ready(function() {
-			jQuery('.propel-progress-bar').each(function() {
-				value = { value: parseInt(this.title) }
-				jQuery(this).progressbar( value )
-			})
-		})
-	</script>
-<?php
+		<?php foreach( $tasks as $task ) : ?>
+			<tr>
+				<td width='200'><?php esc_html( $task->post_title ); ?></td>
+			</tr>
+		<?php endforeach; ?>
+	<?php endforeach; ?>
+	</table>
+	<?php
 }
+
 
 function add_dashboard_widgets() {
-	wp_add_dashboard_widget('dashboard_widget', 'Projects Overview', 'dashboard_widget_function');
+	wp_add_dashboard_widget( 'dashboard_widget', 'Projects Overview', 'dashboard_widget_function' );
 }
 
-add_action('wp_dashboard_setup', 'add_dashboard_widgets' );
+add_action( 'wp_dashboard_setup', 'add_dashboard_widgets' );
 
 
 class Propel_Functions {
@@ -267,5 +173,3 @@ class Propel_Functions {
 		<?php
 	}
 }
-
-?>

@@ -80,7 +80,7 @@ class Post_Type_Task {
 		return $actions;	
 	}
 
-	public static function quick_edit_custom_box($column_name, $post_type) {
+	public static function quick_edit_custom_box( $column_name, $post_type ) {
 		if ($column_name != 'complete') return;
 		?>
 		<fieldset class="inline-edit-col-left">

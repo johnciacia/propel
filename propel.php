@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
 
-define('PROPEL_CURRENT_DBVERSION', 1.6);
+define( 'PROPEL_CURRENT_DBVERSION', 1.6 );
 /**
  * @since 1.7.0
 */
@@ -106,7 +106,6 @@ class Propel {
 		
 		wp_enqueue_script( 'jquery-ui-tabs');
 		wp_enqueue_script( 'jquery-ui-datepicker' );
-		wp_enqueue_script( 'jquery-ui-progressbar', plugins_url( '/propel/js/jquery.ui.progressbar.min.js' ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-widget' ) );
 
 		$options = get_option( 'propel_options' );
 		wp_register_style( 'propel-jquery-ui', $options['theme'] );
@@ -219,8 +218,6 @@ class Propel_Options {
 		echo '<br />';
 		
 		echo '<input name="propel_options[show_client]" id="show_client" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_client']), false ) . ' /> Show Client';
-		echo '<br />';
-		echo '<input name="propel_options[show_progress]" id="show_progress" type="checkbox" value="1" class="code" ' . checked( 1, isset($options['show_progress']), false ) . ' /> Show Project Progress';
 		echo '<br />';
 		do_action( 'propel_ui_options', $options );
 		echo '<br /><br />';

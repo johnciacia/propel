@@ -58,25 +58,14 @@
 			<?php 
 			$terms = get_terms( 'propel_type', array( 'hide_empty' => 0 ) );
 			foreach( $terms as $term) :
-				echo "<option value='$term->name'".selected($type, $term->term_id).">$term->name</option>";
+				echo "<option value='$term->name'" . selected($type, $term->term_id) . ">$term->name</option>";
 			endforeach;
 			?>
 			</select>
 		</td>
 	</tr>
 
-	<tr>
-		<td><p>Progress</p></td>
-		<td>
-			<select name="complete">
-				<?php
-				for ($i = 0; $i <= 100; $i = $i+5) :
-					echo "<option value='$i'".selected($complete, $i).">$i</option>";
-				endfor;
-				?> 
-			</select>		
-		</td>
-	</tr>
+	<?php do_action( 'propel_post_task_metabox', get_post_ID() ); ?>
 
 	<tr>
 		<td><p>Manager</p></td>

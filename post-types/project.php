@@ -211,8 +211,6 @@ class Post_Type_Project {
 		if( Propel_Options::option('show_end_date' ) )
 			$new_columns['end'] = __( 'End Date', 'propel' );
 		$new_columns['priority'] = __( 'Priority', 'propel' );
-		if( Propel_Options::option('show_progress' ) )
-			$new_columns['complete'] = __( 'Progress', 'propel' );
 		$new_columns['comments'] = $columns['comments'];
 		return $new_columns;
 	}
@@ -350,7 +348,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);
-		require( dirname(__FILE__) . '/../metaboxes/tasks.php');
+		require( dirname( __FILE__ ) . '/../metaboxes/tasks.php');
 	}
 
 	/**
@@ -369,7 +367,7 @@ class Post_Type_Project {
 		        ORDER BY `meta_value` DESC, `post_id` DESC;";
 
 		$posts = $wpdb->get_results($query);
-		require( dirname(__FILE__) . '/../metaboxes/tasks.php' );
+		require( dirname( __FILE__ ) . '/../metaboxes/tasks.php' );
 	}
 
 	/**

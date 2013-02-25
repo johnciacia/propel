@@ -27,20 +27,6 @@
             </select>
         </td>
     </tr>
-    <?php if( Propel_Options::option('show_client' ) ) : ?>
-	<tr>
-		<td class="first-column">Progress</td>
-		<td class="second-column">
-			<select name="complete">
-				<?php
-				for ($i = 0; $i <= 100; $i = $i+5) :
-					echo "<option value='$i'".selected($complete, $i).">$i</option>";
-				endfor;
-				?> 
-			</select>	
-		</td>
-	</tr>
-	<?php endif; ?>
 
 	<?php if( Propel_Options::option('show_client' ) ) : ?>
 	<tr>
@@ -60,6 +46,8 @@
 	</tr>
 	<?php endif; ?>
 	
+	<?php do_action( 'propel_post_project_metabox', get_post_id() ); ?>
+
 	<tr>
 		<td colspan="2">
 			<input name="save" type="submit" id="publish" class="button-primary" value="Update Project" />
